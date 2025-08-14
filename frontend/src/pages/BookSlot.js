@@ -16,6 +16,10 @@ const BookSlot = () => {
   const [isBooking, setIsBooking] = useState(false);
   const [userEmail, setUserEmail] = useState('');
 
+  const API = process.env.REACT_APP_API_URL;
+
+  console.log("sdfghjkl", API)
+
   useEffect(() => {
     if (!consultant) {
       navigate('/consult'); // redirect if consultant data is missing
@@ -57,7 +61,7 @@ const BookSlot = () => {
       }
 
       const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/book-consultant`,
+        `${API}/api/book-consultant`,
         {
           consultantId,
           consultantEmail: consultant.email,

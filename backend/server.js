@@ -32,8 +32,6 @@ app.use(cors(
 ));
 
 
-
-
 // Middleware
 app.use(express.json());
 
@@ -865,6 +863,10 @@ app.post('/api/book-consultant', async (req, res) => {
       date,
       time
     });
+
+    console.log(await Booking.find({ date, time, consultantId: consultant._id }));
+
+
     if (alreadyBooked) {
       return res.status(409).json({ message: 'This date & time slot is already booked.' });
     }

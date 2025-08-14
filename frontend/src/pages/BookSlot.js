@@ -18,7 +18,6 @@ const BookSlot = () => {
 
   const API = process.env.REACT_APP_API_URL;
 
-  console.log("sdfghjkl", API)
 
   useEffect(() => {
     if (!consultant) {
@@ -40,7 +39,7 @@ const BookSlot = () => {
   const fetchBookedSlots = async () => {
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/booked-slots?consultantId=${consultantId}&date=${date}`
+        `${API}/api/booked-slots?consultantId=${consultantId}&date=${date}`
       );
       setBookedTimes(res.data.bookedTimes || []);
     } catch (err) {

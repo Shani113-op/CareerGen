@@ -22,7 +22,7 @@ dotenv.config();
 
 // App setup
 const app = express();
-const PORT = process.env.REACT_APP_API_URL || 5000;
+const PORT = process.env.REACT_APP_API_URL;
 
 app.use(cors(
     {
@@ -1195,5 +1195,5 @@ app.post('/api/user/activate', async (req, res) => {
 
 // ✅ Start the server
 app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
+  console.log(`✅ Server running at ${PORT}`);
 });

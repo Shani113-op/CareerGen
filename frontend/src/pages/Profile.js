@@ -11,6 +11,8 @@ const Profile = () => {
     const storedUser = JSON.parse(localStorage.getItem('user'));
     setUser(storedUser);
 
+    console.log("User Data", storedUser);
+
     const timer = setTimeout(() => setPageLoading(false), 1200);
     return () => clearTimeout(timer);
   }, []);

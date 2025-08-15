@@ -22,6 +22,7 @@ const Chat = () => {
 
   const API = process.env.REACT_APP_API_URL;
 
+
   // ✅ Simulate page load for effect
   useEffect(() => {
     const timeout = setTimeout(() => setPageLoading(false), 1200); // 1.2s fake load
@@ -50,41 +51,39 @@ const Chat = () => {
   }, [messages]);
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+  if (!input.trim()) return;
 
-    const newCount = messageCount + 1;
-    if (!user?.isPremium && newCount > 2) {
-      setShowPremiumPopup(true);
-      return;
+  const newCount = messageCount + 1;
+  if (!user?.isPremium && newCount > 2) {
+    setShowPremiumPopup(true);
+    return;
+  }
+  setMessageCount(newCount);
+
+  const userMessage = { sender: 'user', text: input };
+  const updatedMessages = [...messages, userMessage];
+  setMessages(updatedMessages);
+  setInput('');
+  setLoading(true);
+
+  // ✅ Try static match first
+  const inputLC = input.toLowerCase().trim();
+  let matchedCollege = staticColleges.find(clg => {
+    const nameLC = clg.name.toLowerCase();
+    const aliasMatch = clg.aliases?.some(alias => inputLC.includes(alias));
+    const nameMatch = inputLC.includes(nameLC) || nameLC.includes(inputLC);
+    return aliasMatch || nameMatch;
+  });
+
+  if (matchedCollege) {
+    let cutOffsFormatted = 'No cutoffs available';
+    if (matchedCollege.cutOffs && Object.keys(matchedCollege.cutOffs).length > 0) {
+      cutOffsFormatted = Object.entries(matchedCollege.cutOffs)
+        .map(([branch, cutoff]) => `   • ${branch}: ${cutoff || '-'}`)
+        .join('\n');
     }
 
-    setMessageCount(newCount);
-
-    const userMessage = { sender: 'user', text: input };
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
-    setInput('');
-    setLoading(true);
-
-    // ✅ Try static match first
-    const inputLC = input.toLowerCase().trim();
-
-    let matchedCollege = staticColleges.find(clg => {
-      const nameLC = clg.name.toLowerCase();
-      const aliasMatch = clg.aliases?.some(alias => inputLC.includes(alias));
-      const nameMatch = inputLC.includes(nameLC) || nameLC.includes(inputLC);
-      return aliasMatch || nameMatch;
-    });
-
-    if (matchedCollege) {
-      let cutOffsFormatted = 'No cutoffs available';
-      if (matchedCollege.cutOffs && Object.keys(matchedCollege.cutOffs).length > 0) {
-        cutOffsFormatted = Object.entries(matchedCollege.cutOffs)
-          .map(([branch, cutoff]) => `   • ${branch}: ${cutoff || '-'}`)
-          .join('\n');
-      }
-
-      const staticReply = `
+    const staticReply = `
 ✅ *College Found: ${matchedCollege.name}*
 • 📍 Location: ${matchedCollege.location}
 • 🎓 Courses: ${matchedCollege.course}
@@ -99,41 +98,45 @@ const Chat = () => {
 • 📅 Admission Deadline: ${matchedCollege.admissionDeadline || '-'}
 • 🌐 Website: ${matchedCollege.website}
 📊 *Branch-wise CutOffs:* ${cutOffsFormatted}
-      `.trim();
+    `.trim();
 
-      setMessages((prev) => [...prev, { sender: 'bot', text: staticReply }]);
-      setLoading(false);
-      return;
-    }
+    setMessages((prev) => [...prev, { sender: 'bot', text: staticReply }]);
+    setLoading(false);
+    return;
+  }
 
-    // ✅ Else, fallback to API
-    try {
-      const res = await fetch(`${API}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: updatedMessages }),
-      });
+  // ✅ Else, call backend API
+  try {
+    const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000"; // fallback for dev
+    console.log("Calling backend:", API_URL);
 
-      const data = await res.json();
+    const res = await fetch(`${API_URL}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: updatedMessages }),
+    });
 
-      if (data.reply) {
-        setMessages((prev) => [...prev, { sender: 'bot', text: data.reply }]);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          { sender: 'bot', text: "⚠️ Sorry, I couldn't understand that." },
-        ]);
-      }
-    } catch (error) {
-      console.error('Chat API Error:', error);
+    const data = await res.json();
+
+    if (data.reply) {
+      setMessages((prev) => [...prev, { sender: 'bot', text: data.reply }]);
+    } else {
       setMessages((prev) => [
         ...prev,
-        { sender: 'bot', text: '❌ Error connecting to AI service.' },
+        { sender: 'bot', text: "⚠️ Sorry, I couldn't understand that." },
       ]);
     }
+  } catch (error) {
+    console.error('Chat API Error:', error);
+    setMessages((prev) => [
+      ...prev,
+      { sender: 'bot', text: '❌ Error connecting to AI service.' },
+    ]);
+  }
 
-    setLoading(false);
+  setLoading(false);
   };
+
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') handleSend();

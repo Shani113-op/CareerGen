@@ -48,43 +48,47 @@ const BookSlot = () => {
     }
   };
 
-  const handleBooking = async () => {
-    if (!date || !time) return alert('Please select date and time');
-    setIsBooking(true);
+ const handleBooking = async () => {
+  if (!date || !time) return alert('Please select date and time');
+  setIsBooking(true);
 
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert('Please log in first');
-        return;
-      }
-
-      const res = await axios.post(
-        `${API}/api/book-consultant`,
-        {
-          consultantId,
-          consultantEmail: consultant.email,
-          consultantName: consultant.name,
-          date,
-          time,
-          userEmail, // ✅ Sending userEmail for backend requirement
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (res.data?.message?.includes('Email sent')) {
-        alert('✅ Appointment booked successfully!');
-        navigate('/consult');
-      } else {
-        alert(res.data?.message || '❌ Something went wrong');
-      }
-    } catch (err) {
-      console.error('Booking error:', err.message);
-      alert('Slot already booked');
-    } finally {
-      setIsBooking(false);
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Please log in first');
+      return;
     }
-  };
+
+    const res = await axios.post(
+      `${API}/api/book-consultant`,
+      {
+        consultantId,
+        consultantEmail: consultant.email,
+        consultantName: consultant.name,
+        date,
+        time,
+        userEmail,
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    if (res.data?.message?.includes('Email sent')) {
+      alert('✅ Appointment booked successfully!');
+      await fetchBookedSlots(); // 🔹 update UI immediately
+      navigate('/consult');
+    } else {
+      alert(res.data?.message || '❌ Something went wrong');
+      await fetchBookedSlots(); // 🔹 update if already booked
+    }
+  } catch (err) {
+    console.error('Booking error:', err.message);
+    alert('Slot already booked');
+    await fetchBookedSlots(); // 🔹 update booked slots
+  } finally {
+    setIsBooking(false);
+  }
+};
+
 
   const availableTimes = [
     '09:00 AM',
@@ -137,7 +141,7 @@ const BookSlot = () => {
                   onClick={() => setTime(t)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium border transition
                 ${bookedTimes.includes(t)
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed filter blur-sm opacity-60"
                       : time === t
                         ? "bg-blue-600 text-white shadow-md"
                         : "bg-white text-gray-700 hover:bg-blue-50 border-gray-300"

@@ -14,7 +14,8 @@ const ApiKey = require('./models/ApiKey'); // adjust the path if needed
 const fs = require('fs');
 const path = require('path');
 const Booking = require('./models/Booking');
-
+const cron = require('node-cron');
+const moment = require('moment');
 
 
 // Load env variables
@@ -243,7 +244,7 @@ app.post('/api/chat', async (req, res) => {
     return res.status(400).json({ error: 'Message history is required' });
   }
 
-  // Convert messages to format required by OpenRouter (OpenAI-style)
+  // Convert messages to OpenRouter format
   const formattedMessages = messages.map((msg) => ({
     role: msg.sender === 'user' ? 'user' : 'assistant',
     content: msg.text,
@@ -264,7 +265,7 @@ app.post('/api/chat', async (req, res) => {
       }
     );
 
-    const reply = response.data.choices[0].message.content;
+    const reply = response.data.choices?.[0]?.message?.content || "⚠️ No reply from AI.";
     res.json({ reply });
 
   } catch (error) {
@@ -895,47 +896,119 @@ app.post('/api/book-consultant', async (req, res) => {
       from: process.env.EMAIL_USER,
       to: process.env.ADMIN_EMAIL || consultantEmail,
       subject: `New Appointment from CareerGenAI`,
-      html: `
-        <div style="font-family: 'Segoe UI', sans-serif; background-color: #f4f8fb; padding: 30px;">
-          <div style="max-width: 650px; margin: auto; background: #ffffff; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.08); overflow: hidden;">
-            <div style="background-color: #3B82F6; padding: 20px 30px; color: white;">
-              <h1 style="margin: 0; font-size: 24px;">🔔 New Booking Alert</h1>
-              <p style="margin: 5px 0 0;">Appointment scheduled via <strong>CareerGenAI</strong></p>
-            </div>
-            <div style="padding: 30px;">
-              <p style="font-size: 16px;">Hello <strong>${consultantName}</strong>,</p>
-              <p style="font-size: 15px;">🎉 <strong>${user.name}</strong> has just booked a consultation session with you. Please find the appointment details below:</p>
-              <table style="width: 100%; margin-top: 20px; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; font-size: 15px;">
-                <tr style="background-color: #f9fafb;">
-                  <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;"><strong>📇 Client Name</strong></td>
-                  <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">${user.name}</td>
-                </tr>
-                <tr>
-                  <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;"><strong>📧 Email</strong></td>
-                  <td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">${userEmail}</td>
-                </tr>
-                <tr style="background-color: #f9fafb;">
-                  <td style="padding: 12px;"><strong>📅 Date</strong></td>
-                  <td style="padding: 12px;">${date}</td>
-                </tr>
-                <tr style="background-color: #fff;">
-                  <td style="padding: 12px;"><strong>⏰ Time Slot</strong></td>
-                  <td style="padding: 12px;">${time}</td>
-                </tr>
-              </table>
-              <p style="margin-top: 20px;">📌 Please reach out to the client before the session to confirm any additional details or share prep materials.</p>
-            </div>
-            <div style="background-color: #f1f5f9; padding: 20px 30px; text-align: center; font-size: 13px; color: #555;">
-              <p style="margin: 0;">You're receiving this email because you're a consultant on <strong>CareerGenAI</strong>.</p>
-              <p style="margin: 5px 0;">Need help? Contact us at <a href="mailto:support@careergenai.in" style="color: #3B82F6;">careergenai9@gmail.com</a></p>
-              <p style="margin: 0;">© ${new Date().getFullYear()} CareerGenAI. All rights reserved.</p>
-            </div>
-          </div>
-        </div>
-      `
+      html: `<div style="max-width: 800px; font-family: 'Segoe UI', sans-serif; background-color: #f4f8fb; padding: 20px;">
+  <div style="max-width: 800px; margin: auto; background: #ffffff; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.08); overflow: hidden;">
+
+    <!-- Header -->
+    <div style="background-color: #3B82F6; padding: 20px 25px; color: white;">
+      <h1 style="margin: 0; font-size: 24px;">🔔 New Booking Alert</h1>
+      <p style="margin: 5px 0 0;">Appointment scheduled via <strong>CareerGenAI</strong></p>
+    </div>
+
+    <!-- Content -->
+    <div style="padding: 25px;">
+      <p style="font-size: 16px;">Hello <strong>${consultantName}</strong>,</p>
+      <p style="font-size: 15px;">🎉 <strong>${user.name}</strong> has just booked a consultation session with you. Please find the appointment details below:</p>
+
+      <!-- Details Table -->
+      <table style="width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 15px; border-collapse: collapse;">
+        <tr style="background-color: #f9fafb;">
+          <td style="width: 45%; padding: 14px; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">
+            📇 <strong style="margin-left: 5px;">Client Name</strong>
+          </td>
+          <td style="padding: 14px; border-bottom: 1px solid #e5e7eb; word-break: break-word; overflow-wrap: anywhere;">${user.name}</td>
+        </tr>
+        <tr>
+          <td style="width: 45%; padding: 14px; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">
+            📧 <strong style="margin-left: 5px;">Email</strong>
+          </td>
+          <td style="padding: 14px; border-bottom: 1px solid #e5e7eb; word-break: break-word; overflow-wrap: anywhere;">${userEmail}</td>
+        </tr>
+        <tr style="background-color: #f9fafb;">
+          <td style="width: 45%; padding: 14px; white-space: nowrap;">
+            📅 <strong style="margin-left: 5px;">Date</strong>
+          </td>
+          <td style="padding: 14px;">${date}</td>
+        </tr>
+        <tr>
+          <td style="width: 45%; padding: 14px; white-space: nowrap;">
+            ⏰ <strong style="margin-left: 5px;">Time Slot</strong>
+          </td>
+          <td style="padding: 14px;">${time}</td>
+        </tr>
+      </table>
+
+      <p style="margin-top: 20px;">📌 Please reach out to the client before the session to confirm any additional details or share prep materials.</p>
+    </div>
+
+    <!-- Footer -->
+    <div style="background-color: #f1f5f9; padding: 20px 25px; text-align: center; font-size: 13px; color: #555;">
+      <p style="margin: 0;">You're receiving this email because you're a consultant on <strong>CareerGenAI</strong>.</p>
+      <p style="margin: 5px 0;">Need help? Contact us at <a href="mailto:support@careergenai.in" style="color: #3B82F6;">careergenai9@gmail.com</a></p>
+      <p style="margin: 0;">© ${new Date().getFullYear()} CareerGenAI. All rights reserved.</p>
+    </div>
+
+  </div>
+</div>
+`
     };
 
     await transporter.sendMail(mailOptions);
+
+    const appointmentDateTime = moment(`${date} ${time}`, "YYYY-MM-DD hh:mm A");
+    const reminderDateTime = appointmentDateTime.clone().subtract(2, 'hours');
+
+    // Convert to cron format: "m h D M *"
+    const cronExpression = `${reminderDateTime.minute()} ${reminderDateTime.hour()} ${reminderDateTime.date()} ${reminderDateTime.month() + 1} *`;
+
+    cron.schedule(cronExpression, async () => {
+      try {
+        const reminderMail = {
+          from: process.env.EMAIL_USER,
+          to: `${userEmail}, ${consultantEmail}`,
+          subject: '⏰ Reminder: Your Counselling Session',
+          html: `<div style="max-width: 600px; margin: auto; font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f6f8; padding: 20px;">
+  <div style="background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden;">
+    
+    <!-- Header -->
+    <div style="background: linear-gradient(135deg, #3B82F6, #9333EA); padding: 18px; color: white; text-align: center;">
+      <h1 style="margin: 0; font-size: 22px;">⏰ Counselling Reminder</h1>
+      <p style="margin: 4px 0 0; font-size: 14px; opacity: 0.9;">Stay prepared for your upcoming session</p>
+    </div>
+
+    <!-- Body -->
+    <div style="padding: 25px;">
+      <p style="font-size: 16px; color: #333;">Hi,</p>
+      <p style="font-size: 15px; color: #555;">
+        This is a friendly reminder that your counselling session is scheduled for:
+      </p>
+
+      <!-- Appointment Card -->
+      <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; margin: 15px 0; text-align: center;">
+        <p style="margin: 0; font-size: 18px; font-weight: bold; color: #1e3a8a;">${time}</p>
+        <p style="margin: 5px 0 0; font-size: 16px; color: #374151;">${date}</p>
+      </div>
+
+      <p style="font-size: 15px; color: #555;">Please ensure you are ready and available on time for the session.</p>
+    </div>
+
+    <!-- Footer -->
+    <div style="background: #f1f5f9; padding: 15px; text-align: center; font-size: 12px; color: #555;">
+      <p style="margin: 0;">Need help? Contact us at 
+        <a href="mailto:support@careergenai.in" style="color: #3B82F6; text-decoration: none;">careergenai9@gmail.com</a>
+      </p>
+      <p style="margin: 4px 0 0;">© ${new Date().getFullYear()} CareerGenAI. All rights reserved.</p>
+    </div>
+  </div>
+</div>
+`
+        };
+        await transporter.sendMail(reminderMail);
+        console.log(`✅ Reminder email sent for ${date} ${time}`);
+      } catch (error) {
+        console.error('❌ Error sending reminder email:', error.message);
+      }
+    });
 
     res.status(200).json({ message: 'Slot booked and email sent.' });
 

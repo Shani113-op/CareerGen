@@ -48,46 +48,46 @@ const BookSlot = () => {
     }
   };
 
- const handleBooking = async () => {
-  if (!date || !time) return alert('Please select date and time');
-  setIsBooking(true);
+  const handleBooking = async () => {
+    if (!date || !time) return alert('Please select date and time');
+    setIsBooking(true);
 
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert('Please log in first');
-      return;
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Please log in first');
+        return;
+      }
+
+      const res = await axios.post(
+        `${API}/api/book-consultant`,
+        {
+          consultantId,
+          consultantEmail: consultant.email,
+          consultantName: consultant.name,
+          date,
+          time,
+          userEmail,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (res.data?.message?.includes('Email sent')) {
+        alert('✅ Appointment booked successfully!');
+        await fetchBookedSlots(); // 🔹 update UI immediately
+        navigate('/consult');
+      } else {
+        alert(res.data?.message || '❌ Something went wrong');
+        await fetchBookedSlots(); // 🔹 update if already booked
+      }
+    } catch (err) {
+      console.error('Booking error:', err.message);
+      alert('Slot already booked');
+      await fetchBookedSlots(); // 🔹 update booked slots
+    } finally {
+      setIsBooking(false);
     }
-
-    const res = await axios.post(
-      `${API}/api/book-consultant`,
-      {
-        consultantId,
-        consultantEmail: consultant.email,
-        consultantName: consultant.name,
-        date,
-        time,
-        userEmail,
-      },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-
-    if (res.data?.message?.includes('Email sent')) {
-      alert('✅ Appointment booked successfully!');
-      await fetchBookedSlots(); // 🔹 update UI immediately
-      navigate('/consult');
-    } else {
-      alert(res.data?.message || '❌ Something went wrong');
-      await fetchBookedSlots(); // 🔹 update if already booked
-    }
-  } catch (err) {
-    console.error('Booking error:', err.message);
-    alert('Slot already booked');
-    await fetchBookedSlots(); // 🔹 update booked slots
-  } finally {
-    setIsBooking(false);
-  }
-};
+  };
 
 
   const availableTimes = [
@@ -120,9 +120,11 @@ const BookSlot = () => {
           <input
             type="date"
             value={date}
+            min={new Date().toISOString().split("T")[0]} // 🔹 restrict to today or future
             onChange={(e) => setDate(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
           />
+
         </div>
 
         {/* Time Slots */}

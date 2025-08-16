@@ -75,13 +75,13 @@ const services = [
     path: "/resume-templates",
     badge: "AI",
   },
-  //   {
-  //   icon: <FaFileAlt />,
-  //   title: "Premium Resume Builder",
-  //   description: "Create modern, ATS-friendly Premium resumes using smart templates.",
-  //   path: "/AllComponents",
-  //   badge: "Premium",
-  // },
+    {
+    icon: <FaFileAlt />,
+    title: "Premium Resume Builder",
+    description: "Create modern, ATS-friendly Premium resumes using smart templates.",
+    path: "/AllComponents",
+    badge: "Premium",
+  },
 ];
 
 const ServicesPage = () => {

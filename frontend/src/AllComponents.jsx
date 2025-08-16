@@ -13,6 +13,16 @@ import { templatesMeta } from './templates/templatesArray';
 import './styles/global.css';
 import { motion } from "framer-motion";
 
+// icons
+const Icon = React.memo(({ name, className }) => {
+  const icons = {
+    email: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>,
+    phone: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>,
+    location: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>,
+  };
+  return icons[name] || null;
+});
+
 // --- DEFAULT RESUME DATA ---
 export const defaultResumeData = {
   personal: {
@@ -55,12 +65,36 @@ export const defaultResumeData = {
 
 
 // --- Download Button ---
+// src/AllComponents.jsx
+
+// --- Download Button (Corrected for Centering) ---
 const DownloadButton = () => {
   const [isGenerating, setIsGenerating] = useState(false);
+
   const handleDownload = async () => {
     setIsGenerating(true);
+    
+    // 1. Find the actual template content inside the preview container.
+    const resumeContent = document.getElementById('resume-preview')?.firstElementChild;
+
+    if (!resumeContent) {
+      alert('Could not find resume content. Please select a template first.');
+      setIsGenerating(false);
+      return;
+    }
+    // html2pdf
+const options = {
+  margin: [0, 0, 0, 0], // top, right, bottom, left
+  filename: 'resume.pdf',
+  image: { type: 'jpeg', quality: 1.0 },
+  html2canvas: { scale: 2, useCORS: true, windowWidth: 794 },
+  jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+  pagebreak: { mode: ['css', 'legacy'] }
+};
+
     try {
-      await generatePDF();
+      // 3. Use html2pdf.js with the specified options to generate and save the PDF.
+      await html2pdf().from(resumeContent).set(options).save();
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Failed to generate PDF. Please try again.');
@@ -68,14 +102,15 @@ const DownloadButton = () => {
       setIsGenerating(false);
     }
   };
+
   return (
     <div className="flex space-x-3">
       <button
         onClick={handleDownload}
         disabled={isGenerating}
         className={`px-6 py-3 rounded-lg font-medium transition-colors ${isGenerating
-          ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-          : 'bg-blue-600 text-white hover:bg-blue-700'
+            ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+            : 'bg-blue-600 text-white hover:bg-blue-700'
           }`}
       >
         {isGenerating ? (
@@ -358,16 +393,19 @@ const ResumeForm = () => {
 };
 
 // --- Resume Preview ---
+// src/AllComponents.jsx
+
+// --- Resume Preview (Corrected) ---
 const ResumePreview = ({ templateComponent: TemplateComponent }) => {
   const { resumeData } = useResumeContext();
-   const [zoom, setZoom] = useState(0.75); // default zoom
+  const [zoom, setZoom] = useState(0.75); // default zoom
 
   const zoomIn = () => setZoom((prev) => Math.min(prev + 0.1, 2)); // limit max zoom
   const zoomOut = () => setZoom((prev) => Math.max(prev - 0.1, 0.5)); // limit min zoom
 
   return (
-  <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-      {/* Header */}
+    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+      {/* Header with zoom controls */}
       <div className="mb-4 flex flex-col sm:flex-row justify-between items-center gap-3">
         <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Live Preview</h2>
         <div className="flex space-x-2">
@@ -386,11 +424,11 @@ const ResumePreview = ({ templateComponent: TemplateComponent }) => {
         </div>
       </div>
 
-      {/* Scrollable container */}
-      <div className="border border-gray-200 rounded-lg overflow-auto flex justify-center">
+      {/* Single preview container */}
+      <div className="border border-gray-200 rounded-lg overflow-auto grid place-items-center p-4">
         <div
           id="resume-preview"
-          className="bg-white p-4 sm:p-8 min-h-[11in] origin-top mx-auto"
+          className="bg-white p-4 sm:p-8 min-h-[11in] origin-top shadow-lg"
           style={{
             width: "8.5in",
             transform: `scale(${zoom})`,
@@ -414,6 +452,8 @@ const ResumePreview = ({ templateComponent: TemplateComponent }) => {
     </div>
   );
 };
+
+      
 
 
 // const TemplateCard = ({ template }) => (
@@ -588,294 +628,136 @@ const ResumeBuilderPage = ({ getTemplateComponent, templates }) => {
 
 // --- Templates ---
 // Template1.jsx
+
 const Template1 = ({ data }) => {
-  const { personal, experience = [], education = [], skills = [], projects = [] } = data || {};
+  const {
+    personal,
+    experience = [],
+    education = [],
+    skills = [],
+    projects = [],
+  } = data || {};
 
-  return (
-    <div className="max-w-4xl mx-auto bg-white text-gray-800 leading-relaxed">
-      {/* Header */}
-      <header className="border-b-2 border-blue-600 pb-4 mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {personal?.firstName || 'First'} {personal?.lastName || 'Last'}
-        </h1>
-        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-          <span>{personal?.email || 'email@example.com'}</span>
-          <span>{personal?.phone || '+1 (555) 123-4567'}</span>
-          <span>{personal?.location || 'City, State'}</span>
-        </div>
-      </header>
-
-      {/* Professional Summary */}
-      {personal?.summary && (
-        <section className="mb-6">
-          <h2 className="text-xl font-semibold text-blue-600 mb-3 border-b border-gray-300 pb-1">
-            Professional Summary
-          </h2>
-          <p className="text-gray-700">{personal.summary}</p>
-        </section>
-      )}
-
-      {/* Experience */}
-      {experience.length > 0 && (
-        <section className="mb-6">
-          <h2 className="text-xl font-semibold text-blue-600 mb-3 border-b border-gray-300 pb-1">
-            Professional Experience
-          </h2>
-          {experience.map((exp, index) => (
-            <div key={index} className="mb-4">
-              <div className="flex justify-between items-start mb-1">
-                <h3 className="font-semibold text-gray-900">{exp.position}</h3>
-                <span className="text-sm text-gray-600">{exp.duration}</span>
-              </div>
-              <p className="text-blue-600 font-medium mb-2">{exp.company}</p>
-              <p className="text-gray-700 text-sm">{exp.description}</p>
-            </div>
-          ))}
-        </section>
-      )}
-
-      {/* Education */}
-      {education.length > 0 && (
-        <section className="mb-6">
-          <h2 className="text-xl font-semibold text-blue-600 mb-3 border-b border-gray-300 pb-1">
-            Education
-          </h2>
-          {education.map((edu, index) => (
-            <div key={index} className="mb-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-semibold text-gray-900">{edu.degree}</h3>
-                  <p className="text-blue-600">{edu.school}</p>
-                </div>
-                <span className="text-sm text-gray-600">{edu.year}</span>
-              </div>
-            </div>
-          ))}
-        </section>
-      )}
-
-      {/* Skills */}
-      {skills.length > 0 && (
-        <section className="mb-6">
-          <h2 className="text-xl font-semibold text-blue-600 mb-3 border-b border-gray-300 pb-1">
-            Skills
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {skills.map((skill, index) => (
-              <span
-                key={index}
-                className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
-              >
-                {skill.name}
-              </span>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Projects */}
-      {projects.length > 0 && (
-        <section>
-          <h2 className="text-xl font-semibold text-blue-600 mb-3 border-b border-gray-300 pb-1">
-            Projects
-          </h2>
-          {projects.map((project, index) => (
-            <div key={index} className="mb-4">
-              <h3 className="font-semibold text-gray-900 mb-1">{project.name}</h3>
-              <p className="text-gray-700 text-sm">{project.description}</p>
-              {project.technologies && (
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {project.technologies.map((tech, techIndex) => (
-                    <span
-                      key={techIndex}
-                      className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </section>
-      )}
-    </div>
-  );
-};
-const Icon = React.memo(({ name, className }) => {
-  const icons = {
-    email: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>,
-    phone: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>,
-    location: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>,
-  };
-  return icons[name] || null;
-});
-const MainContentSection = React.memo(({ title, children }) => (
-  <section className="mb-6 break-inside-avoid">
-    <h2 className="text-2xl font-bold text-white mb-3 border-b-2 border-blue-400 pb-2">{title}</h2>
-    {children}
-  </section>
-));
-const SidebarSection = React.memo(({ title, children }) => (<section className="mb-6 break-inside-avoid"><h2 className="text-lg font-semibold mb-3 text-blue-300 uppercase tracking-wider">{title}</h2>{children}</section>));
-
-const Template2 = ({ data }) => {
-  const { personal, experience = [], education = [], skills = [], projects = [], certifications = [] } = data || {};
-  const printRef = useRef();
-  const [loading, setLoading] = useState(false);
-
-  const handleDownloadPdf = () => {
-    const element = printRef.current;
-    if (!element || loading) return;
-
-    setLoading(true);
-
-    const doc = new jsPDF();
-    doc.html(element, {
-      callback: function (doc) {
-        doc.save('resume.pdf');
-        setLoading(false);
-      },
-      x: 10,
-      y: 10
-    });
+  const textWrapStyle = {
+    wordBreak: 'break-word',
+    overflowWrap: 'anywhere',
   };
 
-  return (
-    <div className="bg-gray-200 p-4 sm:p-8 font-sans">
-      {/* <div className="text-center mb-4">
-                <button
-                    onClick={handleDownloadPdf}
-                    className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 disabled:bg-gray-400"
-                    disabled={loading}
-                >
-                    {loading ? 'Downloading...' : 'Download as PDF'}
-                </button>
-            </div> */}
-
-      <div className="max-w-4xl mx-auto">
-        <div ref={printRef} className="bg-white shadow-lg">
-          <div className="flex flex-row">
-            <aside className="w-1/3 bg-slate-800 text-white p-6">
-              <header className="mb-8"><h1 className="text-3xl font-bold text-white">{personal?.firstName || 'Your'} {personal?.lastName || 'Name'}</h1></header>
-              <SidebarSection title="Contact">
-                <ul className="space-y-3 text-sm">
-                  <li className="flex items-center gap-3"><Icon name="email" className="text-blue-300 w-4 h-4 flex-shrink-0" /><a href={`mailto:${personal?.email}`} className="hover:text-blue-300 break-all">{personal?.email || 'email@example.com'}</a></li>
-                  <li className="flex items-center gap-3"><Icon name="phone" className="text-blue-300 w-4 h-4 flex-shrink-0" /><a href={`tel:${personal?.phone}`} className="hover:text-blue-300">{personal?.phone || '(123) 456-7890'}</a></li>
-                  <li className="flex items-center gap-3"><Icon name="location" className="text-blue-300 w-4 h-4 flex-shrink-0" /><span>{personal?.location || 'City, Country'}</span></li>
-                </ul>
-              </SidebarSection>
-              {skills.length > 0 && <SidebarSection title="Skills"><ul className="text-sm space-y-1">{skills.map((skill, index) => (<li key={index} className="flex items-start"><span className="text-blue-300 mr-2 font-bold">•</span><span>{skill.name}</span></li>))}</ul></SidebarSection>}
-              {education.length > 0 && <SidebarSection title="Education"><ul className="space-y-4">{education.map((edu, index) => (<li key={index} className="text-sm"><h3 className="font-semibold text-white">{edu.degree}</h3><p className="text-slate-300">{edu.school}</p><p className="text-slate-400 text-xs">{edu.year}</p></li>))}</ul></SidebarSection>}
-            </aside>
-
-            {/* --- MAIN CONTENT: MODIFIED FOR DARK THEME --- */}
-            <main className="w-2/3 bg-slate-800 p-8">
-              {personal?.summary && <MainContentSection title="About Me"><p className="text-slate-300 text-sm" style={{ whiteSpace: 'pre-line' }}>{personal.summary}</p></MainContentSection>}
-              {experience.length > 0 && <MainContentSection title="Experience"><ul className="space-y-4">{experience.map((exp, index) => (<li key={index} className="border-l-2 border-blue-400 pl-4"><h3 className="text-lg font-semibold text-white">{exp.position}</h3><p className="text-slate-300 font-medium">{exp.company}</p><span className="text-sm text-slate-400">{exp.duration}</span><p className="text-slate-300 text-sm mt-2" style={{ whiteSpace: 'pre-line' }}>{exp.description}</p></li>))}</ul></MainContentSection>}
-              {projects.length > 0 && <MainContentSection title="Projects"><ul className="space-y-4">{projects.map((project, index) => (<li key={index} className="border-l-2 border-blue-400 pl-4"><h3 className="text-lg font-semibold text-white">{project.name}</h3><p className="text-slate-300 text-sm my-2" style={{ whiteSpace: 'pre-line' }}>{project.description}</p>{project.technologies?.length > 0 && (<div className="mt-2"><p className="text-slate-300 text-sm font-medium mb-1">Technologies:</p><p className="text-slate-200 text-sm">{project.technologies.join(' • ')}</p></div>)}</li>))}</ul></MainContentSection>}
-              {certifications.length > 0 && <MainContentSection title="Certifications"><ul className="space-y-4">{certifications.map((cert, index) => (<li key={index} className="border-l-2 border-blue-400 pl-4"><h3 className="text-lg font-semibold text-white">{cert.name}</h3><p className="text-slate-300 font-medium">{cert.issuer}</p><span className="text-sm text-slate-400">{cert.date}</span></li>))}</ul></MainContentSection>}
-            </main>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-// Template3.jsx
-const Template3 = ({ data }) => {
-  const { personal, experience = [], education = [], skills = [], projects = [] } = data || {};
-  const printRef = useRef();
-  const [loading, setLoading] = useState(false);
-
-  const handleDownloadPdf = async () => {
-    const element = printRef.current;
-    if (!element || loading) return;
-
-    setLoading(true);
-
-    try {
-      const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'pt',
-        format: 'a4',
-      });
-
-      // --- FIX STARTS HERE ---
-
-      // 1. Get the page width from the jsPDF instance.
-      const pdfPageWidth = doc.internal.pageSize.getWidth();
-
-      // 2. Get the width of the HTML content. We use the same width as our
-      //    Tailwind class 'max-w-4xl' for consistency, which is 896px.
-      //    We'll use a virtual window to render it.
-      const contentWidth = 1200; // windowWidth for rendering
-
-      // 3. Define the desired width of your content on the PDF.
-      //    Let's use 90% of the page width for some nice margins.
-      const pdfContentWidth = pdfPageWidth * 0.9;
-
-      // 4. Calculate the horizontal margin to center the content.
-      const xMargin = (pdfPageWidth - pdfContentWidth) / 2;
-
-      // The .html() method returns a promise, so we can use await.
-      await doc.html(element, {
-        x: xMargin, // Apply the calculated margin
-        y: 20,      // Add a small top margin
-        // Options for html2canvas to improve rendering quality.
-        html2canvas: {
-          scale: pdfContentWidth / contentWidth, // Adjust scale for better quality
-          useCORS: true, // Needed if your template includes images from other domains.
-        },
-        autoPaging: 'text', // Automatically creates new pages
-        width: pdfContentWidth, // Set the width of the content on the PDF
-        windowWidth: contentWidth, // A wider virtual window to render layout correctly
-      });
-
-      // --- FIX ENDS HERE ---
-
-      doc.save('resume.pdf');
-
-    } catch (error) {
-      console.error("An error occurred while generating the PDF:", error);
-    } finally {
-      // Ensure the loading state is reset even if an error occurs.
-      setLoading(false);
-    }
-  };
-
-  return (
+  const sectionHeader = (title) => (
     <>
-      {/* <div className="text-center mb-4">
-        <button
-          onClick={handleDownloadPdf}
-          className="px-6 py-2 mb-8 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 disabled:bg-gray-400"
-          disabled={loading}
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <h2
+          className="text-xl font-semibold text-blue-600"
+          style={{
+            marginBottom: '0px',
+            paddingBottom: '2px',
+            backgroundColor: '#ffffff',
+            position: 'relative',
+            zIndex: 2,
+            ...textWrapStyle,
+          }}
         >
-          {loading ? 'Downloading...' : 'Download as PDF'}
-        </button>
-      </div> */}
+          {title}
+        </h2>
+      </div>
+      <div
+        style={{
+          height: '2px',
+          backgroundColor: '#1f2937', // Tailwind gray-800
+          marginTop: '6px',
+          marginBottom: '10px',
+          position: 'relative',
+          zIndex: 1,
+        }}
+      />
+    </>
+  );
 
-      {/* Adding padding (p-8) to this container creates a nice margin in the final PDF file. */}
-      <div ref={printRef} className="max-w-4xl mx-auto bg-white text-gray-900 leading-relaxed font-light p-8">
+  return (
+    <div className="resume-wrapper">
+      {/* Print/Export CSS to keep it to one page unless needed */}
+      <style>{`
+        /* A4-safe container width in screen preview (96dpi ~ 794px) */
+        .resume-wrapper {
+          display: block;
+          background: #fff;
+          color: #1f2937;
+        }
 
+        /* Keep a tight, predictable layout */
+        .resume {
+          box-sizing: border-box;
+          width: 794px;            /* ~A4 width at 96dpi */
+          margin: 0 auto;
+          padding: 20px;           /* compact padding to avoid overflow */
+          line-height: 1.4;
+        }
+
+        /* Avoid breaks inside sections (best-effort across engines) */
+        section {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+
+        /* Prevent tiny last-line push onto a new page in some engines */
+        section:last-child {
+          margin-bottom: 0;
+        }
+
+        /* Print rules */
+        @media print {
+          @page {
+            size: A4;
+            margin: 10mm;          /* tighter page margin gives more room */
+          }
+
+          /* Ensure the printed width fits within A4 printable area */
+          .resume {
+            width: auto;           /* let it fill page width minus margins */
+            max-width: 100%;
+            margin: 0;
+            padding: 8mm;          /* compact padding for print */
+          }
+
+          /* Strongly discourage page breaks inside these blocks */
+          header,
+          section,
+          .section-block {
+            break-inside: avoid-page;
+            page-break-inside: avoid;
+          }
+
+          /* Avoid accidental forced breaks around headings/lines */
+          h1, h2, h3 {
+            break-after: avoid-page;
+            break-before: avoid-page;
+            page-break-after: avoid;
+            page-break-before: avoid;
+          }
+        }
+      `}</style>
+
+      <div
+        className="resume max-w-full bg-white text-gray-800 leading-relaxed"
+        style={textWrapStyle}
+      >
         {/* Header */}
-        <header className="text-center py-8 border-b border-gray-200">
-          <h1 className="text-4xl font-thin mb-4 tracking-wide">
-            {personal?.firstName || 'First'} <span className="font-normal">{personal?.lastName || 'Last'}</span>
+        <header className="pb-3 mb-4 section-block">
+          <h1 className="text-3xl font-bold text-gray-900 mb-1" style={textWrapStyle}>
+            {personal?.firstName || 'First'} {personal?.lastName || 'Last'}
           </h1>
-          <div className="flex justify-center items-center space-x-6 text-sm text-gray-600">
-            <span>{personal?.email || 'email@example.com'}</span>
-            <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-            <span>{personal?.phone || '+1 (555) 123-4567'}</span>
-            <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-            <span>{personal?.location || 'City, State'}</span>
+          <div className="text-sm text-gray-600 space-y-1" style={textWrapStyle}>
+            <div>{personal?.email || 'email@example.com'}</div>
+            <div>{personal?.phone || '+1 (555) 123-4567'}</div>
+            <div>{personal?.location || 'City, State'}</div>
           </div>
         </header>
 
         {/* Professional Summary */}
         {personal?.summary && (
-          <section className="py-8">
-            <p className="text-center text-gray-700 leading-relaxed max-w-3xl mx-auto">
+          <section className="mb-4 section-block">
+            {sectionHeader('Professional Summary')}
+            <p className="text-gray-700 text-sm" style={textWrapStyle}>
               {personal.summary}
             </p>
           </section>
@@ -883,309 +765,18 @@ const Template3 = ({ data }) => {
 
         {/* Experience */}
         {experience.length > 0 && (
-          <section className="py-8 border-t border-gray-100">
-            <h2 className="text-center text-sm font-semibold text-gray-800 tracking-widest mb-8 uppercase">
-              Experience
-            </h2>
-            <div className="space-y-8">
-              {experience.map((exp, index) => (
-                <div key={index} className="text-center">
-                  <h3 className="text-lg font-medium text-gray-900 mb-1">{exp.position}</h3>
-                  <p className="text-gray-600 mb-2">{exp.company} • {exp.duration}</p>
-                  <p className="text-gray-700 text-sm max-w-2xl mx-auto leading-relaxed">
-                    {exp.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Education */}
-        {education.length > 0 && (
-          <section className="py-8 border-t border-gray-100">
-            <h2 className="text-center text-sm font-semibold text-gray-800 tracking-widest mb-8 uppercase">
-              Education
-            </h2>
-            <div className="space-y-6">
-              {education.map((edu, index) => (
-                <div key={index} className="text-center">
-                  <h3 className="text-lg font-medium text-gray-900">{edu.degree}</h3>
-                  <p className="text-gray-600">{edu.school} • {edu.year}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Skills */}
-        {skills.length > 0 && (
-          <section className="py-8 border-t border-gray-100">
-            <h2 className="text-center text-sm font-semibold text-gray-800 tracking-widest mb-8 uppercase">
-              Skills
-            </h2>
-            <div className="flex flex-wrap justify-center gap-3">
-              {skills.map((skill, index) => (
-                <span
-                  key={index}
-                  className="px-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-full"
-                >
-                  {skill.name}
-                </span>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Projects */}
-        {projects.length > 0 && (
-          <section className="py-8 border-t border-gray-100">
-            <h2 className="text-center text-sm font-semibold text-gray-800 tracking-widest mb-8 uppercase">
-              Projects
-            </h2>
-            <div className="space-y-6">
-              {projects.map((project, index) => (
-                <div key={index} className="text-center">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">{project.name}</h3>
-                  <p className="text-gray-700 text-sm max-w-2xl mx-auto mb-3 leading-relaxed">
-                    {project.description}
-                  </p>
-                  {project.technologies && project.technologies.length > 0 && (
-                    <div className="flex flex-wrap justify-center gap-2">
-                      {project.technologies.map((tech, techIndex) => (
-                        <span
-                          key={techIndex}
-                          className="px-3 py-1 text-xs text-gray-600 bg-gray-100 rounded-full"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-      </div>
-    </>
-  );
-};
-
-// Template4.jsx
-// Use the Icon component defined above (or memoized version if present)
-const Template4 = ({ data }) => {
-  const { personal, experience = [], education = [], skills = [], projects = [], certifications = [] } = data || {};
-  const printRef = useRef();
-  const [loading, setLoading] = useState(false);
-
-  const handleDownloadPdf = async () => {
-    const element = printRef.current;
-    if (!element || loading) return;
-    setLoading(true);
-    try {
-      await html2pdf()
-        .set({
-          margin: 0,
-          filename: 'resume-template4.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: {
-            scale: 2,
-            useCORS: true,
-            allowTaint: true,
-          },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        })
-        .from(element)
-        .save();
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div>
-      {/* Styles for A4 sizing and page breaks */}
-      <style>{`
-        .preview-container {
-          width: 210mm;
-          min-height: 297mm;
-          margin: 0 auto;
-          box-shadow: 0 0 10px rgba(0,0,0,0.1);
-          background: white;
-          font-family: Arial, sans-serif;
-          padding: 2rem;
-          box-sizing: border-box;
-          text-align: center;
-        }
-        .section {
-          margin-bottom: 1.2rem;
-          break-inside: avoid;
-        }
-        .section-header {
-          background: #1e3a8a;
-          color: white;
-          padding: 0.75rem 0.5rem;
-          border-radius: 8px;
-          margin-bottom: 0.5rem;
-          font-size: 1.17rem;
-          font-weight: bold;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.6rem;
-          min-height: 36px;
-        }
-        .section-header span, .section-header svg {
-          display: flex;
-          align-items: center;
-        }
-        .section-header svg {
-          vertical-align: middle;
-          margin-bottom: 0 !important;
-        }
-        .section-header svg {
-          vertical-align: middle;
-          margin-bottom: 0;
-        }
-        .content-item {
-          background: #f8fafc;
-          padding: 1rem;
-          border-radius: 8px;
-          border: 1px solid #e2e8f0;
-          margin-bottom: 0.75rem;
-          text-align: center;
-          display: flex;
-          flex-direction: row;
-          justify-content: center;
-          align-items: center;
-          min-height: 56px;
-          gap: 8px;
-          line-height: 1.25;
-        }
-        .content-item svg {
-          vertical-align: middle;
-          margin-bottom: 0 !important;
-        }
-        .content-item span, .content-item p, .content-item h4, .content-item div {
-          vertical-align: middle;
-          margin: 0 !important;
-        }
-        .two-column {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 2rem;
-          margin-bottom: 2rem;
-        }
-        .project-item {
-          break-inside: avoid;
-          margin-bottom: 1rem;
-        }
-        .contact-info {
-          text-align: center;
-          font-size: 0.875rem;
-          color: #64748b;
-        }
-        .contact-table {
-          width: 100%;
-          border-collapse: collapse;
-          margin: 0 auto;
-        }
-        .contact-table td {
-          text-align: center;
-          padding: 0 1rem;
-          vertical-align: top;
-        }
-        .contact-item {
-          display: block;
-          text-align: center;
-        }
-        .contact-item svg {
-          display: inline;
-          margin-right: 0.5rem;
-          vertical-align: text-bottom;
-        }
-        @media print {
-          body {
-            background: white !important;
-          }
-          .preview-container {
-            box-shadow: none !important;
-          }
-          .no-print {
-            display: none !important;
-          }
-        }
-      `}</style>
-      {/* <div className="text-center my-4 no-print">
-        <button
-          onClick={handleDownloadPdf}
-          className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 disabled:bg-gray-400"
-          disabled={loading}
-        >
-          {loading ? 'Downloading...' : 'Download as PDF'}
-        </button>
-      </div> */}
-      <div ref={printRef} className="preview-container">
-        <header className="section">
-          <h1 className="text-4xl font-bold text-slate-900 mb-4">
-            {personal?.firstName || 'First'} {personal?.lastName || 'Last name'}
-          </h1>
-          <div className="contact-info">
-            <table className="contact-table">
-              <tr>
-                <td>
-                  <div className="contact-item">
-                    <Icon name="email" />
-                    <a href={`mailto:${personal?.email}`} className="hover:text-blue-600">{personal?.email || 'email@example.com'}</a>
-                  </div>
-                </td>
-                <td>
-                  <div className="contact-item">
-                    <Icon name="phone" />
-                    <a href={`tel:${personal?.phone}`} className="hover:text-blue-600">{personal?.phone || '+91'}</a>
-                  </div>
-                </td>
-                <td>
-                  <div className="contact-item">
-                    <Icon name="location" />
-                    <span>{personal?.location || 'City, State'}</span>
-                  </div>
-                </td>
-              </tr>
-            </table>
-          </div>
-        </header>
-
-        {personal?.summary && (
-          <section className="section">
-            <div className="section-header">
-              <span>About Me</span>
-            </div>
-            <div className="content-item">
-              <p className="text-slate-700" style={{ whiteSpace: 'pre-line' }}>
-                {personal.summary}
-              </p>
-            </div>
-          </section>
-        )}
-
-        {experience.length > 0 && (
-          <section className="section">
-            <div className="section-header">
-              <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                <Icon name="experience" className="text-white" />
-                <span style={{ fontWeight: 'bold', marginTop: '0.1rem' }}>Experience</span>
-              </span>
-            </div>
+          <section className="mb-4 section-block">
+            {sectionHeader('Professional Experience')}
             {experience.map((exp, index) => (
-              <div key={index} className="content-item">
-                <h4 className="text-lg font-semibold text-slate-900 mb-2">{exp.position}</h4>
-                <p className="text-blue-600 font-medium mb-1">{exp.company}</p>
-                <p className="text-sm text-slate-500 mb-3">{exp.duration}</p>
-                <p className="text-slate-700 text-sm" style={{ whiteSpace: 'pre-line' }}>
+              <div key={index} className="mb-3">
+                <h3 className="font-semibold text-gray-900" style={textWrapStyle}>
+                  {exp.position}
+                </h3>
+                <div className="text-sm text-gray-600 mb-1">{exp.duration}</div>
+                <p className="text-blue-600 font-medium mb-2" style={textWrapStyle}>
+                  {exp.company}
+                </p>
+                <p className="text-gray-700 text-sm" style={textWrapStyle}>
                   {exp.description}
                 </p>
               </div>
@@ -1193,86 +784,72 @@ const Template4 = ({ data }) => {
           </section>
         )}
 
-        <div className="two-column">
-          {education.length > 0 && (
-            <section className="section">
-              <div className="section-header">
-                <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                  <Icon name="education" className="text-white" />
-                  <span style={{ fontWeight: 'bold', marginTop: '0.1rem' }}>Education</span>
-                </span>
-              </div>
-              {education.map((edu, index) => (
-                <div key={index} className="content-item">
-                  <h4 className="font-semibold text-slate-900 mb-1">{edu.degree}</h4>
-                  <p className="text-blue-600 font-medium mb-1">{edu.school}</p>
-                  <p className="text-sm text-slate-500">{edu.year}</p>
-                </div>
-              ))}
-            </section>
-          )}
-
-          {skills.length > 0 && (
-            <section className="section">
-              <div className="section-header">
-                <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                  <Icon name="skills" className="text-white" />
-                  <span style={{ fontWeight: 'bold', marginTop: '0.1rem' }}>Skills</span>
-                </span>
-              </div>
-              <div className="content-item">
-                <span className="text-slate-700 text-sm">
-                  {skills.map((skill, index) => (
-                    <span key={index}>
-                      {index > 0 && " • "}
-                      {skill.name}
-                    </span>
-                  ))}
-                </span>
-              </div>
-            </section>
-          )}
-        </div>
-
-        {projects.length > 0 && (
-          <section className="section">
-            <div className="section-header">
-              <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                <Icon name="projects" className="text-white" />
-                <span style={{ fontWeight: 'bold', marginTop: '0.1rem' }}>Projects</span>
-              </span>
-            </div>
-            {projects.map((project, index) => (
-              <div key={index} className="content-item project-item">
-                <h4 className="text-lg font-semibold text-slate-900 mb-2">{project.name}</h4>
-                <p className="text-slate-700 text-sm mb-3">{project.description}</p>
-                {project.technologies?.length > 0 && (
-                  <div>
-                    <p className="text-slate-600 text-sm font-medium mb-1">Technologies:</p>
-                    <p className="text-slate-700 text-sm">
-                      {project.technologies.join(' • ')}
-                    </p>
-                  </div>
-                )}
+        {/* Education */}
+        {education.length > 0 && (
+          <section className="mb-4 section-block">
+            {sectionHeader('Education')}
+            {education.map((edu, index) => (
+              <div key={index} className="mb-2">
+                <h3 className="font-semibold text-gray-900" style={textWrapStyle}>
+                  {edu.degree}
+                </h3>
+                <p className="text-blue-600" style={textWrapStyle}>{edu.school}</p>
+                <p className="text-sm text-gray-600">{edu.year}</p>
               </div>
             ))}
           </section>
         )}
 
-        {/* Certificates Section Below Projects */}
-        {certifications.length > 0 && (
-          <section className="section">
-            <div className="section-header">
-              <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
-                <Icon name="certificate" className="text-white" />
-                <span style={{ fontWeight: 'bold', marginTop: '0.1rem' }}>Certificates</span>
-              </span>
-            </div>
-            {certifications.map((cert, idx) => (
-              <div key={idx} className="content-item project-item">
-                <h4 className="text-lg font-semibold text-slate-900 mb-2">{cert.name}</h4>
-                <p className="text-slate-700 text-sm mb-1">{cert.issuer}</p>
-                <p className="text-sm text-slate-500">{cert.date}</p>
+        {/* Skills */}
+        {skills.length > 0 && (
+          <section className="mb-4 section-block">
+            {sectionHeader('Skills')}
+            <ul style={{ paddingLeft: '1rem', margin: 0 }}>
+              {skills.map((skill, index) => (
+                <li
+                  key={index}
+                  style={{
+                    listStyle: 'none',
+                    marginBottom: '0.25rem',
+                    ...textWrapStyle,
+                  }}
+                >
+                  • {skill.name}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* Projects */}
+        {projects.length > 0 && (
+          <section className="section-block">
+            {sectionHeader('Projects')}
+            {projects.map((project, index) => (
+              <div key={index} className="mb-3">
+                <h3 className="font-semibold text-gray-900 mb-1" style={textWrapStyle}>
+                  {project.name}
+                </h3>
+                <p className="text-gray-700 text-sm" style={textWrapStyle}>
+                  {project.description}
+                </p>
+                {project.technologies && (
+                  <ul style={{ paddingLeft: '1rem', marginTop: '0.5rem', marginBottom: 0 }}>
+                    {project.technologies.map((tech, techIndex) => (
+                      <li
+                        key={techIndex}
+                        className="text-xs text-gray-700"
+                        style={{
+                          listStyle: 'none',
+                          marginBottom: '0.25rem',
+                          ...textWrapStyle,
+                        }}
+                      >
+                        • {tech}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             ))}
           </section>
@@ -1281,61 +858,891 @@ const Template4 = ({ data }) => {
     </div>
   );
 };
-// Template5.jsx
-const Template5 = ({ data }) => {
-  const { personal, experience = [], education = [], skills = [], projects = [] } = data || {};
+
+export default Template1;
+
+// Template2.jsx
+
+const Template2 = ({ data }) => {
+  const {
+    personal,
+    experience = [],
+    certifications = [],
+    education = [],
+    skills = [],
+    projects = [],
+  } = data || {};
 
   return (
-    <div className="max-w-4xl mx-auto bg-white text-gray-800 leading-relaxed">
-      {/* Header */}
-      <header className="bg-green-700 text-white p-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">
+    <div className="print-root flex justify-center items-center min-h-screen bg-gray-100 print:bg-white print:p-0">
+      <style>{`
+        /* Core page sizing */
+        .a4 {
+          width: 794px;
+          height: 1123px;
+          background: #fff;
+          position: relative;
+        }
+
+        /* Improved wrapping and alignment */
+        .wrap {
+          word-break: break-word;
+          overflow-wrap: anywhere;
+          display: inline-block;
+          vertical-align: middle;
+        }
+
+        /* Perfectly aligned contact row */
+        .contact-row {
+          display: grid;
+          grid-template-columns: 1.25em 1fr;
+          column-gap: 8px;
+          align-items: center;
+          line-height: 1.28;
+          min-height: 1.5em;
+          margin-bottom: 0.5em;
+        }
+        .icon-cell {
+          width: 1.25em;
+          height: 1.25em;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          top: 0.05em;
+        }
+        .icon-svg {
+          width: 1em;
+          height: 1em;
+          display: block;
+          vertical-align: middle;
+        }
+
+        /* Perfect bullet alignment */
+        .bullets {
+          list-style: disc outside;
+          padding-left: 1.2em;
+          margin: 0.5em 0;
+        }
+        .bullets li {
+          display: list-item;
+          line-height: 1.35;
+          margin-bottom: 0.35em;
+          padding-left: 0.3em;
+          text-indent: -0.3em;
+          position: relative;
+        }
+        .bullets li::marker {
+          color: currentColor;
+          font-size: 0.9em;
+        }
+
+        /* Trim last-child margins */
+        .trim > :last-child,
+        .trim ul > :last-child,
+        .trim li > :last-child {
+          margin-bottom: 0 !important;
+        }
+
+        /* Print-specific fixes */
+        @page {
+          size: A4;
+          margin: 0;
+        }
+
+        @media print {
+          html, body {
+            padding: 0 !important;
+            margin: 0 !important;
+            background: #fff !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          .print-root {
+            min-height: auto !important;
+            height: 100% !important;
+          }
+          .no-print-shadow {
+            box-shadow: none !important;
+            border: none !important;
+          }
+          .a4 {
+            width: 210mm !important;
+            height: 297mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+          }
+          header, section, .avoid-break {
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+          h1, h2, h3 {
+            break-after: avoid;
+            page-break-after: avoid;
+          }
+          .print-icon {
+            display: inline !important;
+            font-size: 1em;
+            line-height: 1;
+          }
+          .screen-icon {
+            display: none !important;
+          }
+          
+          /* PDF-specific alignment fixes */
+          .contact-row {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            grid-template-columns: 1.3em 1fr;
+          }
+          .bullets li {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            text-indent: -0.4em;
+          }
+        }
+      `}</style>
+
+      <div
+        className="a4 no-print-shadow mx-auto"
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          overflow: 'hidden',
+          padding: 0,
+          margin: 0,
+          boxSizing: 'border-box',
+        }}
+      >
+        {/* Sidebar */}
+        <aside
+          className="bg-slate-800 text-white"
+          style={{
+            width: '40%',
+            padding: '10mm',
+            height: '100%',
+            boxSizing: 'border-box',
+          }}
+        >
+          <header className="mb-5 trim avoid-break">
+            <h1 className="text-2xl font-bold wrap">
               {personal?.firstName || 'First'} {personal?.lastName || 'Last'}
             </h1>
+            {personal?.title && (
+              <p className="text-blue-300 text-sm mt-1 wrap">{personal.title}</p>
+            )}
+          </header>
+
+          <section className="mb-6 trim avoid-break">
+            <h2 className="text-lg font-semibold mb-3 text-blue-300 uppercase tracking-wider">CONTACT</h2>
+            <ul className="text-sm">
+              <li className="contact-row wrap">
+                <span className="icon-cell">
+                  <span className="screen-icon">
+                    <Icon name="email" className="icon-svg text-blue-300" />
+                  </span>
+                  <span className="print-icon text-blue-300 hidden">✉</span>
+                </span>
+                <span className="wrap">{personal?.email || 'email@example.com'}</span>
+              </li>
+              <li className="contact-row wrap">
+                <span className="icon-cell">
+                  <span className="screen-icon">
+                    <Icon name="phone" className="icon-svg text-blue-300" />
+                  </span>
+                  <span className="print-icon text-blue-300 hidden">☎</span>
+                </span>
+                <span className="wrap">{personal?.phone || 'Phone number'}</span>
+              </li>
+              <li className="contact-row wrap">
+                <span className="icon-cell">
+                  <span className="screen-icon">
+                    <Icon name="location" className="icon-svg text-blue-300" />
+                  </span>
+                  <span className="print-icon text-blue-300 hidden">📍</span>
+                </span>
+                <span className="wrap">{personal?.location || 'City, Country'}</span>
+              </li>
+            </ul>
+          </section>
+
+          {skills.length > 0 && (
+            <section className="mb-6 trim avoid-break">
+              <h2 className="text-lg font-semibold mb-3 text-blue-300 uppercase tracking-wider">SKILLS</h2>
+              <ul className="bullets text-sm wrap">
+                {skills.map((skill, index) => (
+                  <li key={index}>{typeof skill === 'string' ? skill : skill?.name}</li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {education.length > 0 && (
+            <section className="mb-6 trim avoid-break">
+              <h2 className="text-lg font-semibold mb-3 text-blue-300 uppercase tracking-wider">EDUCATION</h2>
+              <ul className="text-sm">
+                {education.map((edu, index) => (
+                  <li key={index} className="mb-3 wrap" style={{ display: 'block' }}>
+                    <h3 className="font-semibold text-white">{edu.degree}</h3>
+                    <p className="text-slate-300">{edu.school}</p>
+                    <p className="text-slate-400 text-xs">{edu.year}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {projects.length > 0 && (
+            <section className="trim avoid-break">
+              <h2 className="text-lg font-semibold mb-3 text-blue-300 uppercase tracking-wider">PROJECTS</h2>
+              <ul className="text-sm">
+                {projects.map((project, index) => (
+                  <li key={index} className="mb-3 wrap" style={{ display: 'block' }}>
+                    <h3 className="font-semibold text-white">{project.name}</h3>
+                    <p className="text-slate-300 text-xs mt-1">{project.description}</p>
+                    {project.technologies?.length > 0 && (
+                      <p className="text-slate-400 text-xs mt-1">{project.technologies.join(' • ')}</p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </aside>
+
+        {/* Main */}
+        <main
+          className="bg-white"
+          style={{
+            width: '60%',
+            padding: '10mm',
+            height: '100%',
+            boxSizing: 'border-box',
+            overflow: 'hidden',
+          }}
+        >
+          {personal?.summary && (
+            <section className="mb-6 trim avoid-break">
+              <h2 className="text-2xl font-bold text-slate-900 mb-3 border-b-2 border-blue-400 pb-2">About Me</h2>
+              <p className="text-gray-700 text-sm leading-relaxed wrap">{personal.summary}</p>
+            </section>
+          )}
+
+          {experience.length > 0 && (
+            <section className="mb-6 trim avoid-break">
+              <h2 className="text-2xl font-bold text-slate-900 mb-3 border-b-2 border-blue-400 pb-2">Experience</h2>
+              <ul className="space-y-3">
+                {experience.map((exp, index) => (
+                  <li key={index} className="border-l-4 border-blue-400 pl-3 wrap" style={{ display: 'block' }}>
+                    <div className="flex justify-between items-baseline mb-1">
+                      <h3 className="text-base font-semibold text-gray-800">{exp.position}</h3>
+                      <span className="text-xs text-gray-500">{exp.duration}</span>
+                    </div>
+                    <p className="text-blue-600 text-sm font-medium mb-2">{exp.company}</p>
+                    <p className="text-gray-600 text-sm mt-1" style={{ whiteSpace: 'pre-line' }}>
+                      {exp.description}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {certifications.length > 0 && (
+            <section className="trim avoid-break">
+              <h2 className="text-2xl font-bold text-slate-900 mb-3 border-b-2 border-blue-400 pb-2">Certifications</h2>
+              <ul className="space-y-3">
+                {certifications.map((cert, index) => (
+                  <li key={index} className="border-l-4 border-blue-400 pl-3 wrap" style={{ display: 'block' }}>
+                    <div className="flex justify-between items-baseline">
+                      <h3 className="text-base font-semibold text-gray-800">{cert.name}</h3>
+                      <span className="text-xs text-gray-500">{cert.year}</span>
+                    </div>
+                    <p className="text-gray-600 text-sm mt-1">{cert.issuer}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </main>
+      </div>
+    </div>
+  );
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Template3.jsx
+const Template3 = ({ data }) => {
+  const { personal, experience = [], education = [], skills = [], projects = [] } = data || {};
+
+  const SectionTitle = ({ children }) => (
+    <h2 className="text-center text-sm font-semibold text-gray-800 tracking-widest mb-4 uppercase">
+      {children}
+    </h2>
+  );
+
+  return (
+    <div className="max-w-4xl mx-auto bg-white text-gray-900 leading-relaxed p-8" style={{ fontSize: '11pt' }}>
+      <style>{`
+        /* Universal safe wrapping */
+        .wrap { word-break: break-word; overflow-wrap: anywhere; hyphens: auto; }
+
+        /* Let flex children actually wrap instead of overflowing */
+        .flex-min0 > * { min-width: 0; }
+
+        /* Modern, PDF-safe bullets via pseudo-element */
+        .modern-list { list-style: none; padding: 0; margin: 0; }
+        .modern-list li { position: relative; padding-left: 1.2em; line-height: 1.35; margin-bottom: 4px; }
+        .modern-list li::before { content: '➤'; position: absolute; left: 0; top: 0.1em; font-size: 0.9em; color: #2563eb; }
+
+        /* Contact line wraps on small widths */
+        .contact-inline { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; align-items: center; }
+        .contact-inline > span { min-width: 0; }
+        .contact-sep { color: #9ca3af; }
+      `}</style>
+
+      {/* Header with improved line separators */}
+      <header className="text-center py-6 border-b-2 border-gray-300">
+        <h1 className="text-3xl font-thin mb-4 tracking-wide wrap">
+          {personal?.firstName || 'First'} <span className="font-normal">{personal?.lastName || 'Last'}</span>
+        </h1>
+        <div className="contact-inline text-gray-600">
+          <span className="wrap">{personal?.email || 'email@example.com'}</span>
+          <span className="contact-sep">|</span>
+          <span className="wrap">{personal?.phone || '+1 (555) 123-4567'}</span>
+          <span className="contact-sep">|</span>
+          <span className="wrap">{personal?.location || 'City, State'}</span>
+        </div>
+      </header>
+
+      {/* Professional Summary */}
+      {personal?.summary && (
+        <section className="py-6">
+          <p className="text-center text-gray-700 max-w-3xl mx-auto wrap">
+            {personal.summary}
+          </p>
+        </section>
+      )}
+
+      {/* Experience with darker border */}
+      {experience.length > 0 && (
+        <section className="py-4 border-t-2 border-gray-300">
+          <SectionTitle>Experience</SectionTitle>
+          <ul className="space-y-4">
+            {experience.map((exp, index) => (
+              <li key={index}>
+                <div className="flex items-start">
+                  <div className="w-full">
+                    <div className="flex justify-between items-baseline flex-min0">
+                      <h3 className="text-base font-medium text-gray-900 wrap">{exp?.position}</h3>
+                      <span className="text-sm text-gray-500 flex-shrink-0">{exp?.duration}</span>
+                    </div>
+                    <p className="text-gray-600 text-sm mb-1 wrap">{exp?.company}</p>
+
+                    {/* Modern bullets for the description points */}
+                    <ul className="modern-list">
+                      {exp?.description
+                        ?.split('\n')
+                        .filter(point => point.trim())
+                        .map((point, i) => (
+                          <li key={i} className="text-gray-700 text-sm wrap">{point}</li>
+                        ))}
+                    </ul>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Education with darker border */}
+      {education.length > 0 && (
+        <section className="py-4 border-t-2 border-gray-300">
+          <SectionTitle>Education</SectionTitle>
+          <ul className="space-y-3">
+            {education.map((edu, index) => (
+              <li key={index}>
+                <div className="flex items-start">
+                  <div className="w-full">
+                    <div className="flex justify-between items-baseline flex-min0">
+                      <h3 className="text-base font-medium text-gray-900 wrap">{edu?.degree}</h3>
+                      <span className="text-sm text-gray-500 flex-shrink-0">{edu?.year}</span>
+                    </div>
+                    <p className="text-gray-600 text-sm wrap">{edu?.school}</p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Skills with darker border */}
+      {skills.length > 0 && (
+        <section className="py-4 border-t-2 border-gray-300">
+          <SectionTitle>Skills</SectionTitle>
+          <ul className="modern-list grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1">
+            {skills.map((skill, index) => (
+              <li key={index} className="text-gray-700 wrap">
+                {typeof skill === 'string' ? skill : skill?.name}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Projects with darker border */}
+      {projects.length > 0 && (
+        <section className="py-4 border-t-2 border-gray-300">
+          <SectionTitle>Projects</SectionTitle>
+          <ul className="space-y-4">
+            {projects.map((project, index) => (
+              <li key={index}>
+                <div className="flex items-start">
+                  <div className="w-full">
+                    <h3 className="text-base font-medium text-gray-900 mb-1 wrap">{project?.name}</h3>
+
+                    {/* Modern bullets for project description points */}
+                    <ul className="modern-list">
+                      {project?.description
+                        ?.split('\n')
+                        .filter(point => point.trim())
+                        .map((point, i) => (
+                          <li key={i} className="text-gray-700 text-sm wrap">{point}</li>
+                        ))}
+                    </ul>
+
+                    {project?.technologies?.length > 0 && (
+                      <p className="text-sm text-gray-600 mt-1 wrap">
+                        <span className="font-medium">Technologies:</span>{' '}
+                        {project.technologies.join(', ')}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </div>
+  );
+};
+
+
+
+
+
+
+
+// Template4.jsx
+// Unified to ONE icon source: text glyphs (✉, ☎, 📍) for both screen and print.
+// No external icon imports. No mixed sources. Modern, PDF-safe list markers included.
+
+const Template4 = ({ data }) => {
+  const { personal, experience = [], education = [], skills = [], projects = [] } = data || {};
+
+  // Contact rows rendered from a single, explicit mapping
+  const contactRows = [
+    { glyph: '✉', value: personal?.email || 'email@example.com' },
+    { glyph: '☎', value: personal?.phone || 'Phone Number' },
+    { glyph: '📍', value: personal?.location || 'City, Country' }
+  ];
+
+  return (
+    <div
+      className="template4-root"
+      style={{
+        width: '210mm',
+        minHeight: '297mm',
+        margin: '0 auto',
+        padding: '15mm',
+        fontFamily: "'Calibri', 'Arial', sans-serif",
+        color: '#333',
+        backgroundColor: 'white',
+        boxSizing: 'border-box',
+        lineHeight: 1.4
+      }}
+    >
+      <style>{`
+        /* Universal safe wrapping */
+        .wrap { word-break: break-word; overflow-wrap: anywhere; hyphens: auto; }
+
+        /* Let flex children wrap instead of overflowing */
+        .flex-min0 > * { min-width: 0; }
+
+        /* Inline contact row and wrapping across lines */
+        .contact-inline {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8mm;
+          justify-content: center;
+          align-items: center;
+        }
+
+        /* Icon + text alignment */
+        .contact-row {
+          display: grid;
+          grid-template-columns: 1.2em 1fr;
+          column-gap: 2mm;
+          align-items: center;
+        }
+        .icon-cell {
+          width: 1.2em;
+          height: 1.2em;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        .glyph-icon {
+          display: inline-block;
+          font-size: 1em;
+          line-height: 1;
+          transform: translateY(0.04em); /* subtle optical baseline alignment */
+        }
+
+        /* Modern, PDF-safe bullets via pseudo-element */
+        .modern-list { list-style: none; padding: 0; margin: 0; }
+        .modern-list li {
+          position: relative;
+          padding-left: 1.2em;
+          line-height: 1.35;
+          margin-bottom: 1mm;
+        }
+        .modern-list li::before {
+          content: '➤';
+          position: absolute;
+          left: 0;
+          top: 0.1em;
+          font-size: 0.9em;
+          color: #3498db; /* accent color */
+        }
+
+        /* Trim last-child margins in tight sections */
+        .trim > :last-child,
+        .trim ul > :last-child,
+        .trim li > :last-child { margin-bottom: 0 !important; }
+      `}</style>
+
+      {/* Header Section */}
+      <header
+        className="trim"
+        style={{
+          textAlign: 'center',
+          marginBottom: '8mm',
+          borderBottom: '2px solid #2c3e50',
+          paddingBottom: '4mm'
+        }}
+      >
+        <h1
+          className="wrap"
+          style={{
+            fontSize: '22pt',
+            fontWeight: 'bold',
+            color: '#2c3e50',
+            marginBottom: '2mm',
+            textTransform: 'uppercase',
+            letterSpacing: '1px'
+          }}
+        >
+          {personal?.firstName || 'First'} {personal?.lastName || 'Last'}
+        </h1>
+
+        <div className="contact-inline" style={{ fontSize: '10pt' }}>
+          {contactRows.map((row, i) => (
+            <div className="contact-row" key={i}>
+              <span className="icon-cell">
+                <span className="glyph-icon" aria-hidden>{row.glyph}</span>
+              </span>
+              <span className="wrap">{row.value}</span>
+            </div>
+          ))}
+        </div>
+      </header>
+      
+      {/* Professional Summary */}
+      {personal?.summary && (
+        <section className="trim" style={{ marginBottom: '8mm' }}>
+          <h2 style={sectionTitleStyle}>PROFESSIONAL SUMMARY</h2>
+          <p className="wrap" style={{ fontSize: '11pt' }}>
+            {personal.summary}
+          </p>
+        </section>
+      )}
+      
+      {/* Skills Section - modern bullets */}
+      {skills.length > 0 && (
+        <section className="trim" style={{ marginBottom: '8mm' }}>
+          <h2 style={sectionTitleStyle}>SKILLS & EXPERTISE</h2>
+          <ul className="modern-list" style={{ fontSize: '11pt' }}>
+            {skills.map((skill, index) => (
+              <li key={index} className="wrap">
+                {typeof skill === 'string' ? skill : skill?.name}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      
+      {/* Experience Section */}
+      {experience.length > 0 && (
+        <section className="trim" style={{ marginBottom: '8mm' }}>
+          <h2 style={sectionTitleStyle}>PROFESSIONAL EXPERIENCE</h2>
+          <div style={{ fontSize: '11pt' }}>
+            {experience.map((exp, index) => (
+              <div key={index} style={{ marginBottom: '5mm' }}>
+                <div className="flex-min0" style={betweenStyle}>
+                  <span className="wrap" style={{ fontWeight: 'bold' }}>{exp?.position}</span>
+                  <span style={italicGray}>{exp?.duration}</span>
+                </div>
+                <div className="wrap" style={blueAccent}>
+                  {exp?.company}
+                </div>
+                <ul className="modern-list">
+                  {exp?.description
+                    ?.split('\n')
+                    .filter(point => point.trim())
+                    .map((point, i) => (
+                      <li key={i} className="wrap">{point}</li>
+                    ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+      
+      {/* Education Section */}
+      {education.length > 0 && (
+        <section className="trim" style={{ marginBottom: '8mm' }}>
+          <h2 style={sectionTitleStyle}>EDUCATION</h2>
+          <div style={{ fontSize: '11pt' }}>
+            {education.map((edu, index) => (
+              <div key={index} style={{ marginBottom: '3mm' }}>
+                <div className="flex-min0" style={betweenStyle}>
+                  <span className="wrap" style={{ fontWeight: 'bold' }}>{edu?.degree}</span>
+                  <span style={italicGray}>{edu?.year}</span>
+                </div>
+                <div className="wrap" style={blueAccent}>{edu?.school}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+      
+      {/* Projects Section */}
+      {projects.length > 0 && (
+        <section className="trim">
+          <h2 style={sectionTitleStyle}>PROJECTS</h2>
+          <div style={{ fontSize: '11pt' }}>
+            {projects.map((project, index) => (
+              <div key={index} style={{ marginBottom: '5mm' }}>
+                <div className="wrap" style={{ fontWeight: 'bold' }}>{project?.name}</div>
+                <ul className="modern-list" style={{ margin: '2mm 0' }}>
+                  {project?.description
+                    ?.split('\n')
+                    .filter(point => point.trim())
+                    .map((point, i) => (
+                      <li key={i} className="wrap">{point}</li>
+                    ))}
+                </ul>
+                {project?.technologies?.length > 0 && (
+                  <div className="wrap" style={{ fontSize: '10pt', color: '#666' }}>
+                    <strong>Technologies:</strong> {project.technologies.join(', ')}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+};
+
+/* Inline style objects */
+const sectionTitleStyle = {
+  fontSize: '14pt',
+  fontWeight: 'bold',
+  color: '#2c3e50',
+  borderBottom: '1px solid #ddd',
+  paddingBottom: '2mm',
+  marginBottom: '3mm',
+  textTransform: 'uppercase'
+};
+const betweenStyle = { display: 'flex', justifyContent: 'space-between', columnGap: '4mm', marginBottom: '1mm' };
+const italicGray = { color: '#666', fontStyle: 'italic', flexShrink: 0 };
+const blueAccent = { fontWeight: 500, color: '#3498db', marginBottom: '2mm' };
+
+
+
+
+
+
+
+
+
+
+
+
+// Template5.jsx
+
+
+const Template5 = ({ data }) => {
+  const {
+    personal,
+    experience = [],
+    education = [],
+    skills = [],
+    projects = []
+  } = data || {};
+
+  return (
+    <div className="template5-root max-w-4xl mx-auto bg-white text-gray-800 leading-relaxed print:bg-white">
+      {/* Embedded CSS */}
+      <style>{`
+        /* Universal safe wrapping */
+        .wrap { word-break: break-word; overflow-wrap: anywhere; hyphens: auto; }
+
+        /* Let flex children shrink instead of overflowing */
+        .flex-min0 > * { min-width: 0; }
+        .no-shrink { flex-shrink: 0; }
+
+        /* Modern list: no native bullets, arrow marker via ::before */
+        .modern-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        .modern-list li {
+          position: relative;
+          padding-left: 1.2em;       /* space for the marker */
+          margin-bottom: 0.4rem;
+          line-height: 1.45;
+          word-break: break-word;
+          overflow-wrap: anywhere;
+        }
+        .modern-list li::before {
+          content: '➤';
+          position: absolute;
+          left: 0;
+          top: 0.15em;                /* vertical align tweak */
+          color: #16a34a;             /* Tailwind green-600 */
+          font-size: 0.9em;
+        }
+
+        /* Keep each section with its title together on one page */
+        .avoid-break {
+          break-inside: avoid-page;
+          page-break-inside: avoid;
+        }
+        /* Trim last-child margins to prevent ghost extra page */
+        .trim > :last-child,
+        .trim ul > :last-child,
+        .trim li > :last-child {
+          margin-bottom: 0 !important;
+        }
+
+        @page {
+          size: A4;
+          margin: 12mm;
+        }
+        @media print {
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          .template5-root {
+            width: 210mm;
+            margin: 0 auto !important;
+          }
+          /* Prevent min-height quirks pushing a phantom second page */
+          .print-minh-auto { min-height: auto !important; }
+        }
+      `}</style>
+
+      {/* Header */}
+      <header className="bg-green-700 text-white p-8 trim avoid-break">
+        <div className="flex items-center justify-between print:flex-wrap print:gap-4">
+          <div className="flex-min0">
+            <h1 className="text-3xl font-bold mb-2 wrap">
+              {personal?.firstName || "First"} {personal?.lastName || "Last"}
+            </h1>
             <div className="space-y-1 text-green-100">
-              <p>✉ {personal?.email || 'email@example.com'}</p>
-              <p>📞 {personal?.phone || '+1 (555) 123-4567'}</p>
-              <p>📍 {personal?.location || 'City, State'}</p>
+              <p className="wrap">✉ {personal?.email || "email@example.com"}</p>
+              <p className="wrap">📞 {personal?.phone || "+1 (555) 123-4567"}</p>
+              <p className="wrap">📍 {personal?.location || "City, State"}</p>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="p-8">
+      <div className="p-8 print-minh-auto">
         {/* Professional Summary */}
         {personal?.summary && (
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold text-green-700 mb-4 pb-2 border-b-2 border-green-200">
+          <section className="mb-8 trim avoid-break">
+            <h2 className="text-2xl font-bold text-green-700 mb-4 pb-2 border-b-2 border-green-200 wrap">
               Professional Summary
             </h2>
-            <p className="text-gray-700 leading-relaxed bg-green-50 p-4 rounded-lg">
+            <p className="text-gray-700 leading-relaxed bg-green-50 p-4 rounded-lg wrap">
               {personal.summary}
             </p>
           </section>
         )}
 
-        {/* Experience */}
+        {/* Professional Experience */}
         {experience.length > 0 && (
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold text-green-700 mb-6 pb-2 border-b-2 border-green-200">
+          <section className="mb-8 trim avoid-break">
+            <h2 className="text-2xl font-bold text-green-700 mb-6 pb-2 border-b-2 border-green-200 wrap">
               Professional Experience
             </h2>
             <div className="space-y-6">
-              {experience.map((exp, index) => (
-                <div key={index} className="border-l-4 border-green-400 pl-6">
+              {experience.map((exp, idx) => (
+                <div
+                  key={idx}
+                  className="border-l-4 border-green-400 pl-6 avoid-break"
+                >
                   <div className="bg-gray-50 p-6 rounded-r-lg">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h3 className="text-xl font-semibold text-gray-900">{exp.position}</h3>
-                        <p className="text-green-600 font-medium text-lg">{exp.company}</p>
+                    <div className="flex justify-between items-start mb-3 flex-min0">
+                      <div className="min-w-0">
+                        <h3 className="text-xl font-semibold text-gray-900 wrap">
+                          {exp.position}
+                        </h3>
+                        <p className="text-green-600 font-medium text-lg wrap">
+                          {exp.company}
+                        </p>
                       </div>
-                      <span className="text-sm text-gray-500 bg-green-100 px-3 py-1 rounded-full">
+                      <span className="text-sm text-gray-500 bg-green-100 px-3 py-1 rounded-full no-shrink">
                         {exp.duration}
                       </span>
                     </div>
-                    <p className="text-gray-700 leading-relaxed">{exp.description}</p>
+                    <ul className="modern-list text-gray-700">
+                      {exp.description
+                        ?.split("\n")
+                        .filter((line) => line.trim())
+                        .map((point, i) => (
+                          <li key={i} className="wrap">
+                            {point}
+                          </li>
+                        ))}
+                    </ul>
                   </div>
                 </div>
               ))}
@@ -1346,69 +1753,77 @@ const Template5 = ({ data }) => {
         <div className="grid md:grid-cols-2 gap-8">
           {/* Education */}
           {education.length > 0 && (
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-green-700 mb-4 pb-2 border-b border-green-200">
+            <section className="mb-8 trim avoid-break">
+              <h2 className="text-xl font-bold text-green-700 mb-4 pb-2 border-b border-green-200 wrap">
                 Education
               </h2>
               <div className="space-y-4">
-                {education.map((edu, index) => (
-                  <div key={index} className="bg-green-50 p-4 rounded-lg border-l-4 border-green-400">
-                    <h3 className="font-semibold text-gray-900">{edu.degree}</h3>
-                    <p className="text-green-600 font-medium">{edu.school}</p>
-                    <p className="text-sm text-gray-500">{edu.year}</p>
+                {education.map((edu, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-green-50 p-4 rounded-lg border-l-4 border-green-400 avoid-break"
+                  >
+                    <h3 className="font-semibold text-gray-900 wrap">
+                      {edu.degree}
+                    </h3>
+                    <p className="text-green-600 font-medium wrap">
+                      {edu.school}
+                    </p>
+                    <p className="text-sm text-gray-500 no-shrink">
+                      {edu.year}
+                    </p>
                   </div>
                 ))}
               </div>
             </section>
           )}
 
-          {/* Skills */}
+          {/* Core Skills */}
           {skills.length > 0 && (
-            <section className="mb-8">
-              <h2 className="text-xl font-bold text-green-700 mb-4 pb-2 border-b border-green-200">
+            <section className="mb-8 trim avoid-break">
+              <h2 className="text-xl font-bold text-green-700 mb-4 pb-2 border-b border-green-200 wrap">
                 Core Skills
               </h2>
-              <div className="space-y-3">
-                {skills.map((skill, index) => (
-                  <div key={index}>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="font-medium text-gray-800">{skill.name}</span>
-                      <span className="text-sm text-green-600 font-semibold">{skill.level || 75}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div
-                        className="bg-green-500 h-3 rounded-full transition-all duration-300"
-                        style={{ width: `${skill.level || 75}%` }}
-                      ></div>
-                    </div>
-                  </div>
+              <ul className="modern-list text-gray-800">
+                {skills.map((skill, idx) => (
+                  <li key={idx} className="wrap">
+                    {typeof skill === "string" ? skill : skill?.name}
+                  </li>
                 ))}
-              </div>
+              </ul>
             </section>
           )}
         </div>
 
-        {/* Projects */}
+        {/* Key Projects */}
         {projects.length > 0 && (
-          <section>
-            <h2 className="text-2xl font-bold text-green-700 mb-6 pb-2 border-b-2 border-green-200">
+          <section className="trim avoid-break">
+            <h2 className="text-2xl font-bold text-green-700 mb-6 pb-2 border-b-2 border-green-200 wrap">
               Key Projects
             </h2>
             <div className="space-y-6">
-              {projects.map((project, index) => (
-                <div key={index} className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border border-green-200">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">{project.name}</h3>
-                  <p className="text-gray-700 mb-4 leading-relaxed">{project.description}</p>
-                  {project.technologies && project.technologies.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {project.technologies.map((tech, techIndex) => (
-                        <span
-                          key={techIndex}
-                          className="px-3 py-1 bg-green-600 text-white rounded-md text-sm font-medium"
-                        >
-                          {tech}
-                        </span>
+              {projects.map((project, idx) => (
+                <div
+                  key={idx}
+                  className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border border-green-200 avoid-break"
+                >
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 wrap">
+                    {project.name}
+                  </h3>
+                  <ul className="modern-list text-gray-700 mb-4">
+                    {project.description
+                      ?.split("\n")
+                      .filter((line) => line.trim())
+                      .map((point, i) => (
+                        <li key={i} className="wrap">
+                          {point}
+                        </li>
                       ))}
+                  </ul>
+                  {project.technologies?.length > 0 && (
+                    <div className="text-sm wrap">
+                      <strong>Technologies:</strong>{" "}
+                      {project.technologies.join(", ")}
                     </div>
                   )}
                 </div>
@@ -1420,349 +1835,202 @@ const Template5 = ({ data }) => {
     </div>
   );
 };
-// Template6.jsx
-const Section = React.memo(({ title, children }) => (
-  <section className="mb-6">
-    <div className="flex items-center mb-4">
-      <span style={{ backgroundColor: '#0891B2', height: '24px', width: '4px' }} className="mr-3"></span>
-      <h2 style={{ color: '#0891B2' }} className="text-xl font-bold">{title}</h2>
-    </div>
-    {/* The children will now be a UL, so no extra padding needed here */}
-    <div>
-      {children}
-    </div>
-  </section>
-));
+
+
+
+
+
+
 
 const Template6 = ({ data }) => {
-  const printRef = useRef();
-  const [loading, setLoading] = useState(false);
+  const {
+    personal,
+    experience = [],
+    education = [],
+    skills = [],
+    projects = [],
+    certifications = [],
+  } = data || {};
 
-  const { personal, experience = [], education = [], skills = [], projects = [], certifications = [] } = data || {};
+  const Section = ({ title, children }) => (
+    <section className="mb-6 avoid-break">
+      <h2 className="text-xl font-semibold text-blue-600 mb-3 border-b border-gray-300 pb-1">
+        {title}
+      </h2>
+      {children}
+    </section>
+  );
 
-  // PDF generation logic updated for bullet points
-  const handleDownloadPdf = () => {
-    if (loading) return;
-    setLoading(true);
-
-    try {
-      const doc = new jsPDF('p', 'mm', 'a4');
-      let currentY = 0;
-
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const leftMargin = 15;
-      const textIndent = leftMargin + 5; // Indent for text after a bullet
-      const contentWidth = pageWidth - (leftMargin * 2);
-      const FONT_COLOR = '#0D0D0D';
-      const ACCENT_COLOR_BLUE = '#2563EB';
-      const ACCENT_COLOR_CYAN = '#0891B2';
-
-      const checkPageBreak = (y, heightNeeded = 10) => {
-        if (y + heightNeeded > pageHeight - 20) {
-          doc.addPage();
-          return 20;
-        }
-        return y;
-      };
-
-      // --- Header ---
-      const headerHeight = 35;
-      doc.setFillColor(ACCENT_COLOR_BLUE);
-      doc.rect(0, 0, pageWidth, headerHeight, 'F');
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(24);
-      doc.setTextColor('#FFFFFF');
-      doc.text(`${personal?.firstName || 'First'} ${personal?.lastName || 'Last'}`, leftMargin, 20);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-      const contactInfo = [
-        personal?.email || 'email@example.com',
-        personal?.phone || '+1 (555) 123-4567',
-        personal?.location || 'City, State'
-      ].join('  |  ');
-      doc.text(contactInfo, leftMargin, 28);
-      currentY = headerHeight + 15;
-
-      const drawSectionTitle = (title) => {
-        currentY = checkPageBreak(currentY, 15);
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(16);
-        doc.setTextColor(ACCENT_COLOR_CYAN);
-        doc.setFillColor(ACCENT_COLOR_CYAN);
-        doc.rect(leftMargin, currentY - 4, 1.5, 8, 'F');
-        doc.text(title, leftMargin + 5, currentY + 2);
-        currentY += 12;
-      };
-
-      // --- About Section (No bullets here) ---
-      if (personal?.summary) {
-        drawSectionTitle('About');
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        doc.setTextColor(FONT_COLOR);
-        const summaryLines = doc.splitTextToSize(personal.summary, contentWidth);
-        summaryLines.forEach(line => {
-          currentY = checkPageBreak(currentY, 5);
-          doc.text(line, leftMargin, currentY);
-          currentY += 5;
-        });
-        currentY += 5;
-      }
-
-      // --- Experience Section (with bullets) ---
-      if (experience.length > 0) {
-        drawSectionTitle('Experience');
-        experience.forEach(exp => {
-          currentY = checkPageBreak(currentY, 20);
-
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(12);
-          doc.setTextColor(FONT_COLOR);
-          doc.text('•', leftMargin, currentY);
-          doc.text(exp.position, textIndent, currentY);
-
-          doc.setFont('helvetica', 'normal');
-          doc.text(exp.duration, pageWidth - leftMargin, currentY, { align: 'right' });
-          currentY += 5;
-
-          doc.setFontSize(11);
-          doc.setTextColor(ACCENT_COLOR_BLUE);
-          doc.text(exp.company, textIndent, currentY);
-          currentY += 6;
-
-          doc.setFontSize(10);
-          doc.setTextColor(FONT_COLOR);
-          const descLines = doc.splitTextToSize(exp.description, pageWidth - textIndent - leftMargin);
-          descLines.forEach(line => {
-            currentY = checkPageBreak(currentY, 5);
-            doc.text(line, textIndent, currentY);
-            currentY += 5;
-          });
-          currentY += 8;
-        });
-      }
-
-      // --- Education Section (with bullets) ---
-      if (education.length > 0) {
-        drawSectionTitle('Education');
-        education.forEach(edu => {
-          currentY = checkPageBreak(currentY, 15);
-
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(12);
-          doc.setTextColor(FONT_COLOR);
-          doc.text('•', leftMargin, currentY);
-          doc.text(edu.degree, textIndent, currentY);
-
-          doc.setFont('helvetica', 'normal');
-          doc.text(edu.year, pageWidth - leftMargin, currentY, { align: 'right' });
-          currentY += 5;
-
-          doc.setFontSize(11);
-          doc.setTextColor(ACCENT_COLOR_BLUE);
-          doc.text(edu.school, textIndent, currentY);
-          currentY += 10;
-        });
-      }
-
-      // --- Skills Section (with bullets) ---
-      if (skills.length > 0) {
-        drawSectionTitle('Skills');
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        doc.setTextColor(FONT_COLOR);
-
-        // Create a bulleted list of skills
-        skills.forEach(skill => {
-          currentY = checkPageBreak(currentY, 6);
-          doc.text('•', leftMargin, currentY);
-          doc.text(skill.name, textIndent, currentY);
-          currentY += 6;
-        });
-        currentY += 5;
-      }
-
-      // --- Projects Section (with bullets) ---
-      if (projects.length > 0) {
-        drawSectionTitle('Projects');
-        projects.forEach(project => {
-          currentY = checkPageBreak(currentY, 15);
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(12);
-          doc.setTextColor(FONT_COLOR);
-          doc.text('•', leftMargin, currentY);
-          doc.text(project.name, textIndent, currentY);
-          currentY += 6;
-
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(10);
-          const descLines = doc.splitTextToSize(project.description, pageWidth - textIndent - leftMargin);
-          descLines.forEach(line => {
-            currentY = checkPageBreak(currentY, 5);
-            doc.text(line, textIndent, currentY);
-            currentY += 5;
-          });
-
-          if (project.technologies && project.technologies.length > 0) {
-            currentY = checkPageBreak(currentY, 5);
-            doc.setFont('helvetica', 'bold');
-            doc.text(`Technologies:`, textIndent, currentY);
-            doc.setFont('helvetica', 'normal');
-            doc.text(project.technologies.join(', '), textIndent + 25, currentY);
-            currentY += 5;
-          }
-          currentY += 8;
-        });
-      }
-
-      // --- Certifications Section (with bullets) ---
-      if (certifications.length > 0) {
-        drawSectionTitle('Certifications');
-        certifications.forEach(cert => {
-          currentY = checkPageBreak(currentY, 15);
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(12);
-          doc.setTextColor(FONT_COLOR);
-          doc.text('•', leftMargin, currentY);
-          doc.text(cert.name, textIndent, currentY);
-
-          doc.setFont('helvetica', 'normal');
-          doc.text(cert.date, pageWidth - leftMargin, currentY, { align: 'right' });
-          currentY += 5;
-
-          doc.setFontSize(11);
-          doc.setTextColor(ACCENT_COLOR_BLUE);
-          doc.text(cert.issuer, textIndent, currentY);
-          currentY += 10;
-        });
-      }
-      doc.save('resume.pdf');
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // --- JSX Live Preview Updated for Bullet Points ---
   return (
-    <>
-      {/* <div className="text-center mb-4 no-print">
-                <button
-                    onClick={handleDownloadPdf}
-                    className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 disabled:bg-gray-400"
-                    disabled={loading}
-                >
-                    {loading ? 'Downloading...' : 'Download PDF'}
-                </button>
-            </div> */}
+    <div
+      className="max-w-4xl mx-auto bg-white text-gray-800 shadow-lg wrap"
+      style={{
+        width: '210mm',
+        minHeight: '297mm',
+        boxSizing: 'border-box',
+        maxWidth: '210mm',
+      }}
+    >
+      <style>{`
+        .wrap {
+          word-break: break-word;
+          overflow-wrap: anywhere;
+          hyphens: auto;
+        }
+        .avoid-break {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        .modern-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+        .modern-list li {
+          position: relative;
+          padding-left: 1.2em;
+          margin-bottom: 0.35rem;
+          line-height: 1.5;
+        }
+        .modern-list li::before {
+          content: '➤';
+          position: absolute;
+          left: 0;
+          top: 0.1em;
+          color: #2563eb;
+          font-size: 0.9em;
+        }
+        .trim > :last-child {
+          margin-bottom: 0 !important;
+        }
+      `}</style>
 
-      <div ref={printRef} style={{ width: '210mm', minHeight: '297mm' }} className="p-0 mx-auto bg-white text-gray-800 shadow-lg">
-        <header style={{ backgroundColor: '#2563EB' }} className="p-8 text-white">
-          <h1 className="text-4xl font-bold mb-2">
-            {personal?.firstName || 'First'} {personal?.lastName || 'Last'}
-          </h1>
-          <p className="text-sm">
-            <span>{personal?.email || 'email@example.com'}</span>
-            <span className="mx-2">|</span>
-            <span>{personal?.phone || '+1 (555) 123-4567'}</span>
-            <span className="mx-2">|</span>
-            <span>{personal?.location || 'City, State'}</span>
-          </p>
-        </header>
-
-        <div className="p-8">
-          {personal?.summary && (
-            <Section title="About">
-              <p className="text-sm leading-relaxed" style={{ whiteSpace: 'pre-line' }}>
-                {personal.summary}
-              </p>
-            </Section>
-          )}
-
-          {experience.length > 0 && (
-            <Section title="Experience">
-              <ul className="list-disc pl-5 space-y-5">
-                {experience.map((exp, index) => (
-                  <li key={index}>
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-bold">{exp.position}</h3>
-                      <p className="text-sm text-gray-600">{exp.duration}</p>
-                    </div>
-                    <p style={{ color: '#2563EB' }} className="font-semibold">{exp.company}</p>
-                    <p className="text-sm mt-2 leading-relaxed" style={{ whiteSpace: 'pre-line' }}>{exp.description}</p>
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          )}
-
-          {education.length > 0 && (
-            <Section title="Education">
-              <ul className="list-disc pl-5 space-y-4">
-                {education.map((edu, index) => (
-                  <li key={index}>
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-bold">{edu.degree}</h3>
-                      <p className="text-sm text-gray-600">{edu.year}</p>
-                    </div>
-                    <p style={{ color: '#2563EB' }} className="font-semibold">{edu.school}</p>
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          )}
-
-          {skills.length > 0 && (
-            <Section title="Skills">
-              <ul className="list-disc pl-5 space-y-1">
-                {skills.map((skill, index) => (
-                  <li key={index} className="text-sm">{skill.name}</li>
-                ))}
-              </ul>
-            </Section>
-          )}
-
-          {projects.length > 0 && (
-            <Section title="Projects">
-              <ul className="list-disc pl-5 space-y-5">
-                {projects.map((project, index) => (
-                  <li key={index}>
-                    <h3 className="text-lg font-bold">{project.name}</h3>
-                    <p className="text-sm mt-2 mb-2 leading-relaxed" style={{ whiteSpace: 'pre-line' }}>{project.description}</p>
-                    {project.technologies && project.technologies.length > 0 && (
-                      <p className="text-sm">
-                        <span className="font-bold">Technologies: </span>
-                        {project.technologies.join(', ')}
-                      </p>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          )}
-
-          {certifications.length > 0 && (
-            <Section title="Certifications">
-              <ul className="list-disc pl-5 space-y-4">
-                {certifications.map((cert, index) => (
-                  <li key={index}>
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-bold">{cert.name}</h3>
-                      <p className="text-sm text-gray-600">{cert.date}</p>
-                    </div>
-                    <p style={{ color: '#2563EB' }} className="font-semibold">{cert.issuer}</p>
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          )}
+      {/* Header */}
+      <header className="bg-blue-800 text-white p-8">
+        <h1 className="text-4xl font-bold mb-2 wrap">
+          {personal?.firstName || 'First'} {personal?.lastName || 'Last'}
+        </h1>
+        <div className="flex flex-wrap items-center gap-x-2 text-sm wrap">
+          <span className="wrap">{personal?.email || 'email@example.com'}</span>
+          <span className="text-blue-200">|</span>
+          <span className="wrap">{personal?.phone || '+1 (555) 123-4567'}</span>
+          <span className="text-blue-200">|</span>
+          <span className="wrap">{personal?.location || 'City, State'}</span>
         </div>
+      </header>
+
+      <div className="p-8">
+        {/* Summary */}
+        {personal?.summary && (
+          <Section title="Professional Summary">
+            <p className="text-gray-700 wrap">{personal.summary}</p>
+          </Section>
+        )}
+
+        {/* Experience */}
+        {experience.length > 0 && (
+          <Section title="Professional Experience">
+            <div className="space-y-4">
+              {experience.map((exp, index) => (
+                <div key={index} className="trim">
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 className="font-semibold text-gray-900 wrap">{exp?.position}</h3>
+                    <span className="text-sm text-gray-600 wrap">{exp?.duration}</span>
+                  </div>
+                  <p className="text-blue-600 font-medium mb-2 wrap">{exp?.company}</p>
+                  <ul className="modern-list wrap">
+                    {(exp?.description?.split('\n').filter(Boolean) || []).map((point, i) => (
+                      <li key={i} className="text-gray-700 text-sm wrap">{point}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </Section>
+        )}
+
+        {/* Education */}
+        {education.length > 0 && (
+          <Section title="Education">
+            <div className="space-y-3">
+              {education.map((edu, index) => (
+                <div key={index} className="trim">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-semibold text-gray-900 wrap">{edu?.degree}</h3>
+                      <p className="text-blue-600 wrap">{edu?.school}</p>
+                    </div>
+                    <span className="text-sm text-gray-600 wrap">{edu?.year}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Section>
+        )}
+
+        {/* Skills */}
+        {skills.length > 0 && (
+          <Section title="Skills">
+            <ul className="modern-list grid grid-cols-2 gap-x-4 gap-y-1 wrap">
+              {skills.map((skill, index) => (
+                <li key={index} className="text-gray-700 wrap">
+                  {typeof skill === 'string' ? skill : skill?.name}
+                  {typeof skill === 'object' && skill?.level && (
+                    <span className="text-gray-500 ml-1">({skill.level})</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </Section>
+        )}
+
+        {/* Projects */}
+        {projects.length > 0 && (
+          <Section title="Projects">
+            <div className="space-y-4">
+              {projects.map((project, index) => (
+                <div key={index} className="trim">
+                  <h3 className="font-semibold text-gray-900 mb-1 wrap">{project?.name}</h3>
+                  <ul className="modern-list wrap">
+                    {(project?.description?.split('\n').filter(Boolean) || []).map((point, i) => (
+                      <li key={i} className="text-gray-700 text-sm wrap">{point}</li>
+                    ))}
+                  </ul>
+                  {project?.technologies?.length > 0 && (
+                    <p className="text-sm text-gray-600 mt-1 wrap">
+                      <span className="font-medium">Technologies:</span>{' '}
+                      {project.technologies.join(', ')}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Section>
+        )}
+
+        {/* Certifications */}
+        {certifications.length > 0 && (
+          <Section title="Certifications">
+            <div className="space-y-3">
+              {certifications.map((cert, index) => (
+                <div key={index} className="trim">
+                  <div className="flex justify-between items-start">
+                    <h3 className="font-semibold text-gray-900 wrap">{cert?.name}</h3>
+                    <span className="text-sm text-gray-600 wrap">{cert?.date}</span>
+                  </div>
+                  <p className="text-blue-600 wrap">{cert?.issuer}</p>
+                </div>
+              ))}
+            </div>
+          </Section>
+        )}
       </div>
-    </>
+    </div>
   );
 };
+
+
+
 
 const Template6Alt = () => {
   const [form, setForm] = useState({

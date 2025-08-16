@@ -893,7 +893,7 @@ app.post('/api/book-consultant', async (req, res) => {
     });
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"Career GenAI" <${process.env.EMAIL_USER}>`,
       to: process.env.ADMIN_EMAIL || consultantEmail,
       subject: `New Appointment from CareerGenAI`,
       html: `<div style="max-width: 800px; font-family: 'Segoe UI', sans-serif; background-color: #f4f8fb; padding: 20px;">
@@ -944,7 +944,7 @@ app.post('/api/book-consultant', async (req, res) => {
     <!-- Footer -->
     <div style="background-color: #f1f5f9; padding: 20px 25px; text-align: center; font-size: 13px; color: #555;">
       <p style="margin: 0;">You're receiving this email because you're a consultant on <strong>CareerGenAI</strong>.</p>
-      <p style="margin: 5px 0;">Need help? Contact us at <a href="mailto:support@careergenai.in" style="color: #3B82F6;">careergenai9@gmail.com</a></p>
+      <p style="margin: 5px 0;">Need help? Contact us at <a href="mailto:support@careergenai.in" style="color: #3B82F6;">support@aryahsworld.com</a></p>
       <p style="margin: 0;">© ${new Date().getFullYear()} CareerGenAI. All rights reserved.</p>
     </div>
 
@@ -995,7 +995,7 @@ app.post('/api/book-consultant', async (req, res) => {
     <!-- Footer -->
     <div style="background: #f1f5f9; padding: 15px; text-align: center; font-size: 12px; color: #555;">
       <p style="margin: 0;">Need help? Contact us at 
-        <a href="mailto:support@careergenai.in" style="color: #3B82F6; text-decoration: none;">careergenai9@gmail.com</a>
+        <a href="mailto:support@careergenai.in" style="color: #3B82F6; text-decoration: none;">support@aryahsworld.com</a>
       </p>
       <p style="margin: 4px 0 0;">© ${new Date().getFullYear()} CareerGenAI. All rights reserved.</p>
     </div>

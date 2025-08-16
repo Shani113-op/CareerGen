@@ -861,17 +861,24 @@ const Template1 = ({ data }) => {
 
 export default Template1;
 
-// Template2.jsx
 
+// template2.jsx
 const Template2 = ({ data }) => {
   const {
-    personal,
+    personal = {},
     experience = [],
     certifications = [],
     education = [],
     skills = [],
     projects = [],
   } = data || {};
+
+  // Unified, print-safe contact icons
+  const contacts = [
+    { icon: '✉', value: personal?.email || 'email@example.com' },
+    { icon: '☎', value: personal?.phone || 'Phone number' },
+    { icon: '📍', value: personal?.location || 'City, Country' },
+  ];
 
   return (
     <div className="print-root flex justify-center items-center min-h-screen bg-gray-100 print:bg-white print:p-0">
@@ -911,29 +918,26 @@ const Template2 = ({ data }) => {
           position: relative;
           top: 0.05em;
         }
-        .icon-svg {
-          width: 1em;
-          height: 1em;
+        .glyph-icon {
+          font-size: 1em;
+          line-height: 1;
           display: block;
-          vertical-align: middle;
         }
 
-        /* Perfect bullet alignment */
-        .bullets {
-          list-style: disc outside;
-          padding-left: 1.2em;
-          margin: 0.5em 0;
-        }
-        .bullets li {
-          display: list-item;
-          line-height: 1.35;
-          margin-bottom: 0.35em;
-          padding-left: 0.3em;
-          text-indent: -0.3em;
+        /* Modern list marker (replaces native bullets) */
+        .modern-list { list-style: none; padding: 0; margin: 0.5em 0; }
+        .modern-list li {
           position: relative;
+          padding-left: 1.2em;
+          margin-bottom: 0.35em;
+          line-height: 1.35;
         }
-        .bullets li::marker {
-          color: currentColor;
+        .modern-list li::before {
+          content: '➤';
+          position: absolute;
+          left: 0;
+          top: 0.1em;
+          color: #60a5fa; /* blue-400 */
           font-size: 0.9em;
         }
 
@@ -981,26 +985,6 @@ const Template2 = ({ data }) => {
             break-after: avoid;
             page-break-after: avoid;
           }
-          .print-icon {
-            display: inline !important;
-            font-size: 1em;
-            line-height: 1;
-          }
-          .screen-icon {
-            display: none !important;
-          }
-          
-          /* PDF-specific alignment fixes */
-          .contact-row {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-            grid-template-columns: 1.3em 1fr;
-          }
-          .bullets li {
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-            text-indent: -0.4em;
-          }
         }
       `}</style>
 
@@ -1037,40 +1021,21 @@ const Template2 = ({ data }) => {
           <section className="mb-6 trim avoid-break">
             <h2 className="text-lg font-semibold mb-3 text-blue-300 uppercase tracking-wider">CONTACT</h2>
             <ul className="text-sm">
-              <li className="contact-row wrap">
-                <span className="icon-cell">
-                  <span className="screen-icon">
-                    <Icon name="email" className="icon-svg text-blue-300" />
+              {contacts.map((c, idx) => (
+                <li key={idx} className="contact-row wrap">
+                  <span className="icon-cell">
+                    <span className="glyph-icon text-blue-300">{c.icon}</span>
                   </span>
-                  <span className="print-icon text-blue-300 hidden">✉</span>
-                </span>
-                <span className="wrap">{personal?.email || 'email@example.com'}</span>
-              </li>
-              <li className="contact-row wrap">
-                <span className="icon-cell">
-                  <span className="screen-icon">
-                    <Icon name="phone" className="icon-svg text-blue-300" />
-                  </span>
-                  <span className="print-icon text-blue-300 hidden">☎</span>
-                </span>
-                <span className="wrap">{personal?.phone || 'Phone number'}</span>
-              </li>
-              <li className="contact-row wrap">
-                <span className="icon-cell">
-                  <span className="screen-icon">
-                    <Icon name="location" className="icon-svg text-blue-300" />
-                  </span>
-                  <span className="print-icon text-blue-300 hidden">📍</span>
-                </span>
-                <span className="wrap">{personal?.location || 'City, Country'}</span>
-              </li>
+                  <span className="wrap">{c.value}</span>
+                </li>
+              ))}
             </ul>
           </section>
 
           {skills.length > 0 && (
             <section className="mb-6 trim avoid-break">
               <h2 className="text-lg font-semibold mb-3 text-blue-300 uppercase tracking-wider">SKILLS</h2>
-              <ul className="bullets text-sm wrap">
+              <ul className="modern-list text-sm wrap">
                 {skills.map((skill, index) => (
                   <li key={index}>{typeof skill === 'string' ? skill : skill?.name}</li>
                 ))}
@@ -1101,8 +1066,10 @@ const Template2 = ({ data }) => {
                   <li key={index} className="mb-3 wrap" style={{ display: 'block' }}>
                     <h3 className="font-semibold text-white">{project.name}</h3>
                     <p className="text-slate-300 text-xs mt-1">{project.description}</p>
-                    {project.technologies?.length > 0 && (
-                      <p className="text-slate-400 text-xs mt-1">{project.technologies.join(' • ')}</p>
+                    {Array.isArray(project.technologies) && project.technologies.length > 0 && (
+                      <p className="text-slate-400 text-xs mt-1">
+                        {project.technologies.join(' • ')}
+                      </p>
                     )}
                   </li>
                 ))}
@@ -1132,19 +1099,31 @@ const Template2 = ({ data }) => {
           {experience.length > 0 && (
             <section className="mb-6 trim avoid-break">
               <h2 className="text-2xl font-bold text-slate-900 mb-3 border-b-2 border-blue-400 pb-2">Experience</h2>
-              <ul className="space-y-3">
-                {experience.map((exp, index) => (
-                  <li key={index} className="border-l-4 border-blue-400 pl-3 wrap" style={{ display: 'block' }}>
-                    <div className="flex justify-between items-baseline mb-1">
-                      <h3 className="text-base font-semibold text-gray-800">{exp.position}</h3>
-                      <span className="text-xs text-gray-500">{exp.duration}</span>
-                    </div>
-                    <p className="text-blue-600 text-sm font-medium mb-2">{exp.company}</p>
-                    <p className="text-gray-600 text-sm mt-1" style={{ whiteSpace: 'pre-line' }}>
-                      {exp.description}
-                    </p>
-                  </li>
-                ))}
+              <ul className="modern-list">
+                {experience.map((exp, index) => {
+                  const points = typeof exp.description === 'string'
+                    ? exp.description.split('\n').map(s => s.trim()).filter(Boolean)
+                    : Array.isArray(exp.description)
+                      ? exp.description.filter(Boolean)
+                      : [];
+
+                  return (
+                    <li key={index} className="wrap" style={{ display: 'block' }}>
+                      <div className="flex justify-between items-baseline mb-1">
+                        <h3 className="text-base font-semibold text-gray-800">{exp.position}</h3>
+                        <span className="text-xs text-gray-500">{exp.duration}</span>
+                      </div>
+                      <p className="text-blue-600 text-sm font-medium mb-2">{exp.company}</p>
+                      {points.length > 0 && (
+                        <ul className="modern-list ml-2">
+                          {points.map((point, i) => (
+                            <li key={i} className="text-gray-600 text-sm wrap">{point}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             </section>
           )}
@@ -1152,14 +1131,18 @@ const Template2 = ({ data }) => {
           {certifications.length > 0 && (
             <section className="trim avoid-break">
               <h2 className="text-2xl font-bold text-slate-900 mb-3 border-b-2 border-blue-400 pb-2">Certifications</h2>
-              <ul className="space-y-3">
+              <ul className="modern-list">
                 {certifications.map((cert, index) => (
-                  <li key={index} className="border-l-4 border-blue-400 pl-3 wrap" style={{ display: 'block' }}>
+                  <li key={index} className="wrap" style={{ display: 'block' }}>
                     <div className="flex justify-between items-baseline">
-                      <h3 className="text-base font-semibold text-gray-800">{cert.name}</h3>
-                      <span className="text-xs text-gray-500">{cert.year}</span>
+                      <span className="text-gray-800 text-sm font-medium">{cert.name}</span>
+                      {cert.issued && <span className="text-xs text-gray-500">{cert.issued}</span>}
                     </div>
-                    <p className="text-gray-600 text-sm mt-1">{cert.issuer}</p>
+                    {cert.org && <p className="text-gray-600 text-xs mt-1">{cert.org}</p>}
+                    {cert.id && <p className="text-gray-500 text-xs">ID: {cert.id}</p>}
+                    {cert.url && (
+                      <p className="text-blue-600 text-xs wrap">{cert.url}</p>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -1170,6 +1153,8 @@ const Template2 = ({ data }) => {
     </div>
   );
 };
+
+
 
 
 

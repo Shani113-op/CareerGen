@@ -18,7 +18,6 @@ const BookSlot = () => {
 
   const API = process.env.REACT_APP_API_URL;
 
-
   useEffect(() => {
     if (!consultant) {
       navigate('/consult'); // redirect if consultant data is missing
@@ -62,7 +61,6 @@ const BookSlot = () => {
       const res = await axios.post(
         `${API}/api/book-consultant`,
         {
-          consultantId,
           consultantEmail: consultant.email,
           consultantName: consultant.name,
           date,
@@ -74,30 +72,56 @@ const BookSlot = () => {
 
       if (res.data?.message?.includes('Email sent')) {
         alert('✅ Appointment booked successfully!');
-        await fetchBookedSlots(); // 🔹 update UI immediately
+        await fetchBookedSlots(); // 🔹 refresh booked slots
         navigate('/consult');
       } else {
         alert(res.data?.message || '❌ Something went wrong');
-        await fetchBookedSlots(); // 🔹 update if already booked
+        await fetchBookedSlots();
       }
     } catch (err) {
       console.error('Booking error:', err.message);
       alert('Slot already booked');
-      await fetchBookedSlots(); // 🔹 update booked slots
+      await fetchBookedSlots();
     } finally {
       setIsBooking(false);
     }
   };
 
-
   const availableTimes = [
-    '09:00 AM',
+
     '10:00 AM',
     '11:00 AM',
     '12:00 PM',
-    '02:00 PM',
-    '03:00 PM'
+    '04:00 PM',
+    '05:00 PM',
+    '06:00 PM',
+    '07:00 PM',
+    '08:00 PM',
+    
   ];
+
+  // 🔹 Utility: Check if a slot is in the past for today's date
+  const isPastSlot = (slot) => {
+    if (!date) return false;
+
+    const today = new Date();
+    const selected = new Date(date);
+
+    // If selected date is NOT today → no restriction
+    if (today.toDateString() !== selected.toDateString()) return false;
+
+    // Convert slot string ("04:30 PM") into a Date
+    const [timePart, modifier] = slot.split(" ");
+    let [hours, minutes] = timePart.split(":").map(Number);
+    if (modifier === "PM" && hours !== 12) hours += 12;
+    if (modifier === "AM" && hours === 12) hours = 0;
+    minutes = minutes || 0;
+
+    const slotDate = new Date(selected);
+    slotDate.setHours(hours, minutes, 0, 0);
+
+    return slotDate <= today; // true if slot time is in the past
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
@@ -124,7 +148,6 @@ const BookSlot = () => {
             onChange={(e) => setDate(e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-400 focus:outline-none transition"
           />
-
         </div>
 
         {/* Time Slots */}
@@ -134,24 +157,27 @@ const BookSlot = () => {
               ⏰ Select Time
             </label>
             <div className="flex flex-wrap gap-3 justify-center">
-              {availableTimes.map((t) => (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  key={t}
-                  disabled={bookedTimes.includes(t)}
-                  onClick={() => setTime(t)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition
-                ${bookedTimes.includes(t)
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed filter blur-sm opacity-60"
-                      : time === t
-                        ? "bg-blue-600 text-white shadow-md"
-                        : "bg-white text-gray-700 hover:bg-blue-50 border-gray-300"
-                    }`}
-                >
-                  {t} {bookedTimes.includes(t) && "❌"}
-                </motion.button>
-              ))}
+              {availableTimes.map((t) => {
+                const disabled = bookedTimes.includes(t) || isPastSlot(t);
+                return (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    key={t}
+                    disabled={disabled}
+                    onClick={() => setTime(t)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium border transition
+                      ${disabled
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed filter blur-sm opacity-60"
+                        : time === t
+                          ? "bg-blue-600 text-white shadow-md"
+                          : "bg-white text-gray-700 hover:bg-blue-50 border-gray-300"
+                      }`}
+                  >
+                    {t} {bookedTimes.includes(t) && "❌"}
+                  </motion.button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -166,7 +192,7 @@ const BookSlot = () => {
             onClick={handleBooking}
             disabled={isBooking}
             className={`px-6 py-2 rounded-lg font-semibold shadow-sm transition text-sm
-          ${isBooking
+              ${isBooking
                 ? "bg-gray-400 text-white cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}

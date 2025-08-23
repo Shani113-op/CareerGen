@@ -77,12 +77,12 @@ const History = () => {
     switch (key) {
       case '1month':
         return '1 Month';
+      case '2months':
+        return '2 Months';
       case '3months':
         return '3 Months';
-      case '1year':
-        return '1 Year';
       default:
-        return 'Manual';
+        return 'default';
     }
   };
 

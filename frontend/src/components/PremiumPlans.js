@@ -18,8 +18,8 @@ export default function PremiumPopup({ onClose, onUpgrade }) {
     // ✅ Convert UI label to backend plan key
     let selectedPlanKey;
     if (selectedPlan === "1 Month") selectedPlanKey = "1month";
+    else if (selectedPlan === "2 Months") selectedPlanKey = "2months";
     else if (selectedPlan === "3 Months") selectedPlanKey = "3months";
-    else if (selectedPlan === "1 Year") selectedPlanKey = "1year";
     else {
       alert("⚠️ Please select a valid plan.");
       return;

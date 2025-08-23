@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
 
   // ✅ Premium access flags
   isPremium: { type: Boolean, default: false },
-  premiumPlan: { type: String, default: null }, // '1month', '3months', '1year', 'manual'
+  premiumPlan: { type: String, default: null }, // '1month', '2months', '3months'
   premiumStartAt: { type: Date, default: null }, // ✅ <-- Add this field
   premiumExpiresAt: { type: Date, default: null },
 

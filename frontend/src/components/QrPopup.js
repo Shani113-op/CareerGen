@@ -8,8 +8,8 @@ const QrPopup = ({ selectedPlan, onClose }) => {
 
   const planPrices = {
     '1 Month': '1999',
-    '3 Months': '2999',
-    '1 Year': '3999',
+    '2 Months': '2999',
+    '3 Months': '3999',
   };
 
   const upiId = 'shailapadwal83@okhdfcbank';

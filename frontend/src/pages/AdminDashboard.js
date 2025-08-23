@@ -63,12 +63,12 @@ const AdminDashboard = () => {
   };
 
 
-  const handleApprove = async (email) => {
+  const handleApprove = async (email, plan) => {
     try {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email, plan })
       });
       const data = await res.json();
       if (res.ok) {
@@ -134,7 +134,9 @@ const AdminDashboard = () => {
                   <p>Status: <strong>⏳ Pending</strong></p>
                   <p><small>Uploaded: {new Date(u.updatedAt).toLocaleString()}</small></p>
                   <div className="action-buttons">
-                    <button className="accept-btn" onClick={() => handleApprove(u.email)}>✅ Approve</button>
+                    <button className="accept-btn" onClick={() => handleApprove(u.email, '1month')}>✅ Approve 1M</button>
+                    <button className="accept-btn" onClick={() => handleApprove(u.email, '2months')}>✅ Approve 2M</button>
+                    <button className="accept-btn" onClick={() => handleApprove(u.email, '3months')}>✅ Approve 3M</button>
                     <button className="deny-btn" onClick={() => handleDeny(u.email)}>🚫 Deny</button>
                   </div>
                 </div>

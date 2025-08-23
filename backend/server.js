@@ -747,23 +747,35 @@ app.get('/api/admin/receipts', async (req, res) => {
 
 app.post('/api/admin/approve', async (req, res) => {
   const { email, plan } = req.body;
+
+  console.log("body", email);
+  console.log("body2", plan);
+
   if (!email) return res.status(400).json({ error: 'Email is required' });
 
   try {
+
+    const planDuration = {
+      '1month': 30,
+      '2months': 60,
+      '3months': 90,
+      'default': 0,
+
+    };
+
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     user.isPremium = true;
-    user.premiumPlan = plan || 'manual';
+    user.premiumPlan = plan || 'default' ;
     user.receiptStatus = 'approved';
 
-    const planDuration = {
-      '1month': 30,
-      '3months': 90,
-      '1year': 365,
-      'manual': 365
-    };
-    const days = planDuration[user.premiumPlan] || 365;
+    console.log("duration", plan)
+
+    const days = planDuration[user.premiumPlan] || 0; 
+
+    console.log("days", days)
+
     user.premiumExpiresAt = new Date(Date.now() + days * 86400000);
 
     await user.save();
@@ -835,6 +847,7 @@ app.post('/api/admin/approve', async (req, res) => {
 
 
 // Get booked slots for a specific consultant & date
+// ✅ Existing route - DO NOT CHANGE
 app.post('/api/book-consultant', async (req, res) => {
   try {
     // 🔹 Verify token
@@ -867,7 +880,6 @@ app.post('/api/book-consultant', async (req, res) => {
 
     console.log(await Booking.find({ date, time, consultantId: consultant._id }));
 
-
     if (alreadyBooked) {
       return res.status(409).json({ message: 'This date & time slot is already booked.' });
     }
@@ -883,7 +895,7 @@ app.post('/api/book-consultant', async (req, res) => {
     });
     await newBooking.save();
 
-    // 🔹 Send email (same format as yours)
+    // 🔹 Send email
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -958,7 +970,6 @@ app.post('/api/book-consultant', async (req, res) => {
     const appointmentDateTime = moment(`${date} ${time}`, "YYYY-MM-DD hh:mm A");
     const reminderDateTime = appointmentDateTime.clone().subtract(2, 'hours');
 
-    // Convert to cron format: "m h D M *"
     const cronExpression = `${reminderDateTime.minute()} ${reminderDateTime.hour()} ${reminderDateTime.date()} ${reminderDateTime.month() + 1} *`;
 
     cron.schedule(cronExpression, async () => {
@@ -967,7 +978,7 @@ app.post('/api/book-consultant', async (req, res) => {
           from: process.env.EMAIL_USER,
           to: `${userEmail}, ${consultantEmail}`,
           subject: '⏰ Reminder: Your Counselling Session',
-          html: `<div style="max-width: 600px; margin: auto; font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f6f8; padding: 20px;">
+                    html: `<div style="max-width: 600px; margin: auto; font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f6f8; padding: 20px;">
   <div style="background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden;">
     
     <!-- Header -->
@@ -1017,6 +1028,30 @@ app.post('/api/book-consultant', async (req, res) => {
     res.status(500).json({ message: 'Server error. Could not complete booking.' });
   }
 });
+
+
+// ✅ NEW ROUTE - Fetch booked slots for disabling in frontend
+app.get('/api/booked-slots', async (req, res) => {
+  try {
+    const { consultantId, date } = req.query;
+
+    if (!consultantId || !date) {
+      return res.status(400).json({ message: 'Missing consultantId or date' });
+    }
+
+    // Find all bookings for this consultant & date
+    const bookings = await Booking.find({ consultantId, date });
+
+    // Extract just the times
+    const bookedTimes = bookings.map(b => b.time);
+
+    res.json({ bookedTimes });
+  } catch (err) {
+    console.error('❌ Error fetching booked slots:', err.message);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 
 // POST /api/admin/deny
@@ -1223,7 +1258,7 @@ app.post('/api/user/activate', async (req, res) => {
     }
 
     // ✅ Validate plan key
-    const validPlans = ['1month', '3months', '1year'];
+    const validPlans = ['1month', '2months', '3months'];
     if (!validPlans.includes(plan)) {
       return res.status(400).json({ success: false, message: 'Invalid plan selected' });
     }
@@ -1238,12 +1273,23 @@ app.post('/api/user/activate', async (req, res) => {
     let expiresAt = new Date(now);
 
     if (plan === '1month') {
+
       expiresAt.setMonth(expiresAt.getMonth() + 1);
+      console.log("Expiry", expiresAt.getMonth() + 1);
+
+    } else if (plan === '2months') {
+
+      expiresAt.setMonth(expiresAt.getMonth() + 2);
+      console.log("Expiry", expiresAt.getMonth() + 2);
+
     } else if (plan === '3months') {
-      expiresAt.setMonth(expiresAt.getMonth() + 3);
-    } else if (plan === '1year') {
-      expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+
+      expiresAt.setFullYear(expiresAt.getMonth() + 3);
+      console.log("Expiry", expiresAt.getMonth() + 3);
+
     }
+
+    console.log("Expiry", expiresAt)
 
     // ✅ Update user
     user.isPremium = true;

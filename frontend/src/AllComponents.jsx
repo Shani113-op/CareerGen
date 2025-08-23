@@ -1,8 +1,6 @@
 // src/AllComponents.jsx
-// This file contains the Resume Builder logic and templates only (Header, Footer, and Landing Page removed)
-
 import React, { useState, useRef, useEffect } from 'react';
-import { Menu, X } from "lucide-react"; // Icons
+import { Menu, X } from "lucide-react";
 import { BrowserRouter, Routes, Route, Link, useParams, useLocation } from 'react-router-dom';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -23,7 +21,6 @@ const Icon = React.memo(({ name, className }) => {
   return icons[name] || null;
 });
 
-// --- DEFAULT RESUME DATA ---
 export const defaultResumeData = {
   personal: {
     firstName: '',
@@ -63,18 +60,11 @@ export const defaultResumeData = {
   ]
 };
 
-
-// --- Download Button ---
-// src/AllComponents.jsx
-
-// --- Download Button (Corrected for Centering) ---
 const DownloadButton = () => {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handleDownload = async () => {
     setIsGenerating(true);
-    
-    // 1. Find the actual template content inside the preview container.
     const resumeContent = document.getElementById('resume-preview')?.firstElementChild;
 
     if (!resumeContent) {
@@ -82,18 +72,17 @@ const DownloadButton = () => {
       setIsGenerating(false);
       return;
     }
-    // html2pdf
-const options = {
-  margin: [0, 0, 0, 0], // top, right, bottom, left
-  filename: 'resume.pdf',
-  image: { type: 'jpeg', quality: 1.0 },
-  html2canvas: { scale: 2, useCORS: true, windowWidth: 794 },
-  jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-  pagebreak: { mode: ['css', 'legacy'] }
-};
+
+    const options = {
+      margin: [0, 0, 0, 0],
+      filename: 'resume.pdf',
+      image: { type: 'jpeg', quality: 1.0 },
+      html2canvas: { scale: 2, useCORS: true, windowWidth: 794 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['css', 'legacy'] }
+    };
 
     try {
-      // 3. Use html2pdf.js with the specified options to generate and save the PDF.
       await html2pdf().from(resumeContent).set(options).save();
     } catch (error) {
       console.error('Error generating PDF:', error);
@@ -104,14 +93,15 @@ const options = {
   };
 
   return (
-    <div className="flex space-x-3">
+    <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
       <button
         onClick={handleDownload}
         disabled={isGenerating}
-        className={`px-6 py-3 rounded-lg font-medium transition-colors ${isGenerating
+        className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+          isGenerating
             ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
             : 'bg-blue-600 text-white hover:bg-blue-700'
-          }`}
+        }`}
       >
         {isGenerating ? (
           <div className="flex items-center">
@@ -132,10 +122,23 @@ const options = {
   );
 };
 
-// --- Resume Form ---
 const ResumeForm = () => {
   const { resumeData, updateResumeData } = useResumeContext();
   const [activeSection, setActiveSection] = useState('personal');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const formRef = useRef(null);
+
+  useEffect(() => {
+    // Add viewport meta tag to prevent zooming on mobile
+    const meta = document.createElement('meta');
+    meta.name = 'viewport';
+    meta.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no';
+    document.head.appendChild(meta);
+
+    return () => {
+      document.head.removeChild(meta);
+    };
+  }, []);
 
   const handleInputChange = (section, field, value) => {
     updateResumeData({
@@ -184,228 +187,418 @@ const ResumeForm = () => {
   ];
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="mb-6">
-        <div className="flex space-x-4 border-b overflow-x-auto pb-2">
-          {sections.map((section) => (
-            <button
-              key={section.id}
-              onClick={() => setActiveSection(section.id)}
-              className={`py-2 px-4 font-medium whitespace-nowrap ${activeSection === section.id
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
-                }`}
-            >
-              {section.label}
-            </button>
-          ))}
-        </div>
+    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6" ref={formRef}>
+      {/* Mobile menu button */}
+      <div className="sm:hidden mb-4">
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="flex items-center justify-center w-full p-3 bg-gray-100 rounded-md"
+        >
+          {isMobileMenuOpen ? (
+            <>
+              <X className="w-5 h-5 mr-2" />
+              Close Menu
+            </>
+          ) : (
+            <>
+              <Menu className="w-5 h-5 mr-2" />
+              {sections.find(s => s.id === activeSection)?.label || 'Menu'}
+            </>
+          )}
+        </button>
       </div>
-      <div className="space-y-4">
-        {activeSection === 'personal' && (
+
+      <div className="flex flex-col sm:flex-row">
+        {/* Section tabs - desktop */}
+        <div className="hidden sm:block sm:mr-6 sm:w-48 flex-shrink-0">
+          <div className="sticky top-4 space-y-1">
+            {sections.map((section) => (
+              <button
+                key={section.id}
+                onClick={() => setActiveSection(section.id)}
+                className={`w-full text-left px-4 py-2 rounded-md font-medium ${
+                  activeSection === section.id
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                {section.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Section tabs - mobile */}
+        {isMobileMenuOpen && (
+          <div className="sm:hidden mb-4">
+            <div className="space-y-1">
+              {sections.map((section) => (
+                <button
+                  key={section.id}
+                  onClick={() => {
+                    setActiveSection(section.id);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`w-full text-left px-4 py-2 rounded-md font-medium ${
+                    activeSection === section.id
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  {section.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Form content */}
+        <div className="flex-1">
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                <input
-                  type="text"
-                  value={resumeData.personal?.firstName || ''}
-                  onChange={(e) => handleInputChange('personal', 'firstName', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                <input
-                  type="text"
-                  value={resumeData.personal?.lastName || ''}
-                  onChange={(e) => handleInputChange('personal', 'lastName', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input
-                type="email"
-                value={resumeData.personal?.email || ''}
-                onChange={(e) => handleInputChange('personal', 'email', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                <input
-                  type="tel"
-                  value={resumeData.personal?.phone || ''}
-                  onChange={(e) => handleInputChange('personal', 'phone', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                <input
-                  type="text"
-                  value={resumeData.personal?.location || ''}
-                  onChange={(e) => handleInputChange('personal', 'location', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="City, State"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Professional Summary</label>
-              <textarea
-                rows={4}
-                value={resumeData.personal?.summary || ''}
-                onChange={(e) => handleInputChange('personal', 'summary', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-        )}
-        {activeSection === 'experience' && (
-          <div className="space-y-6">
-            {(resumeData.experience || []).map((exp, index) => (
-              <div key={index} className="space-y-4 p-4 border rounded-md">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {activeSection === 'personal' && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Position</label>
-                    <input type="text" value={exp.position || ''} onChange={(e) => handleArrayChange('experience', index, 'position', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                    <input
+                      type="text"
+                      value={resumeData.personal?.firstName || ''}
+                      onChange={(e) => handleInputChange('personal', 'firstName', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
-                    <input type="text" value={exp.company || ''} onChange={(e) => handleArrayChange('experience', index, 'company', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                    <input
+                      type="text"
+                      value={resumeData.personal?.lastName || ''}
+                      onChange={(e) => handleInputChange('personal', 'lastName', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                    />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
-                  <input type="text" value={exp.duration || ''} onChange={(e) => handleArrayChange('experience', index, 'duration', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <input
+                    type="email"
+                    value={resumeData.personal?.email || ''}
+                    onChange={(e) => handleInputChange('personal', 'email', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                  />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                  <textarea rows={3} value={exp.description || ''} onChange={(e) => handleArrayChange('experience', index, 'description', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-                <div className="text-right">
-                  <button onClick={() => removeArrayItem('experience', index)} className="text-red-600 hover:text-red-800 text-sm font-medium">Remove</button>
-                </div>
-              </div>
-            ))}
-            <button onClick={() => addArrayItem('experience', { position: '', company: '', duration: '', description: '' })} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">Add Experience</button>
-          </div>
-        )}
-        {activeSection === 'education' && (
-          <div className="space-y-6">
-            {(resumeData.education || []).map((edu, index) => (
-              <div key={index} className="space-y-4 p-4 border rounded-md">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Degree</label>
-                    <input type="text" value={edu.degree || ''} onChange={(e) => handleArrayChange('education', index, 'degree', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                    <input
+                      type="tel"
+                      value={resumeData.personal?.phone || ''}
+                      onChange={(e) => handleInputChange('personal', 'phone', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">School / University</label>
-                    <input type="text" value={edu.school || ''} onChange={(e) => handleArrayChange('education', index, 'school', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
-                  <input type="text" value={edu.year || ''} onChange={(e) => handleArrayChange('education', index, 'year', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., 2020 - 2024" />
-                </div>
-                <div className="text-right">
-                  <button onClick={() => removeArrayItem('education', index)} className="text-red-600 hover:text-red-800 text-sm font-medium">Remove</button>
-                </div>
-              </div>
-            ))}
-            <button onClick={() => addArrayItem('education', { degree: '', school: '', year: '' })} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">Add Education</button>
-          </div>
-        )}
-        {activeSection === 'skills' && (
-          <div className="space-y-6">
-            {(resumeData.skills || []).map((skill, index) => (
-              <div key={index} className="space-y-4 p-4 border rounded-md">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Skill</label>
-                  <input type="text" value={skill.name || ''} onChange={(e) => handleArrayChange('skills', index, 'name', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-                <div className="text-right">
-                  <button onClick={() => removeArrayItem('skills', index)} className="text-red-600 hover:text-red-800 text-sm font-medium">Remove</button>
-                </div>
-              </div>
-            ))}
-            <button onClick={() => addArrayItem('skills', { name: '' })} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">Add Skill</button>
-          </div>
-        )}
-        {activeSection === 'projects' && (
-          <div className="space-y-6">
-            {(resumeData.projects || []).map((project, index) => (
-              <div key={index} className="space-y-4 p-4 border rounded-md">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
-                  <input type="text" value={project.name || ''} onChange={(e) => handleArrayChange('projects', index, 'name', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                  <textarea rows={3} value={project.description || ''} onChange={(e) => handleArrayChange('projects', index, 'description', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Technologies (comma-separated)</label>
-                  <input type="text" value={(project.technologies || []).join(', ')} onChange={(e) => handleArrayChange('projects', index, 'technologies', e.target.value.split(',').map(item => item.trim()))} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-                <div className="text-right">
-                  <button onClick={() => removeArrayItem('projects', index)} className="text-red-600 hover:text-red-800 text-sm font-medium">Remove</button>
-                </div>
-              </div>
-            ))}
-            <button onClick={() => addArrayItem('projects', { name: '', description: '', technologies: [] })} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">Add Project</button>
-          </div>
-        )}
-        {activeSection === 'certifications' && (
-          <div className="space-y-6">
-            {(resumeData.certifications || []).map((cert, index) => (
-              <div key={index} className="space-y-4 p-4 border rounded-md">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Certification Name</label>
-                    <input type="text" value={cert.name || ''} onChange={(e) => handleArrayChange('certifications', index, 'name', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Issuing Organization</label>
-                    <input type="text" value={cert.issuer || ''} onChange={(e) => handleArrayChange('certifications', index, 'issuer', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                    <input
+                      type="text"
+                      value={resumeData.personal?.location || ''}
+                      onChange={(e) => handleInputChange('personal', 'location', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                      placeholder="City, State"
+                    />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Date Awarded</label>
-                  <input type="text" value={cert.date || ''} onChange={(e) => handleArrayChange('certifications', index, 'date', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., June 2023" />
-                </div>
-                <div className="text-right">
-                  <button onClick={() => removeArrayItem('certifications', index)} className="text-red-600 hover:text-red-800 text-sm font-medium">Remove</button>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Professional Summary</label>
+                  <textarea
+                    rows={4}
+                    value={resumeData.personal?.summary || ''}
+                    onChange={(e) => handleInputChange('personal', 'summary', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
+                  />
                 </div>
               </div>
-            ))}
-            <button onClick={() => addArrayItem('certifications', { name: '', issuer: '', date: '' })} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700">Add Certification</button>
+            )}
+
+            {activeSection === 'experience' && (
+              <div className="space-y-6">
+                {(resumeData.experience || []).map((exp, index) => (
+                  <div key={index} className="space-y-4 p-4 border rounded-md">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                        <input 
+                          type="text" 
+                          value={exp.position || ''} 
+                          onChange={(e) => handleArrayChange('experience', index, 'position', e.target.value)} 
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
+                        <input 
+                          type="text" 
+                          value={exp.company || ''} 
+                          onChange={(e) => handleArrayChange('experience', index, 'company', e.target.value)} 
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+                      <input 
+                        type="text" 
+                        value={exp.duration || ''} 
+                        onChange={(e) => handleArrayChange('experience', index, 'duration', e.target.value)} 
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                      <textarea 
+                        rows={3} 
+                        value={exp.description || ''} 
+                        onChange={(e) => handleArrayChange('experience', index, 'description', e.target.value)} 
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                      />
+                    </div>
+                    <div className="text-right">
+                      <button 
+                        onClick={() => removeArrayItem('experience', index)} 
+                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <button 
+                  onClick={() => addArrayItem('experience', { position: '', company: '', duration: '', description: '' })} 
+                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Add Experience
+                </button>
+              </div>
+            )}
+
+            {activeSection === 'education' && (
+              <div className="space-y-6">
+                {(resumeData.education || []).map((edu, index) => (
+                  <div key={index} className="space-y-4 p-4 border rounded-md">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Degree</label>
+                        <input 
+                          type="text" 
+                          value={edu.degree || ''} 
+                          onChange={(e) => handleArrayChange('education', index, 'degree', e.target.value)} 
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">School / University</label>
+                        <input 
+                          type="text" 
+                          value={edu.school || ''} 
+                          onChange={(e) => handleArrayChange('education', index, 'school', e.target.value)} 
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
+                      <input 
+                        type="text" 
+                        value={edu.year || ''} 
+                        onChange={(e) => handleArrayChange('education', index, 'year', e.target.value)} 
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                        placeholder="e.g., 2020 - 2024"
+                      />
+                    </div>
+                    <div className="text-right">
+                      <button 
+                        onClick={() => removeArrayItem('education', index)} 
+                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <button 
+                  onClick={() => addArrayItem('education', { degree: '', school: '', year: '' })} 
+                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Add Education
+                </button>
+              </div>
+            )}
+
+            {activeSection === 'skills' && (
+              <div className="space-y-6">
+                {(resumeData.skills || []).map((skill, index) => (
+                  <div key={index} className="space-y-4 p-4 border rounded-md">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Skill</label>
+                      <input 
+                        type="text" 
+                        value={skill.name || ''} 
+                        onChange={(e) => handleArrayChange('skills', index, 'name', e.target.value)} 
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                      />
+                    </div>
+                    <div className="text-right">
+                      <button 
+                        onClick={() => removeArrayItem('skills', index)} 
+                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <button 
+                  onClick={() => addArrayItem('skills', { name: '' })} 
+                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Add Skill
+                </button>
+              </div>
+            )}
+
+            {activeSection === 'projects' && (
+              <div className="space-y-6">
+                {(resumeData.projects || []).map((project, index) => (
+                  <div key={index} className="space-y-4 p-4 border rounded-md">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
+                      <input 
+                        type="text" 
+                        value={project.name || ''} 
+                        onChange={(e) => handleArrayChange('projects', index, 'name', e.target.value)} 
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                      <textarea 
+                        rows={3} 
+                        value={project.description || ''} 
+                        onChange={(e) => handleArrayChange('projects', index, 'description', e.target.value)} 
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Technologies (comma-separated)</label>
+                      <input 
+                        type="text" 
+                        value={(project.technologies || []).join(', ')} 
+                        onChange={(e) => handleArrayChange('projects', index, 'technologies', e.target.value.split(',').map(item => item.trim()))} 
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                      />
+                    </div>
+                    <div className="text-right">
+                      <button 
+                        onClick={() => removeArrayItem('projects', index)} 
+                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <button 
+                  onClick={() => addArrayItem('projects', { name: '', description: '', technologies: [] })} 
+                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Add Project
+                </button>
+              </div>
+            )}
+
+            {activeSection === 'certifications' && (
+              <div className="space-y-6">
+                {(resumeData.certifications || []).map((cert, index) => (
+                  <div key={index} className="space-y-4 p-4 border rounded-md">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Certification Name</label>
+                        <input 
+                          type="text" 
+                          value={cert.name || ''} 
+                          onChange={(e) => handleArrayChange('certifications', index, 'name', e.target.value)} 
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Issuing Organization</label>
+                        <input 
+                          type="text" 
+                          value={cert.issuer || ''} 
+                          onChange={(e) => handleArrayChange('certifications', index, 'issuer', e.target.value)} 
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Date Awarded</label>
+                      <input 
+                        type="text" 
+                        value={cert.date || ''} 
+                        onChange={(e) => handleArrayChange('certifications', index, 'date', e.target.value)} 
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                        placeholder="e.g., June 2023"
+                      />
+                    </div>
+                    <div className="text-right">
+                      <button 
+                        onClick={() => removeArrayItem('certifications', index)} 
+                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <button 
+                  onClick={() => addArrayItem('certifications', { name: '', issuer: '', date: '' })} 
+                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Add Certification
+                </button>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
 };
 
-// --- Resume Preview ---
-// src/AllComponents.jsx
-
-// --- Resume Preview (Corrected) ---
 const ResumePreview = ({ templateComponent: TemplateComponent }) => {
   const { resumeData } = useResumeContext();
-  const [zoom, setZoom] = useState(0.75); // default zoom
+  const [zoom, setZoom] = useState(0.75);
+  const previewRef = useRef(null);
 
-  const zoomIn = () => setZoom((prev) => Math.min(prev + 0.1, 2)); // limit max zoom
-  const zoomOut = () => setZoom((prev) => Math.max(prev - 0.1, 0.5)); // limit min zoom
+  const zoomIn = () => setZoom((prev) => Math.min(prev + 0.1, 2));
+  const zoomOut = () => setZoom((prev) => Math.max(prev - 0.1, 0.5));
+
+  // Adjust zoom for mobile to fit the content
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) { // Mobile breakpoint
+        setZoom(0.5);
+      } else {
+        setZoom(0.75);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-      {/* Header with zoom controls */}
       <div className="mb-4 flex flex-col sm:flex-row justify-between items-center gap-3">
         <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Live Preview</h2>
         <div className="flex space-x-2">
@@ -424,10 +617,13 @@ const ResumePreview = ({ templateComponent: TemplateComponent }) => {
         </div>
       </div>
 
-      {/* Single preview container */}
-      <div className="border border-gray-200 rounded-lg overflow-auto grid place-items-center p-4">
+      <div 
+        className="border border-gray-200 rounded-lg overflow-auto grid place-items-center p-4"
+        style={{ maxWidth: '100%', overflowX: 'auto' }}
+      >
         <div
           id="resume-preview"
+          ref={previewRef}
           className="bg-white p-4 sm:p-8 min-h-[11in] origin-top shadow-lg"
           style={{
             width: "8.5in",

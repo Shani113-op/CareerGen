@@ -97,11 +97,10 @@ const DownloadButton = () => {
       <button
         onClick={handleDownload}
         disabled={isGenerating}
-        className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-          isGenerating
-            ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
-            : 'bg-blue-600 text-white hover:bg-blue-700'
-        }`}
+        className={`px-6 py-3 rounded-lg font-medium transition-colors ${isGenerating
+          ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+          : 'bg-blue-600 text-white hover:bg-blue-700'
+          }`}
       >
         {isGenerating ? (
           <div className="flex items-center">
@@ -130,13 +129,21 @@ const ResumeForm = () => {
 
   useEffect(() => {
     // Add viewport meta tag to prevent zooming on mobile
-    const meta = document.createElement('meta');
-    meta.name = 'viewport';
-    meta.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no';
-    document.head.appendChild(meta);
+    let existingMeta = document.querySelector('meta[name="viewport"]');
+    if (existingMeta) {
+      existingMeta.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no';
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = 'viewport';
+      meta.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no';
+      document.head.appendChild(meta);
+    }
+
+    // Add mobile-specific body class
+    document.body.classList.add('mobile-resume-form');
 
     return () => {
-      document.head.removeChild(meta);
+      document.body.classList.remove('mobile-resume-form');
     };
   }, []);
 
@@ -187,12 +194,12 @@ const ResumeForm = () => {
   ];
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6" ref={formRef}>
+    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 resume-form-container" ref={formRef}>
       {/* Mobile menu button */}
       <div className="sm:hidden mb-4">
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="flex items-center justify-center w-full p-3 bg-gray-100 rounded-md"
+          className="flex items-center justify-center w-full p-3 bg-gray-100 rounded-md mobile-menu-button"
         >
           {isMobileMenuOpen ? (
             <>
@@ -216,11 +223,10 @@ const ResumeForm = () => {
               <button
                 key={section.id}
                 onClick={() => setActiveSection(section.id)}
-                className={`w-full text-left px-4 py-2 rounded-md font-medium ${
-                  activeSection === section.id
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-100'
-                }`}
+                className={`w-full text-left px-4 py-2 rounded-md font-medium ${activeSection === section.id
+                  ? 'bg-blue-100 text-blue-700'
+                  : 'text-gray-600 hover:bg-gray-100'
+                  }`}
               >
                 {section.label}
               </button>
@@ -239,11 +245,10 @@ const ResumeForm = () => {
                     setActiveSection(section.id);
                     setIsMobileMenuOpen(false);
                   }}
-                  className={`w-full text-left px-4 py-2 rounded-md font-medium ${
-                    activeSection === section.id
-                      ? 'bg-blue-100 text-blue-700'
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
+                  className={`w-full text-left px-4 py-2 rounded-md font-medium ${activeSection === section.id
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-600 hover:bg-gray-100'
+                    }`}
                 >
                   {section.label}
                 </button>
@@ -254,11 +259,11 @@ const ResumeForm = () => {
 
         {/* Form content */}
         <div className="flex-1">
-          <div className="space-y-4">
+          <div className="space-y-4" style={{ padding: '0' }}>
             {activeSection === 'personal' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
+              <div className="space-y-4 form-section">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mobile-single-column">
+                  <div className="form-field-group">
                     <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
                     <input
                       type="text"
@@ -267,7 +272,7 @@ const ResumeForm = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                     />
                   </div>
-                  <div>
+                  <div className="form-field-group">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
                     <input
                       type="text"
@@ -277,7 +282,7 @@ const ResumeForm = () => {
                     />
                   </div>
                 </div>
-                <div>
+                <div className="form-field-group">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                   <input
                     type="email"
@@ -286,8 +291,8 @@ const ResumeForm = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                   />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mobile-single-column">
+                  <div className="form-field-group">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
                     <input
                       type="tel"
@@ -296,7 +301,7 @@ const ResumeForm = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                     />
                   </div>
-                  <div>
+                  <div className="form-field-group">
                     <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
                     <input
                       type="text"
@@ -307,7 +312,7 @@ const ResumeForm = () => {
                     />
                   </div>
                 </div>
-                <div>
+                <div className="form-field-group">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Professional Summary</label>
                   <textarea
                     rows={4}
@@ -320,60 +325,60 @@ const ResumeForm = () => {
             )}
 
             {activeSection === 'experience' && (
-              <div className="space-y-6">
+              <div className="space-y-6 form-section">
                 {(resumeData.experience || []).map((exp, index) => (
                   <div key={index} className="space-y-4 p-4 border rounded-md">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mobile-single-column">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Position</label>
-                        <input 
-                          type="text" 
-                          value={exp.position || ''} 
-                          onChange={(e) => handleArrayChange('experience', index, 'position', e.target.value)} 
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                        <input
+                          type="text"
+                          value={exp.position || ''}
+                          onChange={(e) => handleArrayChange('experience', index, 'position', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
-                        <input 
-                          type="text" 
-                          value={exp.company || ''} 
-                          onChange={(e) => handleArrayChange('experience', index, 'company', e.target.value)} 
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                        <input
+                          type="text"
+                          value={exp.company || ''}
+                          onChange={(e) => handleArrayChange('experience', index, 'company', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                         />
                       </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
-                      <input 
-                        type="text" 
-                        value={exp.duration || ''} 
-                        onChange={(e) => handleArrayChange('experience', index, 'duration', e.target.value)} 
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                      <input
+                        type="text"
+                        value={exp.duration || ''}
+                        onChange={(e) => handleArrayChange('experience', index, 'duration', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                      <textarea 
-                        rows={3} 
-                        value={exp.description || ''} 
-                        onChange={(e) => handleArrayChange('experience', index, 'description', e.target.value)} 
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                      <textarea
+                        rows={3}
+                        value={exp.description || ''}
+                        onChange={(e) => handleArrayChange('experience', index, 'description', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                       />
                     </div>
                     <div className="text-right">
-                      <button 
-                        onClick={() => removeArrayItem('experience', index)} 
-                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                      <button
+                        onClick={() => removeArrayItem('experience', index)}
+                        className="text-red-600 hover:text-red-800 text-sm font-medium remove-button"
                       >
                         Remove
                       </button>
                     </div>
                   </div>
                 ))}
-                <button 
-                  onClick={() => addArrayItem('experience', { position: '', company: '', duration: '', description: '' })} 
-                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                <button
+                  onClick={() => addArrayItem('experience', { position: '', company: '', duration: '', description: '' })}
+                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 add-button"
                 >
                   Add Experience
                 </button>
@@ -381,52 +386,52 @@ const ResumeForm = () => {
             )}
 
             {activeSection === 'education' && (
-              <div className="space-y-6">
+              <div className="space-y-6 form-section">
                 {(resumeData.education || []).map((edu, index) => (
                   <div key={index} className="space-y-4 p-4 border rounded-md">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mobile-single-column">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Degree</label>
-                        <input 
-                          type="text" 
-                          value={edu.degree || ''} 
-                          onChange={(e) => handleArrayChange('education', index, 'degree', e.target.value)} 
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                        <input
+                          type="text"
+                          value={edu.degree || ''}
+                          onChange={(e) => handleArrayChange('education', index, 'degree', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">School / University</label>
-                        <input 
-                          type="text" 
-                          value={edu.school || ''} 
-                          onChange={(e) => handleArrayChange('education', index, 'school', e.target.value)} 
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                        <input
+                          type="text"
+                          value={edu.school || ''}
+                          onChange={(e) => handleArrayChange('education', index, 'school', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                         />
                       </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
-                      <input 
-                        type="text" 
-                        value={edu.year || ''} 
-                        onChange={(e) => handleArrayChange('education', index, 'year', e.target.value)} 
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                      <input
+                        type="text"
+                        value={edu.year || ''}
+                        onChange={(e) => handleArrayChange('education', index, 'year', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                         placeholder="e.g., 2020 - 2024"
                       />
                     </div>
                     <div className="text-right">
-                      <button 
-                        onClick={() => removeArrayItem('education', index)} 
-                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                      <button
+                        onClick={() => removeArrayItem('education', index)}
+                        className="text-red-600 hover:text-red-800 text-sm font-medium remove-button"
                       >
                         Remove
                       </button>
                     </div>
                   </div>
                 ))}
-                <button 
-                  onClick={() => addArrayItem('education', { degree: '', school: '', year: '' })} 
-                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                <button
+                  onClick={() => addArrayItem('education', { degree: '', school: '', year: '' })}
+                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 add-button"
                 >
                   Add Education
                 </button>
@@ -434,31 +439,31 @@ const ResumeForm = () => {
             )}
 
             {activeSection === 'skills' && (
-              <div className="space-y-6">
+              <div className="space-y-6 form-section">
                 {(resumeData.skills || []).map((skill, index) => (
                   <div key={index} className="space-y-4 p-4 border rounded-md">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Skill</label>
-                      <input 
-                        type="text" 
-                        value={skill.name || ''} 
-                        onChange={(e) => handleArrayChange('skills', index, 'name', e.target.value)} 
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                      <input
+                        type="text"
+                        value={skill.name || ''}
+                        onChange={(e) => handleArrayChange('skills', index, 'name', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                       />
                     </div>
                     <div className="text-right">
-                      <button 
-                        onClick={() => removeArrayItem('skills', index)} 
-                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                      <button
+                        onClick={() => removeArrayItem('skills', index)}
+                        className="text-red-600 hover:text-red-800 text-sm font-medium remove-button"
                       >
                         Remove
                       </button>
                     </div>
                   </div>
                 ))}
-                <button 
-                  onClick={() => addArrayItem('skills', { name: '' })} 
-                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                <button
+                  onClick={() => addArrayItem('skills', { name: '' })}
+                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 add-button"
                 >
                   Add Skill
                 </button>
@@ -466,49 +471,49 @@ const ResumeForm = () => {
             )}
 
             {activeSection === 'projects' && (
-              <div className="space-y-6">
+              <div className="space-y-6 form-section">
                 {(resumeData.projects || []).map((project, index) => (
                   <div key={index} className="space-y-4 p-4 border rounded-md">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
-                      <input 
-                        type="text" 
-                        value={project.name || ''} 
-                        onChange={(e) => handleArrayChange('projects', index, 'name', e.target.value)} 
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                      <input
+                        type="text"
+                        value={project.name || ''}
+                        onChange={(e) => handleArrayChange('projects', index, 'name', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                      <textarea 
-                        rows={3} 
-                        value={project.description || ''} 
-                        onChange={(e) => handleArrayChange('projects', index, 'description', e.target.value)} 
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                      <textarea
+                        rows={3}
+                        value={project.description || ''}
+                        onChange={(e) => handleArrayChange('projects', index, 'description', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Technologies (comma-separated)</label>
-                      <input 
-                        type="text" 
-                        value={(project.technologies || []).join(', ')} 
-                        onChange={(e) => handleArrayChange('projects', index, 'technologies', e.target.value.split(',').map(item => item.trim()))} 
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                      <input
+                        type="text"
+                        value={(project.technologies || []).join(', ')}
+                        onChange={(e) => handleArrayChange('projects', index, 'technologies', e.target.value.split(',').map(item => item.trim()))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                       />
                     </div>
                     <div className="text-right">
-                      <button 
-                        onClick={() => removeArrayItem('projects', index)} 
-                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                      <button
+                        onClick={() => removeArrayItem('projects', index)}
+                        className="text-red-600 hover:text-red-800 text-sm font-medium remove-button"
                       >
                         Remove
                       </button>
                     </div>
                   </div>
                 ))}
-                <button 
-                  onClick={() => addArrayItem('projects', { name: '', description: '', technologies: [] })} 
-                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                <button
+                  onClick={() => addArrayItem('projects', { name: '', description: '', technologies: [] })}
+                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 add-button"
                 >
                   Add Project
                 </button>
@@ -516,52 +521,52 @@ const ResumeForm = () => {
             )}
 
             {activeSection === 'certifications' && (
-              <div className="space-y-6">
+              <div className="space-y-6 form-section">
                 {(resumeData.certifications || []).map((cert, index) => (
                   <div key={index} className="space-y-4 p-4 border rounded-md">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mobile-single-column">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Certification Name</label>
-                        <input 
-                          type="text" 
-                          value={cert.name || ''} 
-                          onChange={(e) => handleArrayChange('certifications', index, 'name', e.target.value)} 
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                        <input
+                          type="text"
+                          value={cert.name || ''}
+                          onChange={(e) => handleArrayChange('certifications', index, 'name', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Issuing Organization</label>
-                        <input 
-                          type="text" 
-                          value={cert.issuer || ''} 
-                          onChange={(e) => handleArrayChange('certifications', index, 'issuer', e.target.value)} 
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                        <input
+                          type="text"
+                          value={cert.issuer || ''}
+                          onChange={(e) => handleArrayChange('certifications', index, 'issuer', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                         />
                       </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Date Awarded</label>
-                      <input 
-                        type="text" 
-                        value={cert.date || ''} 
-                        onChange={(e) => handleArrayChange('certifications', index, 'date', e.target.value)} 
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base" 
+                      <input
+                        type="text"
+                        value={cert.date || ''}
+                        onChange={(e) => handleArrayChange('certifications', index, 'date', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                         placeholder="e.g., June 2023"
                       />
                     </div>
                     <div className="text-right">
-                      <button 
-                        onClick={() => removeArrayItem('certifications', index)} 
-                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                      <button
+                        onClick={() => removeArrayItem('certifications', index)}
+                        className="text-red-600 hover:text-red-800 text-sm font-medium remove-button"
                       >
                         Remove
                       </button>
                     </div>
                   </div>
                 ))}
-                <button 
-                  onClick={() => addArrayItem('certifications', { name: '', issuer: '', date: '' })} 
-                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                <button
+                  onClick={() => addArrayItem('certifications', { name: '', issuer: '', date: '' })}
+                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 add-button"
                 >
                   Add Certification
                 </button>
@@ -617,7 +622,7 @@ const ResumePreview = ({ templateComponent: TemplateComponent }) => {
         </div>
       </div>
 
-      <div 
+      <div
         className="border border-gray-200 rounded-lg overflow-auto grid place-items-center p-4"
         style={{ maxWidth: '100%', overflowX: 'auto' }}
       >
@@ -649,7 +654,7 @@ const ResumePreview = ({ templateComponent: TemplateComponent }) => {
   );
 };
 
-      
+
 
 
 // const TemplateCard = ({ template }) => (
@@ -740,8 +745,8 @@ const ResumeBuilderPage = ({ getTemplateComponent, templates }) => {
                 onClick={() => setSelectedTemplate(template.id)}
                 whileHover={{ scale: 1.03 }}
                 className={`flex flex-col items-center w-full sm:w-1/2 md:w-1/3 lg:w-1/4 space-x-0 p-6 rounded-2xl border-2 shadow-sm transition-all ${selectedTemplate === template.id
-                    ? "border-blue-600 bg-blue-50 shadow-md hover:bg-blue-50"
-                    : "border-gray-200 bg-white hover:bg-white hover:border-[rgb(147,197,253)]"
+                  ? "border-blue-600 bg-blue-50 shadow-md hover:bg-blue-50"
+                  : "border-gray-200 bg-white hover:bg-white hover:border-[rgb(147,197,253)]"
                   }`}
               >
                 <img
@@ -1655,7 +1660,7 @@ const Template4 = ({ data }) => {
           ))}
         </div>
       </header>
-      
+
       {/* Professional Summary */}
       {personal?.summary && (
         <section className="trim" style={{ marginBottom: '8mm' }}>
@@ -1665,7 +1670,7 @@ const Template4 = ({ data }) => {
           </p>
         </section>
       )}
-      
+
       {/* Skills Section - modern bullets */}
       {skills.length > 0 && (
         <section className="trim" style={{ marginBottom: '8mm' }}>
@@ -1679,7 +1684,7 @@ const Template4 = ({ data }) => {
           </ul>
         </section>
       )}
-      
+
       {/* Experience Section */}
       {experience.length > 0 && (
         <section className="trim" style={{ marginBottom: '8mm' }}>
@@ -1707,7 +1712,7 @@ const Template4 = ({ data }) => {
           </div>
         </section>
       )}
-      
+
       {/* Education Section */}
       {education.length > 0 && (
         <section className="trim" style={{ marginBottom: '8mm' }}>
@@ -1725,7 +1730,7 @@ const Template4 = ({ data }) => {
           </div>
         </section>
       )}
-      
+
       {/* Projects Section */}
       {projects.length > 0 && (
         <section className="trim">

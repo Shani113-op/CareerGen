@@ -195,13 +195,13 @@ const greetings = ["hi", "hello", "hey", "good morning", "good evening"];
             onKeyDown={handleKeyPress}
             disabled={loading}
           />
-          <button
+          <span
             onClick={handleSend}
             disabled={loading || !input.trim()}
             className="send-btn"
           >
             {loading ? '...' : <FiSend size={20} />}
-          </button>
+          </span>
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../styles/CollegesByLocation.css';
-import PremiumPopup from '../components/PremiumPlans';
+// import PremiumPopup from '../components/PremiumPlans';
 import { staticColleges } from '../data/staticColleges';
 import PageLoader from '../components/PageLoader'; // ✅ New reusable page loader
 
@@ -14,8 +14,8 @@ const TopColleges = () => {
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true); // ✅ New state for page loader
   const [error, setError] = useState('');
-  const [user, setUser] = useState(null);
-  const [showPremiumPopup, setShowPremiumPopup] = useState(false);
+  const [, setUser] = useState(null);
+  // const [showPremiumPopup, setShowPremiumPopup] = useState(false);
 
   const API = process.env.REACT_APP_API_URL;
 
@@ -35,10 +35,10 @@ const TopColleges = () => {
   }, [API]);
 
   const handleSearch = async () => {
-    if (!user?.isPremium) {
-      setShowPremiumPopup(true);
-      return;
-    }
+    // if (!user?.isPremium) {
+    //   setShowPremiumPopup(true);
+    //   return;
+    // }
 
     if ((!percentile || !course) && !collegeName) {
       return alert('Please enter Percentile & Course OR College Name');
@@ -254,7 +254,7 @@ const TopColleges = () => {
         </div>
       )}
 
-      {showPremiumPopup && (
+      {/* {showPremiumPopup && (
         <PremiumPopup
           onClose={() => setShowPremiumPopup(false)}
           onUpgrade={() => {
@@ -263,7 +263,7 @@ const TopColleges = () => {
             setShowPremiumPopup(false);
           }}
         />
-      )}
+      )} */}
     </div>
   );
 };

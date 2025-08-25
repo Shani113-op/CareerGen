@@ -7,7 +7,7 @@ import {
   FaLaptop, FaHeartbeat, FaChartLine, FaComments,
   FaSearch, FaPuzzlePiece, FaChalkboardTeacher, FaLightbulb, FaChartBar, FaPaintBrush
 } from 'react-icons/fa';
-import PremiumPopup from '../components/PremiumPlans';
+// import PremiumPopup from '../components/PremiumPlans';
 import PageLoader from '../components/PageLoader'; // ✅ import the loader
 
 const interestsList = [
@@ -40,8 +40,8 @@ export default function InterestForm() {
   const [errorMsg, setErrorMsg] = useState('');
   const [activeCategory, setActiveCategory] = useState("All");
 
-  const [user, setUser] = useState(null);
-  const [showPremiumPopup, setShowPremiumPopup] = useState(false);
+  const [, setUser] = useState(null);
+  // const [showPremiumPopup, setShowPremiumPopup] = useState(false);
 
   const API = process.env.REACT_APP_API_URL;
 
@@ -79,10 +79,10 @@ export default function InterestForm() {
       return;
     }
 
-    if (!user?.isPremium) {
-      setShowPremiumPopup(true);
-      return;
-    }
+    // if (!user?.isPremium) {
+    //   setShowPremiumPopup(true);
+    //   return;
+    // }
 
     setLoading(true);
     setShowCareers(false);
@@ -213,7 +213,7 @@ export default function InterestForm() {
         </div>
       )}
 
-      {showPremiumPopup && (
+      {/* {showPremiumPopup && (
         <PremiumPopup
           onClose={() => setShowPremiumPopup(false)}
           onUpgrade={() => {
@@ -223,7 +223,7 @@ export default function InterestForm() {
             handleSuggest();
           }}
         />
-      )}
+      )} */}
     </div>
   );
 }

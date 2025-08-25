@@ -52,11 +52,24 @@ export default function PremiumPopup({ onClose, onUpgrade }) {
   };
 
   return (
-    <div className="premium-overlay">
-      <div className="premium-modal">
-        <button className="close-btn" onClick={onClose}>&times;</button>
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm">
+      <div className="bg-white rounded-2xl shadow-2xl w-[90%] sm:w-[600px] max-h-[90vh] p-6 overflow-y-auto relative">
+        <span onClick={onClose} className="
+    absolute top-2 right-2 sm:top-3 sm:right-3
+    w-8 h-8 sm:w-10 sm:h-10
+    flex items-center justify-center
+    bg-gray-200 text-gray-500
+    rounded-full font-bold
+    text-base sm:text-lg
+    cursor-pointer
+    transition-all duration-200 ease-in-out
+    hover:bg-gray-300 hover:text-gray-800
+  ">
+          &times;
+        </span>
 
-        <div className="premium-header">
+
+        <div className="flex flex-col items-center text-center mb-6">
           <FaCrown size={40} color="#ffcc00" className="premium-icon" />
           <h2>Unlock Full Access</h2>
           <p className="premium-subtitle">
@@ -65,7 +78,7 @@ export default function PremiumPopup({ onClose, onUpgrade }) {
         </div>
 
         {/* Plan Cards */}
-        <div className="plan-cards">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
           {["1 Month", "2 Months", "3 Months"].map((plan) => (
             <div
               key={plan}

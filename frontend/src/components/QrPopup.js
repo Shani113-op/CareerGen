@@ -19,7 +19,7 @@ const QrPopup = ({ selectedPlan, onClose }) => {
   return (
     <div className="qr-popup-overlay">
       <div className="qr-popup-box">
-        <button className="close-btn" onClick={onClose}>✖</button>
+        <span className="close-btn" onClick={onClose}>✖</span>
 
         <h3>Scan to Pay</h3>
         <p><strong>Plan:</strong> {selectedPlan}</p>

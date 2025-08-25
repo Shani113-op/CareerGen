@@ -26,10 +26,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors(
-  //   {
-  //   origin: 'https://www.careergenai.in',
-  //   credentials: true
-  // }
+    {
+    origin: 'https://www.careergenai.in',
+    credentials: true
+  }
 ));
 
 
@@ -767,12 +767,12 @@ app.post('/api/admin/approve', async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     user.isPremium = true;
-    user.premiumPlan = plan || 'default' ;
+    user.premiumPlan = plan || 'default';
     user.receiptStatus = 'approved';
 
     console.log("duration", plan)
 
-    const days = planDuration[user.premiumPlan] || 0; 
+    const days = planDuration[user.premiumPlan] || 0;
 
     console.log("days", days)
 
@@ -967,6 +967,64 @@ app.post('/api/book-consultant', async (req, res) => {
 
     await transporter.sendMail(mailOptions);
 
+    const userMailOptions = {
+      from: `"Career GenAI" <${process.env.EMAIL_USER}>`,
+      to: userEmail,
+      subject: `✅ Your Appointment is Confirmed`,
+      html: `<div style="max-width: 800px; font-family: 'Segoe UI', sans-serif; background-color: #f4f8fb; padding: 20px;">
+  <div style="max-width: 800px; margin: auto; background: #ffffff; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.08); overflow: hidden;">
+
+    <!-- Header -->
+    <div style="background-color: #10B981; padding: 20px 25px; color: white;">
+      <h1 style="margin: 0; font-size: 24px;">🎉 Booking Confirmed!</h1>
+      <p style="margin: 5px 0 0;">Thank you for booking via <strong>CareerGenAI</strong></p>
+    </div>
+
+    <!-- Content -->
+    <div style="padding: 25px;">
+      <p style="font-size: 16px;">Hello <strong>${user.name}</strong>,</p>
+      <p style="font-size: 15px;">Your counselling session has been successfully booked. Here are the details:</p>
+
+      <!-- Details Table -->
+      <table style="width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 15px; border-collapse: collapse;">
+        <tr style="background-color: #f9fafb;">
+          <td style="width: 45%; padding: 14px; border-bottom: 1px solid #e5e7eb;">
+            👨‍🏫 <strong>Consultant</strong>
+          </td>
+          <td style="padding: 14px; border-bottom: 1px solid #e5e7eb;">${consultantName}</td>
+        </tr>
+        <tr>
+          <td style="width: 45%; padding: 14px; border-bottom: 1px solid #e5e7eb;">
+            📅 <strong>Date</strong>
+          </td>
+          <td style="padding: 14px; border-bottom: 1px solid #e5e7eb;">${date}</td>
+        </tr>
+        <tr style="background-color: #f9fafb;">
+          <td style="width: 45%; padding: 14px;">
+            ⏰ <strong>Time</strong>
+          </td>
+          <td style="padding: 14px;">${time}</td>
+        </tr>
+      </table>
+
+      <p style="margin-top: 20px;">📌 Please make sure to be available on time for your counselling session.</p>
+    </div>
+
+    <!-- Footer -->
+    <div style="background-color: #f1f5f9; padding: 20px 25px; text-align: center; font-size: 13px; color: #555;">
+      <p style="margin: 0;">This is your booking confirmation email from <strong>CareerGenAI</strong>.</p>
+      <p style="margin: 5px 0;">Need help? Contact us at 
+        <a href="mailto:support@careergenai.in" style="color: #3B82F6;">support@aryahsworld.com</a>
+      </p>
+      <p style="margin: 0;">© ${new Date().getFullYear()} CareerGenAI. All rights reserved.</p>
+    </div>
+
+  </div>
+</div>`
+    };
+    // 🔹 Send confirmation to user
+    await transporter.sendMail(userMailOptions);
+
     const appointmentDateTime = moment(`${date} ${time}`, "YYYY-MM-DD hh:mm A");
     const reminderDateTime = appointmentDateTime.clone().subtract(2, 'hours');
 
@@ -975,10 +1033,10 @@ app.post('/api/book-consultant', async (req, res) => {
     cron.schedule(cronExpression, async () => {
       try {
         const reminderMail = {
-          from: process.env.EMAIL_USER,
+          from: `"Career GenAI" <${process.env.EMAIL_USER}>`,
           to: `${userEmail}, ${consultantEmail}`,
           subject: '⏰ Reminder: Your Counselling Session',
-                    html: `<div style="max-width: 600px; margin: auto; font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f6f8; padding: 20px;">
+          html: `<div style="max-width: 600px; margin: auto; font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f6f8; padding: 20px;">
   <div style="background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden;">
     
     <!-- Header -->

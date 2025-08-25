@@ -68,6 +68,17 @@ const Chat = () => {
 
   // ✅ Try static match first
   const inputLC = input.toLowerCase().trim();
+
+const greetings = ["hi", "hello", "hey", "good morning", "good evening"];
+  if (greetings.includes(inputLC)) {
+    setMessages((prev) => [
+      ...prev,
+      { sender: "bot", text: "👋 Hello! How can I help you today? You can ask me about careers, courses, or colleges." }
+    ]);
+    setLoading(false);
+    return;
+  }
+
   let matchedCollege = staticColleges.find(clg => {
     const nameLC = clg.name.toLowerCase();
     const aliasMatch = clg.aliases?.some(alias => inputLC.includes(alias));

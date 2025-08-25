@@ -3,7 +3,7 @@ import axios from 'axios';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import '../styles/CareerQuiz.css';
-import PremiumPopup from '../components/PremiumPlans';
+// import PremiumPopup from '../components/PremiumPlans';
 import PageLoader from '../components/PageLoader'; // ✅ Import
 
 export default function CareerQuiz() {
@@ -13,8 +13,8 @@ export default function CareerQuiz() {
   const [answers, setAnswers] = useState([]);
   const [result, setResult] = useState(null);
 
-  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user")));
-  const [showPremiumPopup, setShowPremiumPopup] = useState(false);
+  const [, setUser] = useState(() => JSON.parse(localStorage.getItem("user")));
+  // const [showPremiumPopup, setShowPremiumPopup] = useState(false);
   const [pageLoading, setPageLoading] = useState(true); // ✅ new page loader state
 
   const API = process.env.REACT_APP_API_URL;
@@ -141,17 +141,14 @@ export default function CareerQuiz() {
         <button
           className="btn-primary"
           onClick={() => {
-            if (!user?.isPremium) {
-              setShowPremiumPopup(true);
-            } else {
               setShowIntro(false);
-            }
+            
           }}
         >
           🚀 Start My Quiz
         </button>
 
-        {showPremiumPopup && (
+        {/* {showPremiumPopup && (
           <PremiumPopup
             onClose={() => setShowPremiumPopup(false)}
             onUpgrade={() => {
@@ -161,7 +158,7 @@ export default function CareerQuiz() {
               setShowIntro(false);
             }}
           />
-        )}
+        )} */}
       </div>
     );
   }
@@ -169,50 +166,66 @@ export default function CareerQuiz() {
   return (
     <div className="quiz-container animate-fadein">
       <h2>Career Personality Quiz</h2>
-      {!result ? (
-        questions.length > 0 ? (
-          <div className="question-card">
-            <div className="progress-bar">
-              <div className="progress-fill" style={{ width: `${(index + 1) / questions.length * 100}%` }} />
-            </div>
-            <p className="q-count">Question {index + 1} of {questions.length}</p>
-            <h3>{questions[index].question}</h3>
-            <div className="options">
-              {questions[index].options.map((opt, i) => (
-                <button key={i} onClick={() => handleOption(opt)}>{opt}</button>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <p>Loading questions...</p>
-        )
-      ) : (
-        <div id="quiz-result" className="result-section" style={{ background: result.color }}>
-          <h3>{result.title}</h3>
-          <p className="traits">Traits: {result.traits.join(', ')}</p>
-          <p className="suggestion">{result.suggestion}</p>
+{!result ? (
+  questions.length > 0 ? (
+    <div className="question-card">
+      <div className="progress-bar">
+        <div
+          className="progress-fill"
+          style={{ width: `${((index + 1) / questions.length) * 100}%` }}
+        />
+      </div>
+      <p className="q-count">
+        Question {index + 1} of {questions.length}
+      </p>
+      <h3>{questions[index].question}</h3>
+      <div className="options">
+        {questions[index].options.map((opt, i) => (
+          <button key={i} onClick={() => handleOption(opt)}>
+            {opt}
+          </button>
+        ))}
+      </div>
+    </div>
+  ) : (
+    <p>Loading questions...</p>
+  )
+) : (
+  <>
+    {/* 🔹 Only this section will go into PDF */}
+    <div id="quiz-result" className="result-section" style={{ background: result.color }}>
+      <h3>{result.title}</h3>
+      <p className="traits">Traits: {result.traits.join(", ")}</p>
+      <p className="suggestion">{result.suggestion}</p>
 
-          <div className="modal-section">
-            <strong>📌 Roadmap to Begin:</strong>
-            <ul>
-              {result.roadmap.map((step, i) => (
-                <li key={i}>👉 {step}</li>
-              ))}
-            </ul>
-          </div>
+      <div className="modal-section">
+        <strong>📌 Roadmap to Begin:</strong>
+        <ul>
+          {result.roadmap.map((step, i) => (
+            <li key={i}>👉 {step}</li>
+          ))}
+        </ul>
+      </div>
 
-          <div className="modal-section">
-            <strong>🏫 Top Indian Colleges:</strong>
-            <ul>
-              {result.colleges.map((college, i) => (
-                <li key={i}>🎓 {college}</li>
-              ))}
-            </ul>
-          </div>
+      <div className="modal-section">
+        <strong>🏫 Top Indian Colleges:</strong>
+        <ul>
+          {result.colleges.map((college, i) => (
+            <li key={i}>🎓 {college}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
 
-          <button className="btn-primary" onClick={downloadPDF}>📄 Download Result</button>
-        </div>
-      )}
+    {/* 🔹 Buttons OUTSIDE so they don’t appear in PDF */}
+    <div className="mt-4 flex justify-center gap-4">
+      <button className="btn-primary" onClick={downloadPDF}>
+        📄 Download Result
+      </button>
+    </div>
+  </>
+)}
+
     </div>
   );
 }

@@ -21,7 +21,7 @@ const Footer = () => {
           <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">Contact Us</a>
         </div>
         <div className="mt-8 pt-8 border-t border-gray-800 text-sm text-gray-400">
-          © 2024 CareerGenAI produce by Aryahas World InfoTech. All rights reserved.
+          © 2024 CareerGenAI produce by Aryahas World InfoTech (OPC) Pvt. Ltd. . All rights reserved.
         </div>
       </div>
     </footer>

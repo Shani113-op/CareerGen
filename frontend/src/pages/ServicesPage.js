@@ -47,7 +47,6 @@ const services = [
     title: "Career Roadmaps",
     description: "Download step-by-step guides for your dream career.",
     path: "/careerDetail",
-    badge: "Premium",
   },
   {
     icon: <FaUserCircle />,
@@ -78,7 +77,7 @@ const services = [
     {
     icon: <FaFileAlt />,
     title: "Premium Resume Builder",
-    description: "Create modern, ATS-friendly Premium resumes using smart templates.",
+    description: "Create ATS-friendly Premium resumes using smart templates.",
     path: "/AllComponents",
     badge: "Premium",
   },

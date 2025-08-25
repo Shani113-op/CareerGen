@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import '../styles/CareerCompare.css';
-import PremiumPopup from '../components/PremiumPlans';
+// import PremiumPopup from '../components/PremiumPlans';
 import PageLoader from '../components/PageLoader'; // ✅ Reusable loader
 
 const CareerCompare = () => {
@@ -14,8 +14,8 @@ const CareerCompare = () => {
   const [loading, setLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true); // ✅ Page loader state
   const [error, setError] = useState('');
-  const [user, setUser] = useState(null);
-  const [showPremiumPopup, setShowPremiumPopup] = useState(false);
+  const [, setUser] = useState(null);
+  // const [showPremiumPopup, setShowPremiumPopup] = useState(false);
 
   const API = process.env.REACT_APP_API_URL;
 
@@ -35,10 +35,10 @@ const CareerCompare = () => {
   }, [API]);
 
   const handleCompare = async () => {
-    if (!user?.isPremium) {
-      setShowPremiumPopup(true);
-      return;
-    }
+    // if (!user?.isPremium) {
+    //   setShowPremiumPopup(true);
+    //   return;
+    // }
 
     if (!course1 || !course2) {
       return alert('Please enter both courses to compare.');
@@ -121,7 +121,7 @@ const CareerCompare = () => {
         </div>
       )}
 
-      {showPremiumPopup && (
+      {/* {showPremiumPopup && (
         <PremiumPopup
           onClose={() => setShowPremiumPopup(false)}
           onUpgrade={() => {
@@ -130,7 +130,7 @@ const CareerCompare = () => {
             setShowPremiumPopup(false);
           }}
         />
-      )}
+      )} */}
     </div>
   );
 };

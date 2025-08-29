@@ -2,13 +2,13 @@
 .quiz-intro {
   max-width: 600px;
   margin: 4rem auto;
-  background: #f9fafb;
+  /* background: #f9fafb; */
   padding: 2.5rem;
   border-radius: 20px;
   text-align: center;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
-  border: 1px solid #e5e7eb;
-  animation: fadeIn 0.4s ease-in;
+  /* box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06); */
+  /* border: 1px solid #e5e7eb; */
+  /* animation: fadeIn 0.4s ease-in; */
 }
 
 .quiz-intro h2 {
@@ -24,9 +24,15 @@
 }
 
 .quiz-benefits {
+  text-align: left;
   list-style: none;
   padding: 0;
-  margin: 1.5rem 0;
+  margin-bottom: 1.5rem;
+}
+
+.checkbox {
+  display: flex;
+  justify-content: center;
 }
 
 .quiz-benefits li {
@@ -209,6 +215,7 @@
     opacity: 0;
     transform: translateY(15px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

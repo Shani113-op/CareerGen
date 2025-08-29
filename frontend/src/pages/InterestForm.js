@@ -105,7 +105,12 @@ export default function InterestForm() {
       if (err.response?.status === 402) {
         setErrorMsg("⚠️ You've hit your free quota limit. Try again later or reduce selections.");
       } else {
-        setErrorMsg("⚠️ Failed to fetch recommendations. Please check your server and try again.");
+        setErrorMsg(
+  <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded-md mt-4 text-center">
+    😔 Sorry! We couldn’t fetch recommendations right now.<br />
+    🚀 Don’t worry, we’ll fix this issue quickly, please try again soon.
+  </div>
+);
       }
     } finally {
       setLoading(false);
@@ -152,7 +157,7 @@ export default function InterestForm() {
         </button>
       </div>
 
-      {loading && <p className="loading-text">🔄 Fetching suggestions...</p>}
+      {loading && <PageLoader />}
       {errorMsg && <p className="error-message">{errorMsg}</p>}
 
       {showCareers && (

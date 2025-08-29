@@ -93,7 +93,9 @@ const Consult = () => {
             </div>
           ))
         ) : (
-          <p className="no-consultants">No consultants found.</p>
+            <div className="bg-blue-100 border border-blue-400 text-black-700 px-4 py-3 rounded-md mt-4 text-center">
+    😔 Our consultants are currently engaged in ongoing sessions. Please try booking your counseling session a little later. We appreciate your patience.<br /> 
+  </div>
         )}
       </div>
 

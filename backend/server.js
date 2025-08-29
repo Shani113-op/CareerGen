@@ -190,6 +190,138 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// =====================
+
+
+// Forgot Password - Send OTP
+app.post("/api/auth/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    otpStore.set(email, {
+      otp,
+      expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
+    });
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"CareerGenAI" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "🔐 Reset Your Password - CareerGenAI",
+      html: `
+  <div style="font-family: Arial, sans-serif; background-color: #f4f7fb; padding: 20px;">
+    <div style="max-width: 500px; margin: auto; background: #ffffff; border-radius: 10px; box-shadow: 0px 4px 10px rgba(0,0,0,0.1); overflow: hidden;">
+      
+      <!-- Header -->
+      <div style="background: #1e40af; padding: 15px; text-align: center;">
+        <h2 style="color: #ffffff; margin: 0;">CareerGenAI</h2>
+      </div>
+      
+      <!-- Body -->
+      <div style="padding: 20px; color: #333333; text-align: center;">
+        <h3 style="color: #1e40af;">Password Reset Request</h3>
+        <p style="font-size: 15px; color: #555;">
+          You requested to reset your password. Use the OTP below to proceed:
+        </p>
+
+        <div style="margin: 20px 0; font-size: 24px; font-weight: bold; color: #1e3a8a; letter-spacing: 2px;">
+          ${otp}
+        </div>
+
+        <p style="font-size: 14px; color: #666;">
+          This OTP is valid for <b>10 minutes</b>. <br/>
+          If you didn’t request this, please ignore this email.
+        </p>
+      </div>
+      
+      <!-- Footer -->
+      <div style="background: #f1f5f9; padding: 12px; text-align: center; font-size: 12px; color: #777;">
+        © ${new Date().getFullYear()} CareerGenAI. All rights reserved.
+      </div>
+    </div>
+  </div>
+  `,
+    });
+
+
+    res.status(200).json({ message: "OTP sent to email" });
+  } catch (err) {
+    console.error("Forgot password error:", err.message);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Verify OTP
+app.post("/api/auth/verifyfp-otp", async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const otpData = otpStore.get(email);
+
+    if (!otpData) {
+      return res.status(400).json({ error: "OTP not found or expired" });
+    }
+
+    if (Date.now() > otpData.expiresAt) {
+      otpStore.delete(email);
+      return res.status(400).json({ error: "OTP expired" });
+    }
+
+    if (otpData.otp !== otp.trim()) {
+      return res.status(400).json({ error: "Invalid OTP" });
+    }
+
+    res.status(200).json({ message: "OTP verified successfully" });
+  } catch (err) {
+    console.error("Verify OTP error:", err.message);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Reset Password
+app.post("/api/auth/reset-password", async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    const otpData = otpStore.get(email);
+
+    if (!otpData) {
+      return res.status(400).json({ error: "OTP not found or expired" });
+    }
+
+    if (Date.now() > otpData.expiresAt) {
+      otpStore.delete(email);
+      return res.status(400).json({ error: "OTP expired" });
+    }
+
+    if (otpData.otp !== otp.trim()) {
+      return res.status(400).json({ error: "Invalid OTP" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await User.findOneAndUpdate({ email }, { password: hashedPassword });
+
+    otpStore.delete(email); // clear OTP after reset
+
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (err) {
+    console.error("Reset password error:", err.message);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
 app.get('/premium-status', authMiddleware, async (req, res) => {
   const user = await User.findById(req.user.id);
   const isActive = user.premiumPlan && new Date(user.premiumExpiresAt) > new Date();
@@ -936,6 +1068,12 @@ app.post('/api/book-consultant', async (req, res) => {
           </td>
           <td style="padding: 14px; border-bottom: 1px solid #e5e7eb; word-break: break-word; overflow-wrap: anywhere;">${userEmail}</td>
         </tr>
+        <tr>
+          <td style="width: 45%; padding: 14px; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">
+            📧 <strong style="margin-left: 5px;">Phone No.</strong>
+          </td>
+          <td style="padding: 14px; border-bottom: 1px solid #e5e7eb; word-break: break-word; overflow-wrap: anywhere;">${user.mobile}</td>
+        </tr>
         <tr style="background-color: #f9fafb;">
           <td style="width: 45%; padding: 14px; white-space: nowrap;">
             📅 <strong style="margin-left: 5px;">Date</strong>
@@ -1008,6 +1146,8 @@ app.post('/api/book-consultant', async (req, res) => {
       </table>
 
       <p style="margin-top: 20px;">📌 Please make sure to be available on time for your counselling session.</p>
+      <p style="margin-top: 20px;">📌 Counsultant will get in touch with you, he/she will send you Google meet link via this Email: ${consultantEmail}</p>
+
     </div>
 
     <!-- Footer -->

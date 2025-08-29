@@ -12,6 +12,7 @@ export default function CareerQuiz() {
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
 
   const [, setUser] = useState(() => JSON.parse(localStorage.getItem("user")));
   // const [showPremiumPopup, setShowPremiumPopup] = useState(false);
@@ -48,8 +49,10 @@ export default function CareerQuiz() {
     try {
       const res = await axios.get(`${API}/api/quiz-questions`);
       setQuestions(res.data.questions);
+      setError(null);
     } catch (err) {
       console.error('Error fetching questions:', err);
+      setError("failed");
     }
   };
 
@@ -132,17 +135,26 @@ export default function CareerQuiz() {
       <div className="quiz-intro animate-fadein">
         <h2>✨ Discover Your Career Personality</h2>
         <p>Take a short AI-powered quiz to reveal your strengths, traits, and best-fit careers.</p>
+<p style={{ fontFamily: "'Playfair Display', serif" }} className="text-gray-700 text-lg leading-relaxed italic">
+  This quiz is designed to help you discover your strengths, interests, and personality traits. 
+  By answering a few simple questions, you’ll gain a clearer understanding of which career 
+  paths match your skills and where you can truly excel.
+</p>
+
+
+        <div className='checkbox'>
         <ul className="quiz-benefits">
           <li>✅ Personalized suggestions</li>
           <li>✅ AI-generated questions</li>
           <li>✅ Roadmap & Colleges</li>
           <li>✅ Downloadable PDF</li>
         </ul>
+        </div>
         <button
           className="btn-primary"
           onClick={() => {
-              setShowIntro(false);
-            
+            setShowIntro(false);
+
           }}
         >
           🚀 Start My Quiz
@@ -166,65 +178,70 @@ export default function CareerQuiz() {
   return (
     <div className="quiz-container animate-fadein">
       <h2>Career Personality Quiz</h2>
-{!result ? (
-  questions.length > 0 ? (
-    <div className="question-card">
-      <div className="progress-bar">
-        <div
-          className="progress-fill"
-          style={{ width: `${((index + 1) / questions.length) * 100}%` }}
-        />
-      </div>
-      <p className="q-count">
-        Question {index + 1} of {questions.length}
-      </p>
-      <h3>{questions[index].question}</h3>
-      <div className="options">
-        {questions[index].options.map((opt, i) => (
-          <button key={i} onClick={() => handleOption(opt)}>
-            {opt}
-          </button>
-        ))}
-      </div>
-    </div>
-  ) : (
-    <p>Loading questions...</p>
-  )
+      {!result ? (
+        questions.length > 0 ? (
+          <div className="question-card">
+            <div className="progress-bar">
+              <div
+                className="progress-fill"
+                style={{ width: `${((index + 1) / questions.length) * 100}%` }}
+              />
+            </div>
+            <p className="q-count">
+              Question {index + 1} of {questions.length}
+            </p>
+            <h3>{questions[index].question}</h3>
+            <div className="options">
+              {questions[index].options.map((opt, i) => (
+                <button key={i} onClick={() => handleOption(opt)}>
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : error ? (
+  <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md mt-4 text-center">
+    😔 Sorry! We couldn’t fetch questions right now.<br />
+    🚀 Don’t worry, we’ll fix this issue quickly, please try again soon.
+  </div>
 ) : (
-  <>
-    {/* 🔹 Only this section will go into PDF */}
-    <div id="quiz-result" className="result-section" style={{ background: result.color }}>
-      <h3>{result.title}</h3>
-      <p className="traits">Traits: {result.traits.join(", ")}</p>
-      <p className="suggestion">{result.suggestion}</p>
+  <p>Loading questions...</p>
+)
+      ) : (
+        <>
+          {/* 🔹 Only this section will go into PDF */}
+          <div id="quiz-result" className="result-section" style={{ background: result.color }}>
+            <h3>{result.title}</h3>
+            <p className="traits">Traits: {result.traits.join(", ")}</p>
+            <p className="suggestion">{result.suggestion}</p>
 
-      <div className="modal-section">
-        <strong>📌 Roadmap to Begin:</strong>
-        <ul>
-          {result.roadmap.map((step, i) => (
-            <li key={i}>👉 {step}</li>
-          ))}
-        </ul>
-      </div>
+            <div className="modal-section">
+              <strong>📌 Roadmap to Begin:</strong>
+              <ul>
+                {result.roadmap.map((step, i) => (
+                  <li key={i}>👉 {step}</li>
+                ))}
+              </ul>
+            </div>
 
-      <div className="modal-section">
-        <strong>🏫 Top Indian Colleges:</strong>
-        <ul>
-          {result.colleges.map((college, i) => (
-            <li key={i}>🎓 {college}</li>
-          ))}
-        </ul>
-      </div>
-    </div>
+            <div className="modal-section">
+              <strong>🏫 Top Indian Colleges:</strong>
+              <ul>
+                {result.colleges.map((college, i) => (
+                  <li key={i}>🎓 {college}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
 
-    {/* 🔹 Buttons OUTSIDE so they don’t appear in PDF */}
-    <div className="mt-4 flex justify-center gap-4">
-      <button className="btn-primary" onClick={downloadPDF}>
-        📄 Download Result
-      </button>
-    </div>
-  </>
-)}
+          {/* 🔹 Buttons OUTSIDE so they don’t appear in PDF */}
+          <div className="mt-4 flex justify-center gap-4">
+            <button className="btn-primary" onClick={downloadPDF}>
+              📄 Download Result
+            </button>
+          </div>
+        </>
+      )}
 
     </div>
   );

@@ -75,13 +75,13 @@ const confirmLogout = () => {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h2.586a1 1 0 01.707.293l1.414 1.414a1 1 0 01.293.707V8a1 1 0 01-.293.707L8 10l6 6 1.293-1.293A1 1 0 0116 14h2.586a1 1 0 01.707.293l1.414 1.414a1 1 0 01.293.707V19a2 2 0 01-2 2h-1C9.163 21 3 14.837 3 7V5z" />
             </svg>
-            +91 8657869659
+            +91 9619901999
           </a>
           <a href="tel:+919619901999" className="flex items-center gap-2 hover:text-blue-400 transition-colors duration-200">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h2.586a1 1 0 01.707.293l1.414 1.414a1 1 0 01.293.707V8a1 1 0 01-.293.707L8 10l6 6 1.293-1.293A1 1 0 0116 14h2.586a1 1 0 01.707.293l1.414 1.414a1 1 0 01.293.707V19a2 2 0 01-2 2h-1C9.163 21 3 14.837 3 7V5z" />
             </svg>
-            +91 9619901999
+            +91 8657869659
           </a>
         </div>
 

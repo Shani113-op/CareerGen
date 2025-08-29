@@ -72,6 +72,7 @@ const BookSlot = () => {
 
       if (res.data?.message?.includes('Email sent')) {
         alert('✅ Appointment booked successfully!');
+        navigate('/history');
         await fetchBookedSlots(); // 🔹 refresh booked slots
         navigate('/consult');
       } else {

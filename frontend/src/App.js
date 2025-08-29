@@ -39,6 +39,8 @@ import PortfolioBuilder from './pages/templates/PortfolioBuilder';
 import CoverLetterBuilder from './pages/templates/CoverLetterBuilder';
 import { ResumeProvider } from './context/ResumeContext';
 import BookSlot from './pages/BookSlot';
+import ForgotPassword from "./pages/ForgotPassword"; // adjust path
+
 
 // Import from cleaned AllComponents.jsx
 import { ResumeBuilderPage, Template1, Template2, Template3, Template4, Template5, Template6 } from './AllComponents';
@@ -84,6 +86,7 @@ const Layout = () => {
           <Route path="/templates/portfolio-builder" element={<PortfolioBuilder />} />
           <Route path="/templates/coverletter-builder" element={<CoverLetterBuilder />} />
           <Route path="/book-slot/:consultantId" element={<BookSlot />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* Premium Resume Builder Route */}
           <Route

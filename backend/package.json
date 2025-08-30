@@ -1,30 +1,38 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
+  "name": "careergenai-python-backend",
+  "version": "2.0.0",
+  "description": "CareerGenAI Advanced AI Chatbot Backend (Python FastAPI)",
+  "main": "chatbot.py",
   "scripts": {
-    "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "python chatbot.py",
+    "dev": "python chatbot.py",
+    "node": "node start.js",
+    "python": "python chatbot.py",
+    "server": "uvicorn chatbot:app --host 0.0.0.0 --port 8000 --reload",
+    "health": "python -c \"import requests; print('Health:', requests.get('process.env.REACT_APP_API_URL/health').json())\"",
+    "install-deps": "pip install -r requirements.txt",
+    "install-full": "pip install -r requirements.txt",
+    "postinstall": "pip install -r requirements.txt"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "@google/generative-ai": "^0.5.0",
-    "axios": "^1.10.0",
-    "bcryptjs": "^3.0.2",
-    "cheerio": "^1.1.0",
-    "cors": "^2.8.5",
-    "dotenv": "^16.5.0",
-    "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2",
-    "jspdf": "^3.0.1",
-    "moment": "^2.30.1",
-    "mongoose": "^8.16.0",
-    "node-cron": "^4.2.1",
-    "nodemailer": "^7.0.3",
-    "openai": "^5.7.0"
-  }
+  "keywords": [
+    "chatbot",
+    "ai",
+    "career-guidance",
+    "fastapi",
+    "python",
+    "machine-learning"
+  ],
+  "author": "CareerGenAI Team",
+  "license": "MIT",
+  "engines": {
+    "python": ">=3.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/careergenai/chatbot-backend"
+  },
+  "bugs": {
+    "url": "https://github.com/careergenai/chatbot-backend/issues"
+  },
+  "homepage": "https://careergenai.com"
 }

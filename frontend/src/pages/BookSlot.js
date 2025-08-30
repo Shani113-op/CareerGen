@@ -70,11 +70,10 @@ const BookSlot = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      if (res.data?.message?.includes('Email sent')) {
+      if (res.data?.message?.includes('Slot booked')) {
         alert('✅ Appointment booked successfully!');
         navigate('/history');
         await fetchBookedSlots(); // 🔹 refresh booked slots
-        navigate('/consult');
       } else {
         alert(res.data?.message || '❌ Something went wrong');
         await fetchBookedSlots();
@@ -133,9 +132,10 @@ const BookSlot = () => {
         className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg border border-gray-200"
       >
         {/* Title */}
-        <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+        <h1 className="text-2xl font-bold text-gray-800 mb-2 text-center">
           Book Slot with <span className="text-blue-600">{consultant?.name}</span>
         </h1>
+        <p className='mb-6 text-center'>Blur Time Slots are already Booked Slots</p>
 
         {/* Date Picker */}
         <div className="mb-6">

@@ -205,7 +205,7 @@ export default function CareerQuiz() {
     🚀 Don’t worry, we’ll fix this issue quickly, please try again soon.
   </div>
 ) : (
-  <p>Loading questions...</p>
+  <PageLoader />
 )
       ) : (
         <>

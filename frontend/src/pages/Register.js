@@ -14,6 +14,8 @@ const Register = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+ const [acceptedPolicy, setAcceptedPolicy] = useState(false);
+ const [errorMsg, setErrorMsg] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,6 +28,25 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorMsg('');
+
+    if (!acceptedPolicy) {
+      setErrorMsg(
+        <>
+          Please go through terms and conditions and also read our{' '}
+          <a 
+            href="https://drive.google.com/file/d/1t0TgLDb_IUDdGhKndtAkM60IjokU_Jw8/view?usp=sharing" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{ color: 'blue', textDecoration: 'underline' }}
+          >
+            Privacy Policy
+          </a>.
+        </>
+      );
+      setIsSubmitting(false);
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       alert('Passwords do not match!');
@@ -123,6 +144,26 @@ const Register = () => {
             onChange={handleChange}
             required
           />
+
+          {/* Privacy Policy Checkbox */}
+          <div className="privacy-check">
+            <input
+              type="checkbox"
+              id="privacyPolicy"
+              checked={acceptedPolicy}
+              onChange={(e) => setAcceptedPolicy(e.target.checked)}
+            />
+            <label htmlFor="privacyPolicy">
+              I agree to the Terms & Conditions and Privacy Policy
+            </label>
+          </div>
+
+          {/* Error Message */}
+          {errorMsg && (
+            <div className="error-msg" style={{ color: 'blue', marginBottom: '10px' }}>
+              {errorMsg}
+            </div>
+          )}
 
           <button className="sub-btn" disabled={isSubmitting}>
             {isSubmitting ? <div className="loader"></div> : 'Submit'}

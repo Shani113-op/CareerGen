@@ -993,7 +993,7 @@ app.post('/api/book-consultant', async (req, res) => {
 
     // 🔹 Extract booking data
     const { consultantEmail, consultantName, date, time, userEmail } = req.body;
-    if (!consultantEmail || !date || !time || !userEmail) {
+    if (!consultantEmail || !date || !time || !userEmail ) {
       return res.status(400).json({ message: 'Missing booking details' });
     }
 
@@ -1219,7 +1219,7 @@ app.post('/api/book-consultant', async (req, res) => {
       }
     });
 
-    res.status(200).json({ message: 'Slot booked and email sent.' });
+    res.status(200).json({ message: 'Slot booked and email sent.', booking: newBooking });
 
   } catch (error) {
     console.error('Booking error:', error.message);
@@ -1250,6 +1250,22 @@ app.get('/api/booked-slots', async (req, res) => {
   }
 });
 
+// 🔹 Get all counselling bookings for a user
+app.get('/api/counselling/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+    if (!email) {
+      return res.status(400).json({ message: 'User email is required' });
+    }
+
+    const bookings = await Booking.find({ userEmail: email }).sort({ date: -1 });
+
+    res.status(200).json({ bookings });
+  } catch (error) {
+    console.error('❌ Error fetching bookings:', error.message);
+    res.status(500).json({ message: 'Server error while fetching bookings.' });
+  }
+});
 
 
 // POST /api/admin/deny

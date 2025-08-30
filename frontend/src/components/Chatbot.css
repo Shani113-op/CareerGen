@@ -81,7 +81,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  z-index: 1000;
+  z-index: 10000; /* Higher z-index to ensure it's above mobile styles */
   animation: slideUp 0.3s ease-out;
 }
 
@@ -231,6 +231,26 @@
   margin: 0;
   font-size: 14px;
   line-height: 1.4;
+}
+
+/* Markdown formatting styles */
+.chatbot-message-bubble strong {
+  font-weight: 600;
+  color: #1F2937;
+}
+
+.chatbot-message-bubble em {
+  font-style: italic;
+  color: #374151;
+}
+
+.chatbot-message-bubble.bot strong {
+  color: #1F2937;
+}
+
+.chatbot-message-bubble.user strong {
+  color: #FFFFFF;
+  font-weight: 700;
 }
 
 /* Quick Reply Buttons */
@@ -501,22 +521,270 @@
 
 
 
-/* Responsive Design */
-@media (max-width: 480px) {
-  .chatbot-container {
-    width: calc(100vw - 32px);
-    height: calc(100vh - 120px);
-    right: 16px;
-    bottom: 90px;
+/* Mobile-optimized styles applied via media queries */
+
+/* Mobile Mode Integration - Works with body.mobile-mode */
+body.mobile-mode .chatbot-container {
+  width: calc(100vw - 32px) !important;
+  max-width: 360px !important;
+  height: 500px !important;
+  right: 16px !important;
+  bottom: 90px !important;
+  border-radius: 20px !important;
+}
+
+body.mobile-mode .chatbot-toggle {
+  bottom: 15px !important;
+  right: 15px !important;
+}
+
+body.mobile-mode .chatbot-toggle-btn {
+  width: 56px !important;
+  height: 56px !important;
+}
+
+/* Enhanced Mobile Optimization */
+@media (max-width: 768px) {
+  /* Mobile Toggle Button */
+  .chatbot-toggle {
+    bottom: 15px;
+    right: 15px;
   }
   
+  .chatbot-toggle-btn {
+    width: 56px;
+    height: 56px;
+  }
+  
+  /* Mobile Container - Popup Style (not full screen) */
+  .chatbot-container {
+    width: calc(100vw - 32px);
+    max-width: 360px;
+    height: 500px;
+    right: 16px;
+    bottom: 90px;
+    border-radius: 20px;
+  }
+  
+  /* Mobile Header */
+  .chatbot-header {
+    padding: 20px 16px;
+    background: linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
+  }
+  
+  .chatbot-header-text h3 {
+    font-size: 18px;
+  }
+  
+  .chatbot-header-text p {
+    font-size: 14px;
+  }
+  
+  /* Mobile Messages Area */
+  .chatbot-messages-area {
+    padding: 16px;
+    gap: 16px;
+  }
+  
+  /* Mobile Message Bubbles */
+  .chatbot-message-bubble {
+    max-width: 85%;
+    padding: 12px 16px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  
+  .chatbot-message-bubble p {
+    font-size: 15px;
+  }
+  
+  /* Mobile Markdown formatting */
+  .chatbot-message-bubble strong {
+    font-weight: 600;
+  }
+  
+  .chatbot-message-bubble em {
+    font-style: italic;
+  }
+  
+  /* Mobile Bot Avatar */
+  .chatbot-bot-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+  
+  /* Mobile Quick Replies - Single Column */
   .chatbot-quick-replies {
     grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  
+  .chatbot-quick-reply-btn {
+    padding: 14px 18px;
+    font-size: 15px;
+    border-radius: 24px;
+    min-height: 48px;
+  }
+  
+  /* Mobile Quick Actions - Single Column */
+  .chatbot-quick-actions-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .chatbot-quick-action-button {
+    padding: 14px 18px;
+    font-size: 15px;
+    border-radius: 24px;
+    min-height: 48px;
+  }
+  
+  /* Mobile Main Menu - Single Column */
+  .chatbot-main-menu-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .chatbot-main-menu-button {
+    padding: 16px 20px;
+    font-size: 15px;
+    border-radius: 26px;
+    min-height: 52px;
+  }
+  
+  /* Mobile Single Main Menu Button */
+  .chatbot-main-menu-single-button {
+    padding: 14px 24px;
+    font-size: 15px;
+    border-radius: 24px;
+    min-height: 48px;
+  }
+  
+  /* Mobile Menu Options */
+  .chatbot-menu-option {
+    padding: 16px 20px;
+    border-radius: 16px;
+    min-height: 60px;
+  }
+  
+  .chatbot-menu-text {
+    font-size: 15px;
+  }
+  
+  .chatbot-menu-icon {
+    font-size: 20px;
+  }
+  
+  /* Mobile Input Area */
+  .chatbot-input-area {
+    padding: 16px;
+    background: white;
+  }
+  
+  .chatbot-input-wrapper {
+    padding: 6px;
+    border-radius: 30px;
+  }
+  
+  .chatbot-input-field {
+    padding: 16px 20px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  .chatbot-send-btn {
+    width: 44px;
+    height: 44px;
+  }
+  
+  /* Mobile Message Bubbles */
+  .chatbot-message-bubble {
+    font-size: 16px;
+    line-height: 1.5;
+    padding: 14px 18px;
+  }
+  
+  /* Mobile Typing Indicator */
+  .chatbot-typing-indicator {
+    padding: 14px 18px;
+  }
+  
+  .chatbot-typing-dots span {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+/* Extra Small Mobile Devices */
+@media (max-width: 480px) {
+  /* Keep popup style but make it slightly smaller */
+  .chatbot-container {
+    width: calc(100vw - 24px);
+    max-width: 340px;
+    height: 480px;
+    right: 12px;
+    bottom: 85px;
+  }
+  
+  .chatbot-messages-area {
+    padding: 12px;
   }
   
   .chatbot-message-bubble {
-    max-width: calc(100% - 50px);
+    max-width: 90%;
+    padding: 10px 14px;
   }
+  
+  .chatbot-input-area {
+    padding: 12px;
+  }
+  
+  .chatbot-header {
+    padding: 16px 12px;
+  }
+}
+
+/* Touch Improvements for Mobile */
+@media (hover: none) and (pointer: coarse) {
+  /* Better touch targets for mobile */
+  .chatbot-quick-reply-btn,
+  .chatbot-quick-action-button,
+  .chatbot-main-menu-button,
+  .chatbot-main-menu-single-button,
+  .chatbot-menu-option {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  
+  /* Active states for touch */
+  .chatbot-quick-reply-btn:active,
+  .chatbot-quick-action-button:active,
+  .chatbot-main-menu-button:active {
+    transform: scale(0.98);
+  }
+  
+  .chatbot-send-btn:active {
+    transform: scale(0.95);
+  }
+  
+  .chatbot-toggle-btn:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Prevent text selection on buttons */
+.chatbot-quick-reply-btn,
+.chatbot-quick-action-button,
+.chatbot-main-menu-button,
+.chatbot-main-menu-single-button,
+.chatbot-menu-option,
+.chatbot-send-btn,
+.chatbot-toggle-btn {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }/* He
 lp Button and Popup Styles */
 .chatbot-header-actions {

@@ -12,8 +12,8 @@ export const useMobileDetection = () => {
       const width = window.innerWidth;
       const userAgent = navigator.userAgent.toLowerCase();
       
-      // Check screen width (primary method) - more conservative breakpoint
-      const isMobileScreen = width <= 480;
+      // Check screen width (primary method) - more inclusive breakpoint
+      const isMobileScreen = width <= 768;
       
       // Check user agent (secondary method)
       const mobileRegex = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;

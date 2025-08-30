@@ -1,5 +1,5 @@
 .history-container {
-  max-width: 600px;
+  max-width: 70%;
   margin: 3rem auto;
   padding: 2rem;
   background: #f9fafb;
@@ -80,6 +80,60 @@
   color: #f59e0b; /* Tailwind amber-500 like */
   font-weight: bold;
 }
+
+.receipt-table-wrapper {
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+.receipt-table {
+  width: 100%; /* full width */
+  max-width: 1000px; /* expand table width */
+  margin: 0 auto; /* center it */
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.receipt-table th,
+.receipt-table td {
+  border: 1px solid #e5e7eb; /* light gray lines */
+  padding: 12px 16px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.receipt-table th {
+  background: #f3f4f6;
+  font-weight: bold;
+  color: #374151;
+  font-size: 15px;
+}
+
+.receipt-table tr:nth-child(even) {
+  background: #fafafa; /* zebra effect */
+}
+
+.receipt-thumb {
+  width: 90px;  /* bigger thumbnail */
+  height: auto;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+}
+
+.status-approved {
+  color: #16a34a; /* green */
+  font-weight: bold;
+}
+
+.status-pending {
+  color: #d97706; /* amber */
+  font-weight: bold;
+}
+
 
 @media screen and (max-width: 768px){
   .modal-content{

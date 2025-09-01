@@ -1227,7 +1227,6 @@ app.post('/api/book-consultant', async (req, res) => {
   }
 });
 
-
 // ✅ NEW ROUTE - Fetch booked slots for disabling in frontend
 app.get('/api/booked-slots', async (req, res) => {
   try {
@@ -1524,6 +1523,43 @@ app.post('/api/user/activate', async (req, res) => {
     return res.status(500).json({ success: false, message: 'Server error during premium activation' });
   }
 });
+
+// Update user profile (using POST)
+app.post("/api/user/update-profile", async (req, res) => {
+  try {
+    const { userId, name, mobile, email, profileImage } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Only check for duplicate email if the new email is different
+    if (email && email !== user.email) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists) {
+        return res.status(400).json({ message: "Email is already in use" });
+      }
+      user.email = email;
+    }
+
+    // Update other fields
+    user.name = name || user.name;
+    user.mobile = mobile || user.mobile;
+    user.profileImage = profileImage || user.profileImage;
+
+    const updatedUser = await user.save();
+
+    res.status(200).json({ message: "Profile updated successfully", user: updatedUser });
+
+  } catch (err) {
+    console.error("Profile update error:", err);
+    res.status(500).json({ message: "Server error while updating profile" });
+  }
+});
+
+
+
 
 
 

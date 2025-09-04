@@ -41,21 +41,32 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # --- CORS Middleware ---
+# CORS Configuration - Use environment variable for production
+cors_origins = os.getenv("CORS_ORIGINS", "*").split(",") if os.getenv("CORS_ORIGINS") else ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Restrict this in production
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Quick fix: Add SERVICE_MAPPINGS for endpoint compatibility
+# Configuration for deployment - Use environment variable for base URL
+BASE_URL = os.getenv("FRONTEND_BASE_URL", "https://www.careergenai.in")
+
+# SERVICE_MAPPINGS for endpoint compatibility with configurable URLs
 SERVICE_MAPPINGS = {
-    "resume_builder": {"keywords": ["resume builder", "resume", "cv"], "url": "https://careergenai.com/resume-templates"},
-    "career_assessment": {"keywords": ["career assessment", "assessment"], "url": "https://careergenai.com/interest-form"},
-    "personality_quiz": {"keywords": ["personality quiz", "personality test"], "url": "https://careergenai.com/career-quiz"},
-    "career_counselling": {"keywords": ["career counselling", "counseling"], "url": "https://careergenai.com/consult"},
-    "top_colleges": {"keywords": ["colleges", "college search"], "url": "https://careergenai.com/colleges"},
+    "resume_builder": {"keywords": ["resume builder", "resume", "cv"], "url": f"{BASE_URL}/resume-templates"},
+    "premium_resume": {"keywords": ["premium resume", "advanced resume", "ai resume"], "url": f"{BASE_URL}/AllComponents"},
+    "career_assessment": {"keywords": ["career assessment", "assessment"], "url": f"{BASE_URL}/interest-form"},
+    "personality_quiz": {"keywords": ["personality quiz", "personality test"], "url": f"{BASE_URL}/careerQuiz"},
+    "career_counselling": {"keywords": ["career counselling", "counseling"], "url": f"{BASE_URL}/consult"},
+    "top_colleges": {"keywords": ["colleges", "college search"], "url": f"{BASE_URL}/college"},
+    "career_comparison": {"keywords": ["career comparison", "compare careers"], "url": f"{BASE_URL}/compare"},
+    "profile_builder": {"keywords": ["profile builder", "build profile"], "url": f"{BASE_URL}/profile-builder"},
+    "career_details": {"keywords": ["career details", "career info"], "url": f"{BASE_URL}/careerDetail"},
+    "chat": {"keywords": ["chat", "chatbot", "ai assistant"], "url": f"{BASE_URL}/chat"},
 }
 
 # Quick fix: Add missing functions to prevent startup errors
@@ -125,7 +136,7 @@ UNIVERSAL_KNOWLEDGE_BASE = {
             "description": "AI-powered career discovery tool that analyzes your interests and suggests matching careers",
             "features": ["18+ career interest areas", "AI matching algorithm", "Detailed career reports", "Skills assessment", "Growth prospects analysis"],
             "process": "Take quiz → AI analysis → Get top 5 career matches → Detailed insights → Action plan",
-            "url": "https://careergenai.com/interest-form",
+            "url": f"{BASE_URL}/interest-form",
             "type": "FREE",
             "duration": "15-20 minutes",
             "keywords": ["career assessment", "career test", "career quiz", "find career", "career match", "interest test", "what can i do", "features", "tools", "assessments"]
@@ -134,7 +145,7 @@ UNIVERSAL_KNOWLEDGE_BASE = {
             "description": "Comprehensive personality analysis to understand your work style and matching careers",
             "features": ["Personality type identification", "Work style analysis", "Team dynamics", "Career alignment", "Growth areas"],
             "process": "Answer questions → Personality analysis → Career matching → Detailed report → Recommendations",
-            "url": "https://careergenai.com/career-quiz",
+            "url": f"{BASE_URL}/careerQuiz",
             "type": "FREE",
             "duration": "10-15 minutes",
             "keywords": ["personality quiz", "personality test", "work style", "personality type", "mbti", "personality"]
@@ -143,7 +154,7 @@ UNIVERSAL_KNOWLEDGE_BASE = {
             "description": "Professional ATS-friendly resume builder with modern templates",
             "features": ["ATS-friendly templates", "Professional layouts", "Easy customization", "PDF download", "Multiple formats"],
             "process": "Choose template → Fill details → Customize design → Download PDF → Apply to jobs",
-            "url": "https://careergenai.com/resume-templates",
+            "url": f"{BASE_URL}/resume-templates",
             "type": "FREE",
             "templates": ["Modern", "Classic", "Creative", "Minimalist", "Professional"],
             "keywords": ["resume builder", "resume", "cv", "build resume", "create resume", "resume template"]
@@ -152,7 +163,7 @@ UNIVERSAL_KNOWLEDGE_BASE = {
             "description": "AI-powered premium resume builder with advanced features and industry-specific templates",
             "features": ["AI content suggestions", "Industry-specific templates", "Keyword optimization", "Real-time feedback", "Cover letter builder"],
             "process": "Select industry → AI suggestions → Advanced customization → Optimization → Professional output",
-            "url": "https://careergenai.com/premium-resume",
+            "url": f"{BASE_URL}/AllComponents",
             "type": "PREMIUM",
             "pricing": {"1_month": "₹1,999", "3_months": "₹2,999", "1_year": "₹3,999"},
             "keywords": ["premium resume builder", "premium resume", "ai resume", "advanced resume", "ai-powered resume", "premium templates"]
@@ -161,7 +172,7 @@ UNIVERSAL_KNOWLEDGE_BASE = {
             "description": "One-on-one expert career counselling sessions with certified professionals",
             "features": ["Certified counselors", "Personalized guidance", "Career planning", "Decision support", "Goal setting"],
             "process": "Book session → Expert consultation → Personalized plan → Follow-up support → Success tracking",
-            "url": "https://careergenai.com/consult",
+            "url": f"{BASE_URL}/consult",
             "type": "FREE consultation available",
             "duration": "30-60 minutes",
             "keywords": ["career counselling", "counseling", "expert guidance", "career advisor", "counselor", "guidance"]
@@ -170,7 +181,7 @@ UNIVERSAL_KNOWLEDGE_BASE = {
             "description": "Comprehensive database of 10,000+ colleges with smart search and filtering",
             "features": ["10,000+ colleges", "Smart filters", "Ranking data", "Admission info", "Fee structure", "Placement records"],
             "process": "Set preferences → Search colleges → Compare options → Get details → Apply",
-            "url": "https://careergenai.com/colleges",
+            "url": f"{BASE_URL}/college",
             "type": "FREE",
             "coverage": "India and International",
             "keywords": ["colleges", "college search", "top colleges", "university", "admission", "college finder"]
@@ -179,7 +190,7 @@ UNIVERSAL_KNOWLEDGE_BASE = {
             "description": "Complete student career profile creation tool for comprehensive self-assessment",
             "features": ["Academic tracking", "Skills inventory", "Achievement records", "Goal setting", "Progress monitoring"],
             "process": "Enter details → Build profile → Track progress → Set goals → Monitor growth",
-            "url": "https://careergenai.com/profile-builder",
+            "url": f"{BASE_URL}/profile-builder",
             "type": "FREE",
             "sections": ["Personal Info", "Education", "Skills", "Projects", "Achievements", "Goals"],
             "keywords": ["profile builder", "profile building", "student profile", "career profile", "profile creation", "build profile"]
@@ -188,7 +199,7 @@ UNIVERSAL_KNOWLEDGE_BASE = {
             "description": "Side-by-side career comparison tool for informed decision making",
             "features": ["Salary comparison", "Skills analysis", "Education requirements", "Growth prospects", "Work-life balance"],
             "process": "Select careers → Compare metrics → Analyze differences → Make decision → Get guidance",
-            "url": "https://careergenai.com/career-compare",
+            "url": f"{BASE_URL}/compare",
             "type": "FREE",
             "metrics": ["Salary", "Growth", "Education", "Skills", "Demand", "Lifestyle"],
             "keywords": ["career comparison", "compare careers", "career vs career", "which career", "career analysis"]
@@ -197,7 +208,7 @@ UNIVERSAL_KNOWLEDGE_BASE = {
             "description": "Step-by-step career roadmaps with detailed guidance for your dream career",
             "features": ["Step-by-step guides", "Timeline planning", "Skill development", "Milestone tracking", "Resource recommendations"],
             "process": "Choose career → Get roadmap → Follow steps → Track progress → Achieve goals",
-            "url": "https://careergenai.com/career-roadmap",
+            "url": f"{BASE_URL}/careerDetail",
             "type": "PREMIUM",
             "careers": ["Software Engineer", "Data Scientist", "Doctor", "Business Manager", "Digital Marketer"],
             "keywords": ["career roadmap", "career path", "career guide", "roadmap", "career plan"]
@@ -206,7 +217,7 @@ UNIVERSAL_KNOWLEDGE_BASE = {
             "description": "24/7 intelligent AI career assistant for instant guidance and support",
             "features": ["24/7 availability", "Instant responses", "Personalized guidance", "Emotional support", "Service navigation"],
             "process": "Ask question → AI analysis → Intelligent response → Follow-up support → Resource links",
-            "url": "https://careergenai.com/chat",
+            "url": f"{BASE_URL}/chat",
             "type": "FREE",
             "capabilities": ["Career guidance", "Service info", "Emotional support", "Academic help"],
             "keywords": ["chatbot", "ai assistant", "chat", "help", "support", "ask question"]
@@ -490,9 +501,10 @@ QUESTION_PATTERNS = {
     }
 }
 
-# COMPREHENSIVE RESPONSE TEMPLATES
-RESPONSE_TEMPLATES = {
-    "services_overview": """🎯 **CAREERGENAI - COMPLETE SERVICE PORTFOLIO**
+# COMPREHENSIVE RESPONSE TEMPLATES - Function to generate templates with BASE_URL
+def get_response_templates():
+    return {
+    "services_overview": f"""🎯 **CAREERGENAI - COMPLETE SERVICE PORTFOLIO**
 
 **🆓 FREE SERVICES (8 Total) - Registration Required, No Money:**
 1. **Career Assessment** - AI-powered career discovery based on your interests
@@ -520,14 +532,19 @@ RESPONSE_TEMPLATES = {
 **Real Person Counselling:** Yes! Our career counselling connects you with certified human experts for personalized guidance.
 
 **🔗 Quick Access Links:**
-- Career Assessment: https://careergenai.com/interest-form
-- Resume Builder: https://careergenai.com/resume-templates
-- College Search: https://careergenai.com/colleges
-- Expert Counselling: https://careergenai.com/consult
+- Career Assessment: {BASE_URL}/interest-form
+- Personality Quiz: {BASE_URL}/careerQuiz
+- Resume Builder (FREE): {BASE_URL}/resume-templates
+- Premium Resume Builder: {BASE_URL}/AllComponents
+- College Search: {BASE_URL}/college
+- Expert Counselling: {BASE_URL}/consult
+- Career Comparison: {BASE_URL}/compare
+- Profile Builder: {BASE_URL}/profile-builder
+- Career Details: {BASE_URL}/careerDetail
 
 Ready to explore? Which service interests you most?""",
 
-    "pricing_details": """💰 **CAREERGENAI PRICING - TRANSPARENT & AFFORDABLE**
+    "pricing_details": f"""💰 **CAREERGENAI PRICING - TRANSPARENT & AFFORDABLE**
 
 **🆓 FREE SERVICES (Registration Required, No Money):**
 ✅ Career Assessment - AI career discovery
@@ -563,75 +580,87 @@ Ready to explore? Which service interests you most?""",
 - Priority customer support
 
 **🔗 Get Started:**
-- Register Free: https://careergenai.com/register
-- View Pricing: https://careergenai.com/pricing
+- Register Free: {BASE_URL}/register
+- View Pricing: {BASE_URL}/pricing
 
 **Payment:** Secure payments • Cancel anytime • No hidden charges
 
 80% of our features are FREE forever (just register)! Need more details about any plan?""",
 
-    "process_guide": """🚀 **HOW TO GET STARTED - STEP-BY-STEP GUIDE**
+    "process_guide": f"""🚀 **HOW TO GET STARTED - STEP-BY-STEP GUIDE**
 
 **📝 FREE Registration Process (2 Minutes, No Payment):**
-1. Visit: https://careergenai.com/register
+1. Visit: {BASE_URL}/register
 2. Fill: Name, Email, Mobile, Password  
 3. Receive 6-digit OTP via email
 4. Enter OTP for instant verification
 5. **Account activated!** Access all 8 FREE services immediately (no money required)
 
 **🎯 Using Career Assessment (FREE after registration):**
-1. Login → Visit: https://careergenai.com/interest-form
+1. Login → Visit: {BASE_URL}/interest-form
 2. Select from 18 interest areas (Mathematics, Design, Technology, etc.)
 3. AI analyzes your choices in real-time
 4. Get top 5 career matches with detailed insights
 5. Download your personalized career report
 
 **👨‍💼 Booking Career Counselling (FREE after registration):**
-1. Visit: https://careergenai.com/consult
+1. Visit: {BASE_URL}/consult
 2. Choose available time slot
 3. Provide your academic background
 4. Connect with certified career expert
 5. Get personalized guidance (30-60 minutes)
 
 **🧠 Taking Personality Quiz (FREE after registration):**
-1. Visit: https://careergenai.com/career-quiz
+1. Visit: {BASE_URL}/careerQuiz
 2. Answer personality-based questions
 3. Discover your type: Analytical, Creative, Helper, or Builder
 4. Get matching career suggestions
 5. Download detailed PDF results
 
 **🏛️ College Search Process (FREE after registration):**
-1. Visit: https://careergenai.com/colleges
+1. Visit: {BASE_URL}/college
 2. Enter: Percentile + Course + Location
 3. Get filtered results based on eligibility  
 4. Compare colleges, fees, placements
 5. Save favorites and get admission guidance
 
+**🔍 Career Comparison Tool (FREE after registration):**
+1. Visit: {BASE_URL}/compare
+2. Select careers to compare side-by-side
+3. Analyze salary, growth, and requirements
+4. Make informed career decisions
+
+**�  Premium Resume Builder (PAID subscription):**
+1. Visit: {BASE_URL}/AllComponents
+2. Access advanced AI-powered resume templates
+3. Get industry-specific suggestions and optimization
+4. Create professional resumes with advanced features
+
 **👤 Building Your Profile (FREE after registration):**
-1. Visit: https://careergenai.com/profile-builder
+1. Visit: {BASE_URL}/profile-builder
 2. Add: Education, Skills, Projects, Goals
 3. Track your academic progress
 4. Set career milestones
 5. Monitor growth over time
 
 **📄 Resume Builder (FREE after registration):**
-1. Visit: https://careergenai.com/resume-templates
+1. Visit: {BASE_URL}/resume-templates
 2. Choose from professional templates
 3. Fill in your details
 4. Download ATS-friendly PDF
 
 **🆓 FREE Admission Counselling (No registration required!):**
-- Visit: https://careergenai.com and click **'Book Now'**
+- Visit: {BASE_URL} and click **'Book Now'**
 - Available for Engineering/MBBS/MBA/Medical
 - Direct expert consultation at zero cost
 
 **🔗 Quick Start Links:**
-- Register: https://careergenai.com/register
-- Login: https://careergenai.com/login
+- Register: {BASE_URL}/register
+- Login: {BASE_URL}/login
 
 Need help with any specific step?""",
 
-    "about_us": """🌟 **ABOUT CAREERGENAI - YOUR AI-POWERED CAREER COMPANION**
+    "about_us": f"""🌟 **ABOUT CAREERGENAI - YOUR AI-POWERED CAREER COMPANION**
 
 **🎯 What is CareerGenAI?**
 CareerGenAI is India's leading AI-powered career guidance platform that makes professional career counselling accessible to every student through intelligent technology and expert support.
@@ -681,13 +710,13 @@ To bridge the gap between student potential and career success through intellige
 
 Ready to start your career journey with us?""",
 
-    "contact_support": """📞 **CAREERGENAI SUPPORT & CONTACT INFORMATION**
+    "contact_support": f"""📞 **CAREERGENAI SUPPORT & CONTACT INFORMATION**
 
 **📱 Primary Contact Numbers:**
 - **Main Support:** +91 8657869659
 - **Secondary:** +91 9619901999  
 - **WhatsApp:** Available on both numbers
-- **Website:** https://careergenai.com
+- **Website:** {BASE_URL}
 
 **🕒 Working Hours:**
 - **Monday-Saturday:** 9:00 AM - 8:00 PM
@@ -728,29 +757,36 @@ Ready to start your career journey with us?""",
 
 **🆓 FREE Admission Counselling Process:**
 1. **No Registration Required!**
-2. Visit: https://careergenai.com and click **'Book Now'**
+2. Visit: {BASE_URL} and click **'Book Now'**
 3. Choose your preferred time slot
 4. Get expert consultation at zero cost
 5. Available for: Engineering, MBBS, MBA, Medical courses
 
 **🔧 Common Issues We Help With:**
-- "I can't register my account" - Visit: https://careergenai.com/register
+- "I can't register my account" - Visit: {BASE_URL}/register
 - "Payment not processing" - Call: +91 8657869659
-- "Can't access career assessment" - Login at: https://careergenai.com/login
+- "Can't access career assessment" - Login at: {BASE_URL}/login
 - "Need help choosing engineering branch"
 - "Confused about medical entrance exams"
 - "Want to talk to a real counsellor"
 
-**� Quick  Support Links:**
-- Contact Form: https://careergenai.com/contact
-- Register Account: https://careergenai.com/register
-- Login Issues: https://careergenai.com/login
-- Book Counselling: https://careergenai.com
+**🔗 Quick Support Links:**
+- Contact Form: {BASE_URL}/contact
+- Register Account: {BASE_URL}/register
+- Login Issues: {BASE_URL}/login
+- Book Counselling: {BASE_URL}/consult
+- Premium Resume Builder: {BASE_URL}/AllComponents
 
 **💡 Pro Tip:** For fastest support, call during working hours or use our AI chatbot for instant help!
 
 What specific help do you need today?"""
-}
+    }
+
+# Initialize response templates (will be called dynamically)
+def get_formatted_response(template_key):
+    """Get a formatted response template with current BASE_URL"""
+    templates = get_response_templates()
+    return templates.get(template_key, "Template not found")
 
 # Enhanced Academic Database - College recommendations by percentage
 COLLEGE_DATABASE = {
@@ -884,18 +920,7 @@ CAREER_KNOWLEDGE = {
     }
 }
 
-SERVICE_MAPPINGS = {
-    "resume_builder": {"keywords": ["resume builder", "resume", "cv", "ats friendly", "build resume", "create resume"], "url": "https://careergenai.com/resume-templates"},
-    "premium_resume": {"keywords": ["premium resume builder", "premium resume", "advanced templates", "advanced resume"], "url": "https://careergenai.com/premium-resume"},
-    "career_assessment": {"keywords": ["career assessment", "assessment", "career suggestions", "interest form"], "url": "https://careergenai.com/interest-form"},
-    "personality_quiz": {"keywords": ["personality quiz", "personality test", "personality"], "url": "https://careergenai.com/career-quiz"},
-    "ai_chatbot": {"keywords": ["ai chatbot", "chatbot", "ai assistant"], "url": "https://careergenai.com/chat"},
-    "career_counselling": {"keywords": ["career counselling", "counseling", "expert sessions", "counselor"], "url": "https://careergenai.com/consult"},
-    "career_roadmaps": {"keywords": ["career roadmaps", "roadmap", "career guides", "roadmaps"], "url": "https://careergenai.com/career-roadmap"},
-    "profile_builder": {"keywords": ["profile builder", "student profile", "profile"], "url": "https://careergenai.com/profile-builder"},
-    "top_colleges": {"keywords": ["top colleges", "colleges", "college search", "college", "university"], "url": "https://careergenai.com/colleges"},
-    "career_comparison": {"keywords": ["career comparison", "compare careers", "comparison tool"], "url": "https://careergenai.com/career-compare"},
-}
+# This SERVICE_MAPPINGS is a duplicate - using the one defined at the top with BASE_URL
 
 # --- Core AI and Logic Functions ---
 
@@ -982,8 +1007,9 @@ def generate_comprehensive_response(message: str, category_info: Dict) -> str:
     response_type = category_info.get("response_type", "general_help")
     
     # Use predefined comprehensive templates
-    if response_type in RESPONSE_TEMPLATES:
-        return RESPONSE_TEMPLATES[response_type]
+    templates = get_response_templates()
+    if response_type in templates:
+        return templates[response_type]
     
     # Fallback responses for edge cases
     fallback_responses = {
@@ -998,11 +1024,11 @@ I can assist you with:
 
 What specific information would you like to know?""",
         
-        "services_overview": RESPONSE_TEMPLATES["services_overview"],
-        "pricing_details": RESPONSE_TEMPLATES["pricing_details"], 
-        "process_guide": RESPONSE_TEMPLATES["process_guide"],
-        "about_us": RESPONSE_TEMPLATES["about_us"],
-        "contact_support": RESPONSE_TEMPLATES["contact_support"]
+        "services_overview": get_formatted_response("services_overview"),
+        "pricing_details": get_formatted_response("pricing_details"), 
+        "process_guide": get_formatted_response("process_guide"),
+        "about_us": get_formatted_response("about_us"),
+        "contact_support": get_formatted_response("contact_support")
     }
     
     return fallback_responses.get(response_type, fallback_responses["general_help"])
@@ -3531,7 +3557,7 @@ async def chat_endpoint(chat_message: ChatMessage):
         
         # Handle resume building requests
         if any(word in message_lower for word in ["resume", "cv", "build resume", "create resume", "resume builder"]):
-            reply = """📄 **Resume Builder - Create Professional Resumes!**
+            reply = f"""📄 **Resume Builder - Create Professional Resumes!**
 
 **🆓 FREE Resume Builder:**
 • Professional ATS-friendly templates
@@ -3546,11 +3572,11 @@ async def chat_endpoint(chat_message: ChatMessage):
 • Advanced customization
 
 **🔗 Get Started:**
-• FREE Resume Builder: https://careergenai.com/resume-templates
-• Premium Version: https://careergenai.com/premium-resume
+• FREE Resume Builder: {BASE_URL}/resume-templates
+• Premium Version: {BASE_URL}/AllComponents
 
 **📝 How to Use:**
-1. Register free at: https://careergenai.com/register
+1. Register free at: {BASE_URL}/register
 2. Choose your template
 3. Fill in your details
 4. Download professional PDF
@@ -3559,7 +3585,7 @@ async def chat_endpoint(chat_message: ChatMessage):
 • FREE: Basic templates (no payment required, just register)
 • Premium: ₹1,999 (1 month) | ₹2,999 (3 months) | ₹3,999 (1 year)
 
-**📞 Need help?** Call +91 9619901999 | +91 8657869659
+**📞 Need help?** Call +91 8657869659 | +91 9619901999
 
 Ready to create your professional resume?"""
             
@@ -3579,7 +3605,7 @@ Ready to create your professional resume?"""
         
         # Handle service inquiries
         elif any(word in message_lower for word in ["services", "what can you do", "features", "what do you offer"]):
-            reply = """🎯 **CareerGenAI - Complete Service Portfolio**
+            reply = f"""🎯 **CareerGenAI - Complete Service Portfolio**
 
 **🆓 FREE SERVICES (8 Total) - Registration Required, No Money:**
 1. **Career Assessment** - AI-powered career discovery
@@ -3598,10 +3624,10 @@ Ready to create your professional resume?"""
 **🎁 BONUS:** FREE Admission Counselling (no registration required!)
 
 **🔗 Quick Access:**
-• Register: https://careergenai.com/register
-• Career Assessment: https://careergenai.com/interest-form
-• Resume Builder: https://careergenai.com/resume-templates
-• College Search: https://careergenai.com/colleges
+• Register: {BASE_URL}/register
+• Career Assessment: {BASE_URL}/interest-form
+• Resume Builder: {BASE_URL}/resume-templates
+• College Search: {BASE_URL}/college
 
 **📞 Support:** +91 8657869659 | +91 9619901999
 
@@ -3713,7 +3739,7 @@ I can help you with:
 🏛️ **College Search** - Find top institutions
 👨‍💼 **Expert Counselling** - Get personalized guidance
 
-**📞 Direct Support:** +91 9619901999 | +91 8657869659
+**📞 Direct Support:** +91 8657869659 | +91 9619901999
 
 What would you like to explore?"""
             model_used = "absolute_fallback"
@@ -3792,7 +3818,6 @@ async def health_check():
 async def model_status():
     return {"ai_models_loaded": list(ai_models.keys()), "ai_status": "cognitive_enabled" if ai_models else "legacy_mode"}
 
-API_URL = os.getenv("REACT_APP_API_URL", "http://localhost:5000")
 
 if __name__ == "__main__":
     print("=" * 70)
@@ -3801,20 +3826,18 @@ if __name__ == "__main__":
     print(f"🎯 Services Supported: {len(SERVICE_MAPPINGS)}")
     print(f"⚡ Performance Optimizations: Enabled")
     print(f"💾 Response Caching: {'Enabled' if cache_enabled else 'Disabled'}")
-    print(f"🔗 API Documentation: {API_URL}/docs")
-    print(f"💡 Chat Endpoint: {API_URL}/chat")
-    print(f"🏥 Health Check: {API_URL}/health")
+    print(f"🔗 API Documentation: http://localhost:8000/docs")
+    print(f"💡 Chat Endpoint: http://localhost:8000/chat")
+    print(f"🏥 Health Check: http://localhost:8000/health")
     print("=" * 70)
     print("🎉 Ready for Production Deployment!")
     print("=" * 70)
-
-    port = int(os.getenv("PORT", 5000))
     
     # Production-optimized server configuration
     uvicorn.run(
         "chatbot:app", 
         host="0.0.0.0", 
-        port=port, 
+        port=8000, 
         reload=False,  # Disable reload for production
         workers=1,     # Single worker for now, can be increased
         log_level="info"

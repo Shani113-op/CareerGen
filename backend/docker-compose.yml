@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # Python FastAPI Service
+  python-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.py
+    container_name: careergenai-python-api
+    ports:
+      - "8000:8000"
+    environment:
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:3001,https://careergenai.com
+      - FRONTEND_BASE_URL=https://careergenai.com
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./models:/app/models
+      - ./utils:/app/utils
+      - ./middleware:/app/middleware
+    networks:
+      - careergenai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Node.js Backend Service
+  node-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    container_name: careergenai-node-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - PYTHON_API_URL=https://careergen.onrender.com
+      - NODE_ENV=production
+    depends_on:
+      python-api:
+        condition: service_healthy
+    networks:
+      - careergenai-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  careergenai-network:
+    driver: bridge
+
+# Optional: Add volumes for persistent data
+volumes:
+  python-logs:
+  node-logs:

@@ -67,55 +67,12 @@ const Chatbot = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Minimal fallback responses - backend should handle most responses
   const predefinedResponses = {
-    // Enhanced fallback responses - comprehensive coverage
-    'hello': "Hello! Welcome to CareerGenAI - your AI-powered career companion. I can help you with our 10 services including Career Assessment, Personality Quiz, AI Chat, Expert Consultations, College Search, Resume Building, and FREE Admission Counselling. What interests you?",
-    'hi': "Hi there! I'm your CareerGenAI assistant. Ready to explore our services? We offer everything from AI career guidance to expert consultations and college recommendations. How can I help?",
-    'hey': "Hey! Welcome to CareerGenAI! I can guide you through our platform's features like Career Assessment, Resume Builder, College Search, and booking FREE admission counselling. What would you like to explore?",
-
-    // Services
-    'services': `🎯 CAREERGENAI - 10 COMPREHENSIVE SERVICES:\n\n🆓 FREE SERVICES (8 total) - Registration Required, No Money:\n🎯 Career Assessment - Get AI-powered career suggestions based on your interests\n🧠 Personality Quiz - Know your personality type and find matching careers\n🤖 AI Chatbot - Chat with our 24/7 AI career assistant [NEW]\n👨‍💼 Career Counselling - Book one-on-one sessions with certified career experts\n👤 Profile Builder - Create your complete student career profile\n🏛️ Top Colleges - Explore top colleges based on your selected field\n⚖️ Career Comparison Tool - Compare salaries, demand, skills & scope between careers [NEW]\n📄 Resume Builder - Create modern, ATS-friendly resumes using smart templates [AI]\n\n💎 PREMIUM SERVICES (2 total) - Paid Subscription:\n📋 Career Roadmaps - Download step-by-step guides for your dream career [PREMIUM]\n💎 Premium Resume Builder - Create modern, ATS-friendly Premium resumes using smart templates [PREMIUM]\n\n🎁 BONUS: FREE Admission Counselling for Engineering, MBBS, MBA, Medical courses (no registration required)!\n\n🔗 Quick Links:\n• Register Free: https://careergenai.com/register\n• Career Assessment: https://careergenai.com/interest-form\n• Resume Builder: https://careergenai.com/resume-templates\n• College Search: https://careergenai.com/colleges\n\nTO GET STARTED: Register (free, no payment) → Login → Access 8 Services\nPREMIUM PLANS: ₹1999 (1 month), ₹2999 (3 months), ₹3999 (1 year)\n\nWhich service would you like to explore first?`,
-
-    'what services do you offer': `🎯 CAREERGENAI'S COMPLETE SERVICE PORTFOLIO:\n\n🆓 FREE SERVICES (8 total) - Registration Required, No Money:\n1. Career Assessment - Get AI-powered career suggestions based on your interests\n2. Personality Quiz - Know your personality type and find matching careers\n3. AI Chatbot - Chat with our 24/7 AI career assistant [NEW]\n4. Career Counselling - Book one-on-one sessions with certified career experts\n5. Profile Builder - Create your complete student career profile\n6. Top Colleges - Explore top colleges based on your selected field\n7. Career Comparison Tool - Compare salaries, demand, skills & scope between careers [NEW]\n8. Resume Builder - Create modern, ATS-friendly resumes using smart templates [AI]\n\n💎 PREMIUM SERVICES (2 total) - Paid Subscription:\n9. Career Roadmaps - Download step-by-step guides for your dream career [PREMIUM]\n10. Premium Resume Builder - Create modern, ATS-friendly Premium resumes using smart templates [PREMIUM]\n\n🎁 BONUS: FREE Admission Counselling (Engineering/MBBS/MBA/Medical) - no registration required!\n\n🔗 Quick Access:\n• Register Free: https://careergenai.com/register\n• Career Assessment: https://careergenai.com/interest-form\n• Resume Builder: https://careergenai.com/resume-templates\n• College Search: https://careergenai.com/colleges\n\nGETTING STARTED: Register free (no payment) → Login → Access 8 free services immediately\nPREMIUM UPGRADE: Unlock 2 additional premium features\nCONTACT: +91 8657869659, +91 9619901999\n\nWhich service interests you most?`,
-
-    // Career Assessment
-    'career assessment': `🎯 CAREER ASSESSMENT - AI-Powered Career Discovery (FREE!):\n\n🧠 How It Works:\n• Choose from 18 career interests: Mathematics, Designing, Helping People, Coding, Writing, Nature, Management, Science, Art, Technology, Health, Business, Communication, Research, Analysis, Problem Solving, Teaching, Creativity\n• AI analyzes your selections using advanced algorithms\n• Get personalized career recommendations\n\n📊 What You Receive:\n• Career categories matching your interests\n• Detailed career descriptions\n• Required skills for each path\n• Education roadmap\n• Salary expectations\n• Top colleges for each field\n\n🆓 Access: Services → Career Assessment (FREE for all users)\n\nReady to discover your ideal career path?`,
-
-    'career': `🎯 CAREERGENAI'S CAREER GUIDANCE SYSTEM:\n\n🎯 CAREER ASSESSMENT (FREE!)\n• Get AI-powered career suggestions based on your interests\n• Select from 18 interests and get detailed recommendations\n• Includes career categories, skills, education roadmap, salary expectations\n\n📊 PERSONALITY QUIZ (FREE!)\n• Discover your personality type: Analytical Thinker, Creative Innovator, Compassionate Helper, or Practical Builder\n• Get matching career suggestions and downloadable PDF results\n\n⚖️ CAREER COMPARISON TOOL (FREE!)\n• Compare salaries, demand, skills & scope between careers\n• Analyze duration, colleges, fees, placement scope, job roles\n\nAll career guidance tools are completely FREE for registered users!`,
-
-    // Resume Builder
-    'resume': `📄 CAREERGENAI RESUME BUILDERS:\n\n📄 STANDARD RESUME BUILDER (FREE)\n• Professional templates\n• ATS-friendly formats\n• Basic customization\n• PDF download\n• Access via 'Resume Templates' menu\n\n💎 PREMIUM RESUME BUILDER (Premium)\n• 6+ advanced templates with AI assistance\n• Smart content suggestions\n• Industry-specific optimization\n• Advanced customization options\n\n🎨 AVAILABLE TEMPLATES:\n• Template 1 - Professional & Clean\n• Template 2 - Creative & Modern\n• Template 3 - Elegant & Sophisticated\n• Template 4 - Contemporary & Bold\n• Template 5 - Minimalist & Professional\n• Template 6 - Executive & Premium\n\nAll templates are ATS-friendly and mobile responsive. Ready to create your professional resume?`,
-
-    'resume builder': "We have both Standard (FREE) and Premium Resume Builders! The standard version offers professional templates, while Premium includes 6+ advanced templates with AI assistance. Visit 'Resume Templates' for standard or 'Premium Resume Builder' for advanced features.",
-
-    // College Search
-    'college': `🏛️ TOP COLLEGES SEARCH - Find Your Perfect College (FREE!):\n\n🔍 Two Search Methods:\n\nMethod 1: By Criteria\n• Enter percentile (e.g., 92.5)\n• Enter course (e.g., MBA, B.Tech, B.E)\n• Enter location (e.g., Mumbai)\n• Get filtered results based on eligibility\n\nMethod 2: By College Name\n• Enter specific college name\n• Get detailed information\n\n📊 Information Provided:\n• College rankings and location\n• Course offerings and fees\n• Placement rates and top recruiters\n• Faculty quality and campus life\n• Entrance requirements and cutoffs\n• Official website links\n\n🆓 Access: Services → Top Colleges (FREE for all users)\n\nWhich colleges are you interested in exploring?`,
-
-    'top colleges': `🏛️ TOP COLLEGES SEARCH - Explore top colleges based on your selected field:\n\n🔍 SEARCH METHOD 1: By Criteria\n• Enter your percentile (e.g., 92.5)\n• Enter course (e.g., MBA, B.Tech, B.E)\n• Enter location (e.g., Mumbai)\n• Get filtered results based on your eligibility\n\n🏫 SEARCH METHOD 2: By College Name\n• Enter specific college name or location\n• Get detailed information about that college\n\n📊 DETAILED INFORMATION PROVIDED:\n• College ranking and location\n• Course offerings and fees structure\n• Placement rates and top recruiters\n• Faculty quality and campus life details\n• Entrance exam requirements\n• Admission deadlines\n• Branch-wise cutoffs (percentile requirements)\n• Official website links\n\n💡 HOW IT WORKS:\n1. Register/Login to your account\n2. Go to 'Services' → 'Top Colleges'\n3. Enter your search criteria\n4. Click 'Find Colleges'\n5. Browse detailed results\n\n🆓 This service is completely FREE for all registered users! Which colleges are you interested in exploring?`,
-
-    // Pricing
-    'pricing plans': `💰 CAREERGENAI PRICING STRUCTURE:\n\n🆓 FREE SERVICES (8 total) - Registration Required, No Money\n✅ Career Assessment - AI-powered career suggestions\n✅ Personality Quiz - Know your personality type\n✅ AI Chatbot - 24/7 AI career assistant\n✅ Career Counselling - Book sessions with experts\n✅ Profile Builder - Complete student profile\n✅ Top Colleges - Explore colleges by field\n✅ Career Comparison Tool - Compare career paths\n✅ Resume Builder - ATS-friendly templates\n✅ FREE Admission Counselling - Engineering/MBBS/MBA/Medical (No registration needed!)\n\n💎 PREMIUM PLANS (2 Additional Services) - Paid Subscription\n📋 Career Roadmaps - Step-by-step career guides\n💎 Premium Resume Builder - 6+ AI-powered templates\n\n💰 Premium Subscription Options:\n🥉 1 Month - ₹1999 (Quick exploration)\n🥈 3 Months - ₹2999 (MOST POPULAR - Save 33%)\n🥇 1 Year - ₹3999 (BEST VALUE - Save 83%)\n\n🔗 Get Started:\n• Register Free: https://careergenai.com/register\n• View Pricing: https://careergenai.com/pricing\n\n🔒 Secure payment • Cancel anytime\nReady to explore our free services?`,
-
-    'price': "CareerGenAI offers 8 FREE services including Career Assessment, Personality Quiz, AI Chatbot, College Search, and Resume Builder. Only 2 features are Premium: Career Roadmaps and Premium Resume Builder. Premium plans: ₹1999 (1 month), ₹2999 (3 months), ₹3999 (1 year).",
-
-    // Contact & Registration
-    'contact': "📞 Contact CareerGenAI: +91 8657869659, +91 9619901999 (clickable in website header). For FREE admission counselling, click 'Book Now' on homepage. Available for Engineering, MBBS, MBA, Medical courses.",
-
-    'how do i register': `📝 REGISTRATION & GETTING STARTED (Step-by-Step):\n\n1️⃣ Free Registration (No Payment Required)\n• Visit: https://careergenai.com/register\n• Fill: Name, Email, Mobile, Password\n• Click 'Register' button\n\n2️⃣ Email Verification\n• Check email for 6-digit OTP\n• Enter OTP on verification page\n• Account activated instantly\n\n3️⃣ Login & Access\n• Visit: https://careergenai.com/login\n• Access all 8 FREE services immediately (no money required)\n\n4️⃣ Explore Services\n• Career Assessment: https://careergenai.com/interest-form\n• Resume Builder: https://careergenai.com/resume-templates\n• College Search: https://careergenai.com/colleges\n• Expert Counselling: https://careergenai.com/consult\n\n🔗 Quick Links:\n• Register: https://careergenai.com/register\n• Login: https://careergenai.com/login\n\n📞 Need help? Call +91 8657869659 or +91 9619901999\nReady to start your career journey?`,
-
-    'register': "Registration is 100% FREE (no payment required)! Visit https://careergenai.com/register, provide name, email, mobile, password. You'll receive OTP via email for verification. Once verified, access all 8 free services immediately.",
-
-    // Free Services
-    'free': "Yes! 8 services are completely FREE (just register, no payment): Career Assessment, Personality Quiz, AI Chatbot, Career Counselling, Profile Builder, Top Colleges, Career Comparison Tool, Resume Builder, and FREE Admission Counselling (no registration needed).",
-
-    'free admission counselling': `🆓 FREE ADMISSION COUNSELLING (Completely Free!):\n\n🎓 Available For:\n• Engineering courses (B.Tech, B.E)\n• MBBS (Medical courses)\n• MBA (Management courses)\n• Medical entrance preparation\n\n👨‍🎓 What You Get:\n• Expert guidance on course selection\n• College recommendations based on your profile\n• Admission process support and strategy\n• Entrance exam preparation tips\n• Application assistance\n\n📍 How to Book:\n1. Visit CareerGenAI homepage\n2. Click green "Book Now" button\n3. Schedule your FREE session\n4. Get expert consultation at zero cost\n\n📞 Direct Contact: +91 8657869659, +91 9619901999\n\nNo registration required for this service!`,
-
-    // Premium
-    'premium': "Only 2 features require Premium: Career Roadmaps (downloadable step-by-step guides) and Premium Resume Builder (6+ AI-powered templates). Plans: ₹1999 (1 month), ₹2999 (3 months), ₹3999 (1 year). All other 8 services are FREE!",
-
-    // Help & Menu
-    'help': "I can help with CareerGenAI platform info: our 10 services, pricing (8 FREE + 2 Premium), registration process, contact numbers, and how to access features. What would you like to know?",
-
+    'hello': "Hello! Welcome to CareerGenAI. I'm connecting to my AI brain to give you the best career guidance. How can I help you today?",
+    'hi': "Hi there! I'm your CareerGenAI assistant. Let me connect to provide you with comprehensive career guidance. What would you like to know?",
+    'hey': "Hey! Welcome to CareerGenAI! I'm getting ready to help you with career guidance. What can I assist you with?",
+    'help': "I can help with CareerGenAI platform info, services, pricing, registration, and career guidance. What would you like to know?",
     'SHOW_MAIN_MENU': "Here are the main options you can choose from:"
   };
 
@@ -144,9 +101,12 @@ const Chatbot = () => {
     setIsTyping(true);
     setShowMenu(false);
 
+    // Define backend URL outside try-catch for error message access
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+
     try {
       // Connect to Python FastAPI backend
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/chat`, {
+      const response = await fetch(`${backendUrl}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -186,15 +146,15 @@ const Chatbot = () => {
         text: `🔌 **Connection Issue**: I'm having trouble connecting to my AI brain! 
 
 **Please ensure:**
-1. Python backend is running: \`uvicorn chatbot:app --reload\`
-2. Backend is accessible at: http://localhost:5000
+1. Python backend is running: \`uvicorn chatbot:app --reload --port 8000\`
+2. Backend is accessible at: ${backendUrl}
 3. Check browser console for detailed errors
 
 **Quick Fix:**
 \`\`\`bash
 cd careerGenAi/backend
 pip install -r requirements.txt
-uvicorn chatbot:app --reload
+uvicorn chatbot:app --reload --port 8000
 \`\`\`
 
 Once the backend is running, I'll provide intelligent, personalized career guidance! 🤖✨`,
@@ -234,13 +194,108 @@ Once the backend is running, I'll provide intelligent, personalized career guida
     }
   };
 
+  // Simple function to format message text with basic React elements
+  const formatMessageSimple = (text) => {
+    // Split text into lines and process each line
+    const lines = text.split('\n');
+    
+    return lines.map((line, lineIndex) => {
+      // Handle empty lines
+      if (line.trim() === '') {
+        return <br key={`br-${lineIndex}`} />;
+      }
+      
+      // Process bold text and links in the line
+      const parts = [];
+      let currentText = line;
+      let partIndex = 0;
+      
+      // Simple bold text replacement
+      const boldRegex = /\*\*([^*]+)\*\*/g;
+      let lastIndex = 0;
+      let match;
+      
+      while ((match = boldRegex.exec(line)) !== null) {
+        // Add text before the bold
+        if (match.index > lastIndex) {
+          const beforeText = line.slice(lastIndex, match.index);
+          if (beforeText) {
+            parts.push(<span key={`text-${lineIndex}-${partIndex++}`}>{beforeText}</span>);
+          }
+        }
+        
+        // Add bold text
+        parts.push(
+          <strong 
+            key={`bold-${lineIndex}-${partIndex++}`} 
+            style={{ fontWeight: '600', color: '#1F2937' }}
+          >
+            {match[1]}
+          </strong>
+        );
+        
+        lastIndex = match.index + match[0].length;
+      }
+      
+      // Add remaining text
+      if (lastIndex < line.length) {
+        const remainingText = line.slice(lastIndex);
+        if (remainingText) {
+          parts.push(<span key={`text-${lineIndex}-${partIndex++}`}>{remainingText}</span>);
+        }
+      }
+      
+      // If no bold text found, just return the line
+      if (parts.length === 0) {
+        parts.push(<span key={`text-${lineIndex}-0`}>{line}</span>);
+      }
+      
+      // Process links in the parts
+      const finalParts = parts.map((part, index) => {
+        if (typeof part.props.children === 'string') {
+          const text = part.props.children;
+          const urlRegex = /(https?:\/\/[^\s]+)/g;
+          const urlMatch = urlRegex.exec(text);
+          
+          if (urlMatch) {
+            const beforeUrl = text.slice(0, urlMatch.index);
+            const url = urlMatch[0];
+            const afterUrl = text.slice(urlMatch.index + url.length);
+            
+            return (
+              <span key={`${part.key}-link`}>
+                {beforeUrl}
+                <a 
+                  href={url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{ color: '#007bff', textDecoration: 'underline' }}
+                >
+                  {url}
+                </a>
+                {afterUrl}
+              </span>
+            );
+          }
+        }
+        return part;
+      });
+      
+      return (
+        <div key={`line-${lineIndex}`} style={{ marginBottom: lineIndex < lines.length - 1 ? '0.5em' : '0' }}>
+          {finalParts}
+        </div>
+      );
+    });
+  };
+
   // Function to render text with Markdown formatting and clickable links
   const renderMessageWithFormatting = (text) => {
     // Handle line breaks and split into lines for processing
     const lines = text.split('\n');
     
     return lines.map((line, lineIndex) => {
-      // Skip empty lines
+      // Skip empty lines but add line break
       if (line.trim() === '') {
         return <br key={`br-${lineIndex}`} />;
       }
@@ -303,9 +358,14 @@ Once the backend is running, I'll provide intelligent, personalized career guida
         });
       }
       
-      // If no formatting found in this line, return the original line
+      // If no formatting found in this line, return the original line with line break
       if (segments.length === 0) {
-        return <span key={`line-${lineIndex}`}>{line}</span>;
+        return (
+          <React.Fragment key={`line-${lineIndex}`}>
+            {line}
+            {lineIndex < lines.length - 1 && <br />}
+          </React.Fragment>
+        );
       }
       
       // Render the segments for this line
@@ -337,7 +397,12 @@ Once the backend is running, I'll provide intelligent, personalized career guida
         }
       });
       
-      return <span key={`line-${lineIndex}`}>{renderedLine}</span>;
+      return (
+        <React.Fragment key={`line-${lineIndex}`}>
+          {renderedLine}
+          {lineIndex < lines.length - 1 && <br />}
+        </React.Fragment>
+      );
     });
   };
 
@@ -384,9 +449,15 @@ Once the backend is running, I'll provide intelligent, personalized career guida
                 )}
 
                 <div className={`chatbot-message-bubble ${message.sender}`}>
-                  <p style={{ whiteSpace: 'pre-line' }}>
-                    {renderMessageWithFormatting(message.text)}
-                  </p>
+                  <div style={{ 
+                    whiteSpace: 'pre-line',
+                    lineHeight: '1.5',
+                    fontSize: '14px',
+                    WebkitFontSmoothing: 'antialiased',
+                    MozOsxFontSmoothing: 'grayscale'
+                  }}>
+                    {formatMessageSimple(message.text)}
+                  </div>
 
                   {/* Quick Reply Buttons */}
                   {message.showQuickReplies && (

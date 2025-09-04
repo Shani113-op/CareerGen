@@ -1,0 +1,88 @@
+# Dockerfile for Node.js Backend Service
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Create package.json for the proxy server
+RUN echo '{"name": "careergenai-node-proxy", "version": "1.0.0", "main": "server.js"}' > package.json
+
+# Install dependencies for the proxy server
+RUN npm install express http-proxy-middleware cors
+
+# Create the Node.js proxy server
+COPY <<EOF ./server.js
+const express = require('express');
+const { createProxyMiddleware } = require('http-proxy-middleware');
+const cors = require('cors');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+const PYTHON_API_URL = process.env.PYTHON_API_URL || 'https://careergen.onrender.com';
+
+// Enable CORS
+app.use(cors());
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.json({ 
+        status: 'healthy', 
+        service: 'node-backend',
+        timestamp: new Date().toISOString(),
+        python_api: PYTHON_API_URL
+    });
+});
+
+// Proxy all /api requests to Python FastAPI
+app.use('/api', createProxyMiddleware({
+    target: PYTHON_API_URL,
+    changeOrigin: true,
+    pathRewrite: {
+        '^/api': '', // Remove /api prefix when forwarding
+    },
+    onError: (err, req, res) => {
+        console.error('Proxy error:', err.message);
+        res.status(500).json({ 
+            error: 'Python API unavailable',
+            message: err.message 
+        });
+    }
+}));
+
+// Direct proxy for chatbot endpoints
+app.use('/chat', createProxyMiddleware({
+    target: PYTHON_API_URL,
+    changeOrigin: true,
+}));
+
+// Serve a simple info page
+app.get('/', (req, res) => {
+    res.json({
+        service: 'CareerGenAI Node.js Backend',
+        version: '1.0.0',
+        endpoints: {
+            health: '/health',
+            api: '/api/*',
+            chat: '/chat/*',
+            python_docs: PYTHON_API_URL + '/docs'
+        },
+        python_api: PYTHON_API_URL
+    });
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(\`🚀 Node.js backend running on port \${PORT}\`);
+    console.log(\`🔗 Proxying to Python API: \${PYTHON_API_URL}\`);
+    console.log(\`📋 Health check: http://localhost:\${PORT}/health\`);
+});
+EOF
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+
+# Run the Node.js server
+CMD ["node", "server.js"]

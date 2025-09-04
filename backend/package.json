@@ -1,38 +1,10 @@
 {
-  "name": "careergenai-python-backend",
-  "version": "2.0.0",
-  "description": "CareerGenAI Advanced AI Chatbot Backend (Python FastAPI)",
-  "main": "chatbot.py",
+  "name": "careergenai-backend",
+  "version": "1.0.0",
+  "description": "CareerGenAI Backend",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
-    "node": "node start.js",
-    "python": "python chatbot.py",
-    "server": "uvicorn chatbot:app --host 0.0.0.0 --port 8000 --reload",
-    "health": "python -c \"import requests; print('Health:', requests.get('process.env.REACT_APP_API_URL/health').json())\"",
-    "install-deps": "pip install -r requirements.txt",
-    "install-full": "pip install -r requirements.txt",
-    "postinstall": "pip install -r requirements.txt"
+    "start": "uvicorn chatbot:app --reload --port 8000"
   },
-  "keywords": [
-    "chatbot",
-    "ai",
-    "career-guidance",
-    "fastapi",
-    "python",
-    "machine-learning"
-  ],
   "author": "CareerGenAI Team",
-  "license": "MIT",
-  "engines": {
-    "python": ">=3.8"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/careergenai/chatbot-backend"
-  },
-  "bugs": {
-    "url": "https://github.com/careergenai/chatbot-backend/issues"
-  },
-  "homepage": "https://careergenai.com"
+  "license": "MIT"
 }

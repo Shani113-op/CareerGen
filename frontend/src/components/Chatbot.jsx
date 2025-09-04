@@ -102,7 +102,7 @@ const Chatbot = () => {
     setShowMenu(false);
 
     // Define backend URL outside try-catch for error message access
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+    const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://careergen.onrender.com';
 
     try {
       // Connect to Python FastAPI backend

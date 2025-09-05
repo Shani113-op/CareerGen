@@ -410,14 +410,14 @@ Once the backend is running, I'll provide intelligent, personalized career guida
   return (
     <>
       {/* Chatbot Toggle Button */}
-      <div className="chatbot-toggle">
+      {/* <div className="chatbot-toggle">
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="chatbot-toggle-btn"
         >
           {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
         </button>
-      </div>
+      </div> */}
 
       {/* Chatbot Window */}
       {isOpen && (

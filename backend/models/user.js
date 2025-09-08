@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
   receiptStatus: {
     type: String,
     enum: ['pending', 'approved', 'denied'],
-    default: null
+    default: 'pending'
   }
 }, {
   timestamps: true

@@ -3,8 +3,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import Chatbot from './components/Chatbot';
-import MobileCSS from './components/MobileCSS';
+// import Chatbot from './components/Chatbot';
+// import MobileCSS from './components/MobileCSS';
 import Home from './pages/Home';
 import Chat from './pages/Chat';
 import InterestForm from './pages/InterestForm';
@@ -51,7 +51,7 @@ const Layout = () => {
 
   return (
     <>
-      <MobileCSS />
+      
       <Navbar />
       <main className="app-content">
         <Routes>
@@ -124,7 +124,7 @@ const Layout = () => {
         </Routes>
       </main>
       {isHomePage && <Footer />}
-      <Chatbot />
+    
     </>
   );
 };

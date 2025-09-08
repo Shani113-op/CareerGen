@@ -68,7 +68,7 @@ app.post('/api/auth/register', async (req, res) => {
       name,
       email,
       mobile,
-      password: hashedPassword,
+      password,
       isPremium: false // ✅ Ensure this is set
     });
 

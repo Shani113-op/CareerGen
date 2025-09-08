@@ -12,7 +12,7 @@ const TopColleges = () => {
   const [percentile, setPercentile] = useState('');
   const [colleges, setColleges] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [pageLoading, setPageLoading] = useState(true); // ✅ New state for page loader
+  const [pageLoading, setPageLoading] = useState(true); 
   const [error, setError] = useState('');
   const [, setUser] = useState(null);
   // const [showPremiumPopup, setShowPremiumPopup] = useState(false);
@@ -30,95 +30,98 @@ const TopColleges = () => {
         .catch((err) => console.error('Failed to fetch user:', err));
     }
 
-    const timer = setTimeout(() => setPageLoading(false), 1200); // ✅ Fake load
+    const timer = setTimeout(() => setPageLoading(false), 1200); 
     return () => clearTimeout(timer);
   }, [API]);
 
-  const handleSearch = async () => {
-    // if (!user?.isPremium) {
-    //   setShowPremiumPopup(true);
-    //   return;
-    // }
+const handleSearch = async () => {
+  if ((!percentile || !course) && !collegeName) {
+    return alert('Please enter Percentile & Course OR College Name');
+  }
 
-    if ((!percentile || !course) && !collegeName) {
-      return alert('Please enter Percentile & Course OR College Name');
+  setLoading(true);
+  setError('');
+  setColleges([]);
+
+  // 🔹 Always start with static colleges
+  let filteredColleges = [...staticColleges];
+
+  const inputCourse = course.trim().toLowerCase();
+  const inputCollegeName = collegeName.trim().toLowerCase();
+  const inputLocation = location.trim().toLowerCase();
+
+  if (inputCollegeName) {
+    filteredColleges = filteredColleges.filter((clg) =>
+      clg.name.toLowerCase().includes(inputCollegeName)
+    );
+  } else {
+    if (inputCourse) {
+      filteredColleges = filteredColleges.filter((clg) =>
+        clg.course.toLowerCase().includes(inputCourse)
+      );
     }
-
-    setLoading(true);
-    setError('');
-    setColleges([]);
-
-    try {
-      let filteredColleges = [...staticColleges];
-
-      const inputCourse = course.trim().toLowerCase();
-      const inputCollegeName = collegeName.trim().toLowerCase();
-      const inputLocation = location.trim().toLowerCase();
-
-      if (inputCollegeName) {
-        filteredColleges = filteredColleges.filter((clg) =>
-          clg.name.toLowerCase().includes(inputCollegeName)
-        );
-      } else {
-        if (inputCourse) {
-          filteredColleges = filteredColleges.filter((clg) =>
-            clg.course.toLowerCase().includes(inputCourse)
-          );
-        }
-        if (inputLocation) {
-          filteredColleges = filteredColleges.filter((clg) =>
-            clg.location.toLowerCase().includes(inputLocation)
-          );
-        }
-        if (percentile) {
-          filteredColleges = filteredColleges.filter((clg) => {
-            if (clg.cutOffs) {
-              return Object.values(clg.cutOffs).some((cutoff) => {
-                const numericCutoff = parseFloat(cutoff.toString().replace('%', ''));
-                return parseFloat(percentile) >= numericCutoff;
-              });
-            }
-            return false;
+    if (inputLocation) {
+      filteredColleges = filteredColleges.filter((clg) =>
+        clg.location.toLowerCase().includes(inputLocation)
+      );
+    }
+    if (percentile) {
+      filteredColleges = filteredColleges.filter((clg) => {
+        if (clg.cutOffs) {
+          return Object.values(clg.cutOffs).some((cutoff) => {
+            const numericCutoff = parseFloat(cutoff.toString().replace('%', ''));
+            return parseFloat(percentile) >= numericCutoff;
           });
         }
-      }
-
-      if (filteredColleges.length > 0) {
-        setColleges(filteredColleges);
-      }
-
-      const res = await axios.post(`${API}/api/colleges`, {
-        percentile,
-        course,
-        location,
-        collegeName,
+        return false;
       });
-
-      const dynamicColleges = res.data.colleges || [];
-
-      const combined = [
-        ...filteredColleges,
-        ...dynamicColleges.filter(
-          (dyn) => !filteredColleges.some((stat) => stat.name === dyn.name)
-        ),
-      ];
-
-      if (combined.length > 0) {
-        setColleges(combined);
-      } else {
-        setError('❌ No results found for your criteria.');
-      }
-
-    } catch (err) {
-      console.error(err);
-      setError('⚠️ Error retrieving college list. Please try again.');
-    } finally {
-      setLoading(false);
     }
-  };
+  }
+
+  // ✅ If static matches exist, show them immediately
+  if (filteredColleges.length > 0) {
+    setColleges(filteredColleges);
+  }
+
+  try {
+    // 🔹 Try API call
+    const res = await axios.post(`${API}/api/colleges`, {
+      percentile,
+      course,
+      location,
+      collegeName,
+    });
+
+    const dynamicColleges = res.data.colleges || [];
+
+    const combined = [
+      ...filteredColleges,
+      ...dynamicColleges.filter(
+        (dyn) => !filteredColleges.some((stat) => stat.name === dyn.name)
+      ),
+    ];
+
+    if (combined.length > 0) {
+      setColleges(combined);
+    } else if (filteredColleges.length === 0) {
+      setError('❌ No results found for your criteria.');
+    }
+  } catch (err) {
+    console.error("API failed:", err);
+
+    // ✅ Only show error if static also empty
+    if (filteredColleges.length === 0) {
+      setError('⚠️ Error retrieving college list. Please try again.');
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   if (pageLoading) {
-    return <PageLoader />; // ✅ Show page-level loader on initial visit
+    return <PageLoader />;
   }
 
   return (
@@ -134,33 +137,21 @@ const TopColleges = () => {
             placeholder="Enter your percentile (e.g. 92.5)"
             value={percentile}
             onChange={(e) => setPercentile(e.target.value)}
-            style={{
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis'
-            }}
+            style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
           />
           <input
             type="text"
             placeholder="Enter course (e.g. MBA, B.Tech, B.E)"
             value={course}
             onChange={(e) => setCourse(e.target.value)}
-            style={{
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis'
-            }}
+            style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
           />
           <input
             type="text"
             placeholder="Enter location (e.g. Mumbai)"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            style={{
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis'
-            }}
+            style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
           />
 
           <div className="or-separator">— OR —</div>
@@ -170,11 +161,7 @@ const TopColleges = () => {
             placeholder="Enter college name or location"
             value={collegeName}
             onChange={(e) => setCollegeName(e.target.value)}
-            style={{
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis'
-            }}
+            style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
           />
 
           <button
@@ -202,7 +189,10 @@ const TopColleges = () => {
       {colleges.length > 0 && (
         <div className="results-section">
           <h2>
-            🏆 {collegeName ? `Results for "${collegeName}"` : `Top Colleges matching ${percentile}% in ${course}`}
+            🏆{' '}
+            {collegeName
+              ? `Results for "${collegeName}"`
+              : `Top Colleges matching ${percentile}% in ${course}`}
           </h2>
           <div className="college-list">
             {colleges.map((clg, i) => (
@@ -217,7 +207,7 @@ const TopColleges = () => {
                   <p>📘 <strong>Affiliation:</strong> {clg.affiliation}</p>
                 </div>
 
-                <div className='dash'></div>
+                <div className="dash"></div>
 
                 <div className="college-card-right">
                   <ul>
@@ -253,17 +243,6 @@ const TopColleges = () => {
           </div>
         </div>
       )}
-
-      {/* {showPremiumPopup && (
-        <PremiumPopup
-          onClose={() => setShowPremiumPopup(false)}
-          onUpgrade={() => {
-            const updatedUser = JSON.parse(localStorage.getItem('user'));
-            setUser(updatedUser);
-            setShowPremiumPopup(false);
-          }}
-        />
-      )} */}
     </div>
   );
 };

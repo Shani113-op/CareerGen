@@ -220,7 +220,7 @@ const CareerQuiz = () => {
   // Home Screen
   if (currentScreen === 'home') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-700 p-6 flex items-center justify-center">
+      <div className="min-h-screen p-6 flex items-center justify-center">
         <div className="max-w-4xl mx-auto text-center">
           <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-12">
             <div className="mb-8">
@@ -391,7 +391,7 @@ const CareerQuiz = () => {
               </p>
             </div>
 
-            <div className="text-center space-x-4">
+            <div className="text-center flex items-center space-x-4 gap-3">
               <button
                 onClick={startQuiz}
                 className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-200"
@@ -400,7 +400,7 @@ const CareerQuiz = () => {
               </button>
               <button
                 onClick={goToHome}
-                className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-200 flex items-center mx-auto mt-4"
+                className="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-200 flex items-center justify-center mx-auto"
               >
                 <Home className="w-4 h-4 mr-2" />
                 Back to Home
@@ -443,8 +443,8 @@ const CareerQuiz = () => {
         </div>
       )}
 
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+      <div className="w-full sm:w-[90%] md:w-[85%] lg:max-w-2xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-xl p-4">
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
               <h1 className="text-2xl font-bold text-gray-800">Career Domain Quiz</h1>
@@ -504,7 +504,7 @@ const CareerQuiz = () => {
             </div>
           </div>
 
-          <div className="flex justify-between">
+          <div className="flex justify-between gap-3">
             <button
               onClick={prevQuestion}
               disabled={currentQuestion === 0}

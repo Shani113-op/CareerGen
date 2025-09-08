@@ -68,7 +68,7 @@ app.post('/api/auth/register', async (req, res) => {
       name,
       email,
       mobile,
-      password,
+      password: hashedPassword,
       isPremium: false // ✅ Ensure this is set
     });
 
@@ -1557,12 +1557,6 @@ app.post("/api/user/update-profile", async (req, res) => {
     res.status(500).json({ message: "Server error while updating profile" });
   }
 });
-
-
-
-
-
-
 
 // ✅ Start the server
 app.listen(PORT, () => {

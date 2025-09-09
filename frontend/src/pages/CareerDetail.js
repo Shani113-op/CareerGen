@@ -903,53 +903,42 @@ Requirements:
         <p style={{ fontSize: '20px', color: '#6b7280', marginBottom: '32px' }}>Discover careers that fit your passion and skills</p>
         
         {/* Search Bar */}
-        <div style={{ maxWidth: '600px', margin: '0 auto 32px' }}>
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            <Search style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', width: '20px', height: '20px' }} />
-            <input
-              type="text"
-              placeholder="Search careers..."
-              value={searchInputValue}
-              onChange={(e) => {
-                setSearchInputValue(e.target.value);
-                setSearchQuery(e.target.value);
-              }}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-              style={{
-                flex: 1,
-                paddingLeft: '48px',
-                paddingRight: '16px',
-                paddingTop: '16px',
-                paddingBottom: '16px',
-                borderRadius: '16px',
-                border: '1px solid #e5e7eb',
-                outline: 'none',
-                fontSize: '18px',
-                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)'
-              }}
-            />
-            <span
-              onClick={handleSearch}
-              disabled={loading}
-              style={{
-                marginLeft: '8px',
-                padding: '12px 34px',
-                backgroundColor: loading ? '#9ca3af' : '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '12px',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                fontWeight: '600'
-              }}
-            >
-              {loading ? 'Searching...' : 'Search'}
-            </span>
-          </div>
-        </div>
+        <div className="max-w-md mx-auto mb-8">
+  <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 space-y-3 sm:space-y-0 relative">
+    <div className="relative flex-1">
+      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+
+      <input
+        type="text"
+        placeholder="Search careers..."
+        value={searchInputValue}
+        onChange={(e) => {
+          setSearchInputValue(e.target.value);
+          setSearchQuery(e.target.value);
+        }}
+        onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+        className="w-full pl-12 pr-4 py-3 rounded-2xl border border-gray-200 outline-none text-base sm:text-lg shadow-[0_10px_25px_rgba(0,0,0,0.1)]"
+      />
+    </div>
+
+    <button
+      onClick={handleSearch}
+      disabled={loading}
+      className={`w-full sm:w-auto px-6 py-3 rounded-xl font-semibold text-white transition ${
+        loading
+          ? 'bg-gray-400 cursor-not-allowed'
+          : 'bg-blue-500 hover:bg-blue-600 active:scale-95'
+      }`}
+    >
+      {loading ? 'Searching...' : 'Search'}
+    </button>
+  </div>
+</div>
+
       </div>
 
       {/* Category Filters */}
-      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 16px 32px" }}>
+      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 16px 32px", textAlign: "center" }}>
       <select
         value={activeCategory}
         onChange={(e) => setActiveCategory(e.target.value)}

@@ -45,42 +45,42 @@ const mockCareers = [
     description: "Design and develop software applications, websites, and systems using programming languages and frameworks.",
     icon: Code,
     growth: "22% growth",
-    salary: "$95,000"
+    salary: "₹83,00,000"
   },
   {
     title: "Data Scientist",
     description: "Analyze complex data to help organizations make informed business decisions and predictions.",
     icon: TrendingUp,
     growth: "31% growth",
-    salary: "$126,000"
+    salary: "₹1,10,00,000"
   },
   {
     title: "UX Designer",
     description: "Create intuitive and engaging user experiences for digital products and applications.",
     icon: Palette,
     growth: "13% growth",
-    salary: "$85,000"
+    salary: "₹74,00,000"
   },
   {
     title: "Medical Doctor",
     description: "Diagnose and treat illnesses, injuries, and other health conditions to improve patient outcomes.",
     icon: Stethoscope,
     growth: "7% growth",
-    salary: "$208,000"
+    salary: "₹1,83,00,000"
   },
   {
     title: "Financial Analyst",
     description: "Evaluate financial data and market trends to guide investment and business decisions.",
     icon: Calculator,
     growth: "6% growth",
-    salary: "$83,000"
+    salary: "₹73,00,000"
   },
   {
     title: "Marketing Manager",
     description: "Develop and execute marketing strategies to promote products and build brand awareness.",
     icon: Briefcase,
     growth: "10% growth",
-    salary: "$135,000"
+    salary: "₹1,18,00,000"
   }
 ];
 

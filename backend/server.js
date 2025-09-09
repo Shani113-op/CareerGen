@@ -26,10 +26,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors(
-    {
-    origin: 'https://www.careergenai.in',
-    credentials: true
-  }
+  //   {
+  //   origin: 'https://www.careergenai.in',
+  //   credentials: true
+  // }
 ));
 
 

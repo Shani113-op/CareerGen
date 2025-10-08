@@ -1,5 +1,5 @@
 // src/pages/BookSlot.jsx
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback  } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from "framer-motion"
@@ -14,9 +14,21 @@ const BookSlot = () => {
   const [time, setTime] = useState('');
   const [bookedTimes, setBookedTimes] = useState([]);
   const [isBooking, setIsBooking] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
+  const [setUserEmail] = useState('');
 
   const API = process.env.REACT_APP_API_URL;
+
+  const fetchBookedSlots = useCallback(async () => {
+    try {
+      const res = await axios.get(
+        `${API}/api/booked-slots?consultantId=${consultantId}&date=${date}`
+      );
+      setBookedTimes(res.data.bookedTimes || []);
+    } catch (err) {
+      console.error('❌ Failed to fetch booked slots:', err.message);
+      setBookedTimes([]);
+    }
+  }, [API, consultantId, date]);
 
   useEffect(() => {
     if (!consultant) {
@@ -27,25 +39,14 @@ const BookSlot = () => {
     if (userData?.email) {
       setUserEmail(userData.email);
     }
-  }, [consultant, navigate]);
+  }, [consultant, navigate, setUserEmail]);
 
   useEffect(() => {
     if (date) {
       fetchBookedSlots();
     }
-  }, [date]);
+  }, [date, fetchBookedSlots]);
 
-  const fetchBookedSlots = async () => {
-    try {
-      const res = await axios.get(
-        `${API}/api/booked-slots?consultantId=${consultantId}&date=${date}`
-      );
-      setBookedTimes(res.data.bookedTimes || []);
-    } catch (err) {
-      console.error('❌ Failed to fetch booked slots:', err.message);
-      setBookedTimes([]);
-    }
-  };
 
   const handleBooking = async () => {
     if (!date || !time) return alert('Please select date and time');

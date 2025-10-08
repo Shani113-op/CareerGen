@@ -19,7 +19,7 @@ const AdminDashboard = () => {
     } else {
       navigate('/');
     }
-  }, [navigate]);
+  }, [navigate, user?.email]);
 
 
   const fetchUsersWithReceipts = async () => {

@@ -19,7 +19,7 @@ const Footer = () => {
         <div className="flex justify-center space-x-6 text-sm">
           <a href="https://drive.google.com/file/d/1t0TgLDb_IUDdGhKndtAkM60IjokU_Jw8/view?usp=sharing" className="text-gray-400 hover:text-blue-400 transition-colors">Privacy Policy</a>
           <a href="https://drive.google.com/file/d/1_GDpU4WBO838DGWPJu7Ep-oGkTIg_31V/view?usp=sharing" className="text-gray-400 hover:text-blue-400 transition-colors">Terms & Service</a>
-          <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">Contact Us</a>
+          <a href="/" className="text-gray-400 hover:text-blue-400 transition-colors">Contact Us</a>
         </div>
         <div className="mt-8 pt-8 border-t border-gray-800 text-sm text-gray-400">
           © {new Date().getFullYear()} CareerGenAI produce by Aryahas World InfoTech (OPC) Pvt. Ltd. . All rights reserved.

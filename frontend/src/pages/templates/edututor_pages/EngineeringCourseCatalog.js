@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom'; // ✅ import useNavigate
+import { useState } from 'react';
 import { universityData } from './../../../data/universityData';
 import { calculateYearTotalWithDiscount, calculateFinalAmount } from './../../../utils/cartUtils';
 import BranchSelection from './BranchSelection';
@@ -9,7 +7,6 @@ import ShoppingCartComponent from './ShoppingCart';
 import YearSemesterView from './YearSemesterView';
 
 const EngineeringCourseCatalog = () => {
-    const navigate = useNavigate(); // ✅ useNavigate hook
 
     // State management
     const [selectedUniversity, setSelectedUniversity] = useState(Object.keys(universityData)[0]);

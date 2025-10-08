@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "../styles/History.css";
 import PageLoader from "../components/PageLoader";
 
@@ -20,16 +20,7 @@ const History = () => {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  useEffect(() => {
-    if (user?.email) {
-      fetchReceipt();
-      fetchCounsellingBookings();
-    } else {
-      setLoading(false);
-    }
-  }, []);
-
-  const fetchReceipt = async () => {
+  const fetchReceipt = useCallback(async () => {
     try {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/user/${user.email}`);
       const data = await res.json();
@@ -59,9 +50,9 @@ const History = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.email]);
 
-  const fetchCounsellingBookings = async () => {
+  const fetchCounsellingBookings = useCallback(async () => {
     try {
       const res = await fetch(`${process.env.REACT_APP_API_URL}/api/counselling/${user.email}`);
       const data = await res.json();
@@ -71,7 +62,18 @@ const History = () => {
     } catch (err) {
       console.error("Error fetching counselling bookings:", err);
     }
-  };
+  }, [user?.email]);
+
+  useEffect(() => {
+    if (user?.email) {
+      fetchReceipt();
+      fetchCounsellingBookings();
+    } else {
+      setLoading(false);
+    }
+  }, [fetchCounsellingBookings, fetchReceipt, user?.email]);
+
+  
 
   const formatDate = (date) => {
     const parsed = new Date(date);

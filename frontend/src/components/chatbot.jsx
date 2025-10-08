@@ -68,13 +68,13 @@ const Chatbot = () => {
   }, [messages]);
 
   // Minimal fallback responses - backend should handle most responses
-  const predefinedResponses = {
-    'hello': "Hello! Welcome to CareerGenAI. I'm connecting to my AI brain to give you the best career guidance. How can I help you today?",
-    'hi': "Hi there! I'm your CareerGenAI assistant. Let me connect to provide you with comprehensive career guidance. What would you like to know?",
-    'hey': "Hey! Welcome to CareerGenAI! I'm getting ready to help you with career guidance. What can I assist you with?",
-    'help': "I can help with CareerGenAI platform info, services, pricing, registration, and career guidance. What would you like to know?",
-    'SHOW_MAIN_MENU': "Here are the main options you can choose from:"
-  };
+  // const predefinedResponses = {
+  //   'hello': "Hello! Welcome to CareerGenAI. I'm connecting to my AI brain to give you the best career guidance. How can I help you today?",
+  //   'hi': "Hi there! I'm your CareerGenAI assistant. Let me connect to provide you with comprehensive career guidance. What would you like to know?",
+  //   'hey': "Hey! Welcome to CareerGenAI! I'm getting ready to help you with career guidance. What can I assist you with?",
+  //   'help': "I can help with CareerGenAI platform info, services, pricing, registration, and career guidance. What would you like to know?",
+  //   'SHOW_MAIN_MENU': "Here are the main options you can choose from:"
+  // };
 
 
   const handleSendMessage = async (messageText = null) => {
@@ -208,7 +208,6 @@ Once the backend is running, I'll provide intelligent, personalized career guida
       
       // Process bold text and links in the line
       const parts = [];
-      let currentText = line;
       let partIndex = 0;
       
       // Simple bold text replacement
@@ -291,121 +290,121 @@ Once the backend is running, I'll provide intelligent, personalized career guida
   };
 
   // Function to render text with Markdown formatting and clickable links
-  const renderMessageWithFormatting = (text) => {
-    // Handle line breaks and split into lines for processing
-    const lines = text.split('\n');
+  // const renderMessageWithFormatting = (text) => {
+  //   // Handle line breaks and split into lines for processing
+  //   const lines = text.split('\n');
     
-    return lines.map((line, lineIndex) => {
-      // Skip empty lines but add line break
-      if (line.trim() === '') {
-        return <br key={`br-${lineIndex}`} />;
-      }
+  //   return lines.map((line, lineIndex) => {
+  //     // Skip empty lines but add line break
+  //     if (line.trim() === '') {
+  //       return <br key={`br-${lineIndex}`} />;
+  //     }
       
-      // Process each line for inline formatting
-      const segments = [];
-      let currentIndex = 0;
+  //     // Process each line for inline formatting
+  //     const segments = [];
+  //     let currentIndex = 0;
       
-      // Combined regex for bold, italic, links
-      const combinedRegex = /(\*\*[^*\n]+\*\*|\*[^*\n]+\*|https?:\/\/[^\s]+|\/[^\s]*)/g;
-      let match;
+  //     // Combined regex for bold, italic, links
+  //     const combinedRegex = /(\*\*[^*\n]+\*\*|\*[^*\n]+\*|https?:\/\/[^\s]+|\/[^\s]*)/g;
+  //     let match;
       
-      while ((match = combinedRegex.exec(line)) !== null) {
-        // Add text before the match
-        if (match.index > currentIndex) {
-          segments.push({
-            type: 'text',
-            content: line.slice(currentIndex, match.index),
-            key: `text-${lineIndex}-${segments.length}`
-          });
-        }
+  //     while ((match = combinedRegex.exec(line)) !== null) {
+  //       // Add text before the match
+  //       if (match.index > currentIndex) {
+  //         segments.push({
+  //           type: 'text',
+  //           content: line.slice(currentIndex, match.index),
+  //           key: `text-${lineIndex}-${segments.length}`
+  //         });
+  //       }
         
-        const matchedText = match[0];
+  //       const matchedText = match[0];
         
-        // Check what type of formatting this is
-        if (matchedText.startsWith('**') && matchedText.endsWith('**')) {
-          // Bold text
-          segments.push({
-            type: 'bold',
-            content: matchedText.slice(2, -2),
-            key: `bold-${lineIndex}-${segments.length}`
-          });
-        } else if (matchedText.startsWith('*') && matchedText.endsWith('*') && !matchedText.startsWith('**')) {
-          // Italic text (but not bold)
-          segments.push({
-            type: 'italic',
-            content: matchedText.slice(1, -1),
-            key: `italic-${lineIndex}-${segments.length}`
-          });
-        } else if (matchedText.match(/https?:\/\/[^\s]+|\/[^\s]*/)) {
-          // URL or relative path
-          const isRelativePath = matchedText.startsWith('/');
-          segments.push({
-            type: 'link',
-            content: matchedText,
-            isRelativePath: isRelativePath,
-            key: `link-${lineIndex}-${segments.length}`
-          });
-        }
+  //       // Check what type of formatting this is
+  //       if (matchedText.startsWith('**') && matchedText.endsWith('**')) {
+  //         // Bold text
+  //         segments.push({
+  //           type: 'bold',
+  //           content: matchedText.slice(2, -2),
+  //           key: `bold-${lineIndex}-${segments.length}`
+  //         });
+  //       } else if (matchedText.startsWith('*') && matchedText.endsWith('*') && !matchedText.startsWith('**')) {
+  //         // Italic text (but not bold)
+  //         segments.push({
+  //           type: 'italic',
+  //           content: matchedText.slice(1, -1),
+  //           key: `italic-${lineIndex}-${segments.length}`
+  //         });
+  //       } else if (matchedText.match(/https?:\/\/[^\s]+|\/[^\s]*/)) {
+  //         // URL or relative path
+  //         const isRelativePath = matchedText.startsWith('/');
+  //         segments.push({
+  //           type: 'link',
+  //           content: matchedText,
+  //           isRelativePath: isRelativePath,
+  //           key: `link-${lineIndex}-${segments.length}`
+  //         });
+  //       }
         
-        currentIndex = match.index + matchedText.length;
-      }
+  //       currentIndex = match.index + matchedText.length;
+  //     }
       
-      // Add remaining text
-      if (currentIndex < line.length) {
-        segments.push({
-          type: 'text',
-          content: line.slice(currentIndex),
-          key: `text-${lineIndex}-${segments.length}`
-        });
-      }
+  //     // Add remaining text
+  //     if (currentIndex < line.length) {
+  //       segments.push({
+  //         type: 'text',
+  //         content: line.slice(currentIndex),
+  //         key: `text-${lineIndex}-${segments.length}`
+  //       });
+  //     }
       
-      // If no formatting found in this line, return the original line with line break
-      if (segments.length === 0) {
-        return (
-          <React.Fragment key={`line-${lineIndex}`}>
-            {line}
-            {lineIndex < lines.length - 1 && <br />}
-          </React.Fragment>
-        );
-      }
+  //     // If no formatting found in this line, return the original line with line break
+  //     if (segments.length === 0) {
+  //       return (
+  //         <React.Fragment key={`line-${lineIndex}`}>
+  //           {line}
+  //           {lineIndex < lines.length - 1 && <br />}
+  //         </React.Fragment>
+  //       );
+  //     }
       
-      // Render the segments for this line
-      const renderedLine = segments.map((segment) => {
-        switch (segment.type) {
-          case 'bold':
-            return <strong key={segment.key} style={{ fontWeight: '600', color: '#374151' }}>{segment.content}</strong>;
-          case 'italic':
-            return <em key={segment.key} style={{ fontStyle: 'italic' }}>{segment.content}</em>;
-          case 'link':
-            return (
-              <a
-                key={segment.key}
-                href={segment.content}
-                target={segment.isRelativePath ? "_self" : "_blank"}
-                rel={segment.isRelativePath ? "" : "noopener noreferrer"}
-                style={{
-                  color: '#007bff',
-                  textDecoration: 'underline',
-                  cursor: 'pointer'
-                }}
-              >
-                {segment.content}
-              </a>
-            );
-          case 'text':
-          default:
-            return segment.content;
-        }
-      });
+  //     // Render the segments for this line
+  //     const renderedLine = segments.map((segment) => {
+  //       switch (segment.type) {
+  //         case 'bold':
+  //           return <strong key={segment.key} style={{ fontWeight: '600', color: '#374151' }}>{segment.content}</strong>;
+  //         case 'italic':
+  //           return <em key={segment.key} style={{ fontStyle: 'italic' }}>{segment.content}</em>;
+  //         case 'link':
+  //           return (
+  //             <a
+  //               key={segment.key}
+  //               href={segment.content}
+  //               target={segment.isRelativePath ? "_self" : "_blank"}
+  //               rel={segment.isRelativePath ? "" : "noopener noreferrer"}
+  //               style={{
+  //                 color: '#007bff',
+  //                 textDecoration: 'underline',
+  //                 cursor: 'pointer'
+  //               }}
+  //             >
+  //               {segment.content}
+  //             </a>
+  //           );
+  //         case 'text':
+  //         default:
+  //           return segment.content;
+  //       }
+  //     });
       
-      return (
-        <React.Fragment key={`line-${lineIndex}`}>
-          {renderedLine}
-          {lineIndex < lines.length - 1 && <br />}
-        </React.Fragment>
-      );
-    });
-  };
+  //     return (
+  //       <React.Fragment key={`line-${lineIndex}`}>
+  //         {renderedLine}
+  //         {lineIndex < lines.length - 1 && <br />}
+  //       </React.Fragment>
+  //     );
+  //   });
+  // };
 
 
   return (

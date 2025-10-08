@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Search, User, Book, Briefcase, Heart, DollarSign, Scale, Stethoscope, Calculator, Code, Palette, ChefHat, Microscope, Star, ArrowRight, Clock, CheckCircle } from 'lucide-react';
+import { useState, useEffect, useMemo, useCallback  } from 'react';
+import { Search, Book, Briefcase, DollarSign, Scale, Stethoscope, Code, Palette, ChefHat, Microscope, Star, ArrowRight, CheckCircle } from 'lucide-react';
 // Note: In a real React app, you would install these packages:
 // npm install html2canvas jspdf
 import html2canvas from 'html2canvas';
@@ -20,7 +20,7 @@ const CareerPathWebsite = () => {
   // Add your Gemini API key here
   const GEMINI_API_KEY = 'AIzaSyDsy3SmY3xLp1-RHvx2xXDx0PTgVxe9e3M';
 
-  const categories = [
+  const categories = useMemo(() => [
     { name: 'All', icon: Star },
     { name: 'Technology', icon: Code },
     { name: 'Creative', icon: Palette },
@@ -34,18 +34,20 @@ const CareerPathWebsite = () => {
     { name: 'Business', icon: Briefcase },
     { name: 'Legal', icon: Scale },
     { name: 'Culinary', icon: ChefHat }
-  ];
+  ], []); // ✅ only created once
+
+
 
   // Category click handler that clears search
-  const handleCategoryClick = (categoryName) => {
-    setActiveCategory(categoryName);
-    setSearchInputValue('');     
-    setSearchQuery('');          
-    setSearchResults([]);        
-  };
+  // const handleCategoryClick = (categoryName) => {
+  //   setActiveCategory(categoryName);
+  //   setSearchInputValue('');     
+  //   setSearchQuery('');          
+  //   setSearchResults([]);        
+  // };
 
   // Function to call Gemini API with better error handling
-  const callGeminiAPI = async (prompt) => {
+  const callGeminiAPI = useCallback(async (prompt) => {
     try {
       console.log('Calling Gemini API with prompt:', prompt);
       
@@ -139,10 +141,10 @@ const CareerPathWebsite = () => {
       console.error('API call failed:', error);
       throw error;
     }
-  };
+  }, [GEMINI_API_KEY]);
 
   // Function to fetch careers for a specific category (FETCHES 10 CAREERS)
-  const fetchCategoryData = async (categoryName) => {
+  const fetchCategoryData = useCallback(async (categoryName) => {
     if (categoryName === 'All' || categoryData[categoryName]) return;
 
     setCategoryLoading(prev => ({ ...prev, [categoryName]: true }));
@@ -246,7 +248,7 @@ Ensure the response is ONLY the JSON content, without any additional text or exp
     } finally {
       setCategoryLoading(prev => ({ ...prev, [categoryName]: false }));
     }
-  };
+  },[callGeminiAPI, categoryData]);
 
   // Auto-fetch all categories on initial load
   useEffect(() => {
@@ -279,13 +281,13 @@ Ensure the response is ONLY the JSON content, without any additional text or exp
     };
 
     fetchAllCategories();
-  }, []);
+  }, [categories, fetchCategoryData]);
 
   useEffect(() => {
     if (activeCategory !== 'All' && initialLoadComplete) {
       fetchCategoryData(activeCategory);
     }
-  }, [activeCategory, initialLoadComplete]);
+  }, [activeCategory, initialLoadComplete, fetchCategoryData]);
 
   const getAllCareers = () => {
     if (activeCategory === 'All') {
@@ -532,13 +534,14 @@ Requirements:
           
           for (const line of recLines) {
             const trimmedLine = line.trim();
-            if (/^[•\-\*]/.test(trimmedLine)) {
-              const rec = trimmedLine.replace(/^[•\-\*]\s*/, '').trim();
+            if (/^[•\-*]/.test(trimmedLine)) {
+              const rec = trimmedLine.replace(/^[•\-*]\s*/, '').trim();
               if (rec.length > 10) {
                 recommendations.push(rec);
               }
             }
           }
+
         }
 
         // Ensure we have phases

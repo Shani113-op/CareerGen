@@ -1,19 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/Home.css';
 import { motion } from 'framer-motion';
-// Import images
-import softwareEngineerImg from '../assets/software_engineer.jpg';
-import uix_designer from '../assets/uix_designer.jpg';
-import doctor from '../assets/doctor.jpg';
-import teacher from '../assets/teacher.jpg';
-import accountant from '../assets/accountant.jpg';
-import research_scientist from '../assets/research_scientist.jpg';
-import civil from '../assets/civil.jpg';
-import journalist from '../assets/journalist.jpg';
-import interior_designer from '../assets/interior_designer.jpg';
-import business_analyst from '../assets/business_analyst.jpg';
-import lawyer from '../assets/lawyer.jpg';
-import chef from '../assets/chef.jpg';
 import hero_section from '../assets/hero_section.jpg';
 import { useNavigate } from 'react-router-dom';
 
@@ -35,7 +22,6 @@ import {
   ArrowRight,
   CheckCircle,
   TrendingUp,
-  Award,
   Clock
 } from 'lucide-react';
 // Mock data for careers
@@ -106,8 +92,8 @@ const testimonials = [
 ];
 
 const Home = () => {
-  const [careers, setCareers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [ , setCareers] = useState([]);
+  const [ , setLoading] = useState(true);
   const [currentText, setCurrentText] = useState(0);
   const navigate = useNavigate();
 
@@ -122,26 +108,26 @@ const Home = () => {
       setCurrentText((prev) => (prev + 1) % heroTexts.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [heroTexts.length]);
   // Robust fuzzy matching for career titles
-  const getImageForCareer = (title) => {
-    const key = title?.toLowerCase().trim();
+  // const getImageForCareer = (title) => {
+  //   const key = title?.toLowerCase().trim();
 
-    if (key.includes('software') || key.includes('developer')) return softwareEngineerImg;
-    if (key.includes('ui') || key.includes('ux') || key.includes('designer')) return uix_designer;
-    if (key.includes('doctor') || key.includes('medical')) return doctor;
-    if (key.includes('teacher') || key.includes('educator')) return teacher;
-    if (key.includes('accountant') || key.includes('ca')) return accountant;
-    if (key.includes('scientist') || key.includes('data') || key.includes('research')) return research_scientist;
-    if (key.includes('civil')) return civil;
-    if (key.includes('journalist') || key.includes('media')) return journalist;
-    if (key.includes('interior')) return interior_designer;
-    if (key.includes('analyst') || key.includes('business')) return business_analyst;
-    if (key.includes('lawyer') || key.includes('legal')) return lawyer;
-    if (key.includes('chef') || key.includes('cook')) return chef;
+  //   if (key.includes('software') || key.includes('developer')) return softwareEngineerImg;
+  //   if (key.includes('ui') || key.includes('ux') || key.includes('designer')) return uix_designer;
+  //   if (key.includes('doctor') || key.includes('medical')) return doctor;
+  //   if (key.includes('teacher') || key.includes('educator')) return teacher;
+  //   if (key.includes('accountant') || key.includes('ca')) return accountant;
+  //   if (key.includes('scientist') || key.includes('data') || key.includes('research')) return research_scientist;
+  //   if (key.includes('civil')) return civil;
+  //   if (key.includes('journalist') || key.includes('media')) return journalist;
+  //   if (key.includes('interior')) return interior_designer;
+  //   if (key.includes('analyst') || key.includes('business')) return business_analyst;
+  //   if (key.includes('lawyer') || key.includes('legal')) return lawyer;
+  //   if (key.includes('chef') || key.includes('cook')) return chef;
 
-    return softwareEngineerImg; // Default fallback
-  };
+  //   return softwareEngineerImg; // Default fallback
+  // };
 
   const API = process.env.REACT_APP_API_URL;
 
@@ -156,7 +142,7 @@ const Home = () => {
         console.error('Error fetching careers:', err);
         setLoading(false);
       });
-  }, [API]);
+  }, [API, setCareers, setLoading]);
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -316,7 +302,6 @@ const HowItWorksSection = () => {
 
 const CareerCard = ({ career, index }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const navigate = useNavigate();
 
   return (
     <div
@@ -356,7 +341,6 @@ const CareerCard = ({ career, index }) => {
 const PopularCareersSection = () => {
   const [loading, setLoading] = useState(true);
   const [careers, setCareers] = useState([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Simulate API call

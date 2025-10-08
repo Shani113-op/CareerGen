@@ -8,7 +8,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPopup, setShowPopup] = useState(false);
+  const [ , setShowPopup] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();

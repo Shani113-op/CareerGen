@@ -36,7 +36,7 @@ export const calculateFinalAmount = (cart, yearlyPurchases, calculateYearTotalWi
     
     Object.keys(yearlyPurchases).forEach(yearKey => {
         if (yearlyPurchases[yearKey]) {
-            const [uni, branch, year] = yearKey.split('-');
+            const [branch, year] = yearKey.split('-');
             // Find the courseData for this university
             const universityData = Object.values(courseData).find(data => 
                 Object.keys(data.branches).includes(branch)

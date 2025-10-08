@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ChevronRight, ChevronLeft, BarChart3, Trophy, BookOpen, Play, Home, X, TrendingUp } from 'lucide-react';
 
 const CareerQuiz = () => {

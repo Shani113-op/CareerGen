@@ -1,6 +1,5 @@
-import React from 'react';
 import { ChevronDown, ChevronRight, Check, Plus } from 'lucide-react';
-import { calculateSemesterTotal, calculateYearTotal, calculateYearTotalWithDiscount } from './../../../utils/cartUtils';
+import { calculateSemesterTotal, calculateYearTotal} from './../../../utils/cartUtils';
 
 const YearSemesterView = ({
     courseData,

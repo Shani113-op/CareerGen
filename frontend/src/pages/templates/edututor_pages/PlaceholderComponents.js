@@ -1,9 +1,4 @@
-import React from 'react';
-import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-
 const PlaceholderPage = ({ title }) => {
-    const navigate = useNavigate();
 
     return (
         <div className="max-w-5xl mx-auto text-center">

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/AdminDashboard.css';
-import { FaPassport } from 'react-icons/fa';
 
 const CLOUDINARY_UPLOAD_PRESET = 'unsigned_receipts';
 const CLOUDINARY_CLOUD_NAME = 'dvxsgxp3f';

@@ -95,10 +95,15 @@ export default function InterestForm() {
       });
 
       if (Array.isArray(res.data.careers)) {
-        setCareers(res.data.careers);
-        setShowCareers(true);
+        // ⏳ Add a fake 1 sec delay before showing careers
+        setTimeout(() => {
+          setCareers(res.data.careers);
+          setShowCareers(true);
+          setLoading(false); // stop loader after delay
+        }, 1000);
       } else {
         setErrorMsg("⚠️ Received unexpected response. Please try again.");
+        setLoading(false);
       }
     } catch (err) {
       console.error(err);
@@ -106,17 +111,17 @@ export default function InterestForm() {
         setErrorMsg("⚠️ You've hit your free quota limit. Try again later or reduce selections.");
       } else {
         setErrorMsg(
-  <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded-md mt-4 text-center">
-    😔 Sorry! We couldn’t fetch recommendations right now.<br />
-    🚀 Don’t worry, we’ll fix this issue quickly, please try again soon.
-  </div>
-);
+          <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded-md mt-4 text-center">
+            😔 Sorry! We couldn’t fetch recommendations right now.<br />
+            🚀 Don’t worry, we’ll fix this issue quickly, please try again soon.
+          </div>
+        );
       }
-    } finally {
       setLoading(false);
     }
   };
 
+  // ✅ keep this outside handleSuggest but inside InterestForm
   const filteredCareers = careers.filter(c =>
     activeCategory === "All" || c.category === activeCategory
   );
@@ -124,6 +129,7 @@ export default function InterestForm() {
   if (pageLoading) {
     return <PageLoader />; // ✅ page loader
   }
+
 
   return (
     <div className="interest-page-container">
@@ -176,45 +182,80 @@ export default function InterestForm() {
             ))}
           </div>
 
-          <div className="career-list">
+          <div className="career-list grid gap-6 sm:grid-cols-1 md:grid-cols-2">
             {filteredCareers.map((career, index) => (
-              <div className="career-card" key={index}>
-                <h4>{career.title}</h4>
-                <span className="badge">{career.category}</span>
-                <p>{career.description}</p>
+              <div
+                key={index}
+                className="career-card bg-white rounded-2xl shadow-lg p-6 border border-gray-100 
+                 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+              >
+                {/* Header */}
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="text-2xl font-bold text-gray-800">{career.title}</h4>
+                  <span className="badge text-xs px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 font-semibold">
+                    {career.category}
+                  </span>
+                </div>
 
-                <div className="career-grid">
+                {/* Description */}
+                <p className="text-gray-600 text-sm mb-6">{career.description}</p>
+
+                {/* Info Grid (2 Columns) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+
+                  {/* Skills */}
                   <div>
-                    <h5>Required Skills</h5>
-                    {career.skills?.map(skill => (
-                      <span className="tag" key={skill}>{skill}</span>
-                    ))}
+                    <h5 className="font-semibold text-indigo-600 mb-2">Required Skills</h5>
+                    <div className="flex flex-wrap gap-2">
+                      {career.skills?.map(skill => (
+                        <span
+                          key={skill}
+                          className="bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md text-xs font-medium"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
                   </div>
+
+                  {/* Education Roadmap */}
                   <div>
-                    <h5>Education Roadmap</h5>
-                    <ul>
+                    <h5 className="font-semibold text-green-600 mb-2">Education Roadmap</h5>
+                    <ul className="list-disc list-inside text-gray-700 space-y-1">
                       {career.roadmap?.map((step, idx) => (
-                        <li key={idx}>→ {step}</li>
+                        <li key={idx}>{step}</li>
                       ))}
                     </ul>
                   </div>
+
+                  {/* Salary & Growth */}
                   <div>
-                    <h5>Salary & Growth</h5>
-                    <div className="salary-box">
-                      <strong>{career.salary}</strong>
-                      <p>Growth potential varies by field</p>
+                    <h5 className="font-semibold text-pink-600 mb-2">Salary & Growth</h5>
+                    <div className="bg-pink-50 border border-pink-200 rounded-lg p-3">
+                      <strong className="block text-pink-700">{career.salary}</strong>
+                      <p className="text-xs text-gray-500">Growth potential varies by field</p>
                     </div>
                   </div>
+
+                  {/* Top Colleges */}
                   <div>
-                    <h5>Top Colleges</h5>
-                    {career.colleges?.map(c => (
-                      <span className="tag green" key={c}>{c}</span>
-                    ))}
+                    <h5 className="font-semibold text-yellow-600 mb-2">Top Colleges</h5>
+                    <div className="flex flex-wrap gap-2">
+                      {career.colleges?.map(c => (
+                        <span
+                          key={c}
+                          className="bg-yellow-50 text-yellow-700 px-2 py-1 rounded-md text-xs font-medium"
+                        >
+                          {c}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
           </div>
+
         </div>
       )}
 

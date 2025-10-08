@@ -58,14 +58,28 @@ const BookSlot = () => {
         return;
       }
 
+      // ✅ Get logged-in user info
+      const userData = JSON.parse(localStorage.getItem('user'));
+      if (!userData) {
+        alert('User data not found. Please log in again.');
+        return;
+      }
+
+      const userEmail = userData.email;
+      const userPhone = userData.mobile;  // ✅ fix: take phone from user object
+      const userName = userData.name || 'User';
+
       const res = await axios.post(
         `${API}/api/book-consultant`,
         {
+          consultantId: consultant._id,   // ✅ include consultantId as well
           consultantEmail: consultant.email,
           consultantName: consultant.name,
           date,
           time,
           userEmail,
+          userPhone,  // ✅ now defined
+          userName    // ✅ include userName for email
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -73,19 +87,21 @@ const BookSlot = () => {
       if (res.data?.message?.includes('Slot booked')) {
         alert('✅ Appointment booked successfully!');
         navigate('/history');
-        await fetchBookedSlots(); // 🔹 refresh booked slots
+        await fetchBookedSlots();
       } else {
         alert(res.data?.message || '❌ Something went wrong');
         await fetchBookedSlots();
       }
     } catch (err) {
-      console.error('Booking error:', err.message);
+      console.error('Booking error:', err.response?.data || err.message);
       alert('Slot already booked');
       await fetchBookedSlots();
     } finally {
       setIsBooking(false);
     }
   };
+
+
 
   const availableTimes = [
 
@@ -97,7 +113,7 @@ const BookSlot = () => {
     '06:00 PM',
     '07:00 PM',
     '08:00 PM',
-    
+
   ];
 
   // 🔹 Utility: Check if a slot is in the past for today's date

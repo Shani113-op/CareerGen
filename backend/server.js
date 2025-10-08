@@ -17,7 +17,6 @@ const Booking = require('./models/Booking');
 const cron = require('node-cron');
 const moment = require('moment');
 
-
 // Load env variables
 dotenv.config();
 
@@ -153,42 +152,61 @@ app.post('/api/auth/verify-otp', async (req, res) => {
 });
 
 
-// ✅ Login
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("🔎 Login attempt:", { email, password });
 
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ error: 'Invalid credentials' });
+    // 🔹 Check consultant first
+    let account = await Consultant.findOne({ email });
+    let role = "consultant";
 
-    // 🔐 Optional: check if verified
-    if (!user.isVerified) {
-      return res.status(403).json({ error: 'Please verify your email before logging in' });
+    if (!account) {
+      // 🔹 If not found, check user
+      account = await User.findOne({ email });
+      role = "user";
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
+    if (!account) {
+      console.log("❌ No account found for:", email);
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+    console.log("✅ Account found in collection:", role);
+    console.log("👉 Stored password hash in DB:", account.password);
+
+    const isMatch = await bcrypt.compare(password, account.password);
+    console.log("🔑 Password match result:", isMatch);
+
+    if (!isMatch) {
+      console.log("❌ Password mismatch for:", email);
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign({ userId: account._id, role }, process.env.JWT_SECRET, {
       expiresIn: '7d'
     });
+
+    console.log("🎉 Login successful for:", email, "Role:", role);
 
     res.json({
       message: 'Login successful',
       token,
+      role,
       user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        mobile: user.mobile,
-        isPremium: !!user.premiumPlan && new Date(user.premiumExpiresAt) > new Date()
+        id: account._id,
+        name: account.name,
+        email: account.email,
+        ...(role === "user" && { mobile: account.mobile })
       }
     });
   } catch (err) {
-    console.error('Login error:', err.message);
+    console.error('🔥 Login error:', err.message);
     res.status(500).json({ error: 'Server error' });
   }
 });
+
+
 
 // =====================
 
@@ -407,60 +425,32 @@ app.post('/api/chat', async (req, res) => {
 });
 
 
-// ✅ Career Recommendation using OpenRouter
-app.post('/api/recommend', async (req, res) => {
+
+
+// ✅ Correct way: relative to server.js file
+const filePath = path.join(__dirname, "data", "careersInterest.json");
+
+app.post("/api/recommend", (req, res) => {
   const { interests } = req.body;
 
   if (!interests || interests.length === 0) {
-    return res.status(400).json({ error: 'Interests are required' });
+    return res.status(400).json({ error: "Interests are required" });
   }
 
-  const prompt = `Suggest 10 suitable career options for a student with the following interests: ${interests.join(', ')}.
-Return ONLY a JSON array like this (no explanation, no markdown):
+  const careersData = JSON.parse(fs.readFileSync(filePath, "utf-8"));
 
-[
-  {
-    "title": "Career Title",
-    "category": "Category",
-    "description": "Short description",
-    "skills": ["Skill1", "Skill2"],
-    "roadmap": ["Step1", "Step2"],
-    "salary": "₹X–Y LPA",
-    "colleges": ["College1", "College2"]
-  }
-]`;
+  const matched = careersData.filter(career =>
+    interests.some(interest =>
+      career.skills.some(skill =>
+        skill.toLowerCase().includes(interest.toLowerCase())
+      ) ||
+      career.category.toLowerCase().includes(interest.toLowerCase())
+    )
+  );
 
-  try {
-    const response = await axios.post(
-      'https://openrouter.ai/api/v1/chat/completions',
-      {
-        model: 'anthropic/claude-3-haiku',
-        messages: [{ role: 'user', content: prompt }]
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-
-    let raw = response.data.choices[0].message.content.trim();
-    raw = raw.replace(/^```json/, '').replace(/^```/, '').replace(/```$/, '').trim();
-
-    try {
-      const parsedCareers = JSON.parse(raw);
-      res.json({ careers: parsedCareers });
-    } catch (parseError) {
-      console.error('❌ JSON parsing error:', parseError);
-      res.status(500).json({ error: '❌ AI response was not valid JSON.', rawText: raw });
-    }
-
-  } catch (error) {
-    console.error('OpenRouter Recommend Error:', error?.response?.data || error.message);
-    res.status(500).json({ error: 'Failed to generate recommendations.' });
-  }
+  res.json({ careers: matched.length > 0 ? matched : careersData.slice(0, 5) });
 });
+
 
 // ✅ TOP COLLEGES ROUTE using OpenRouter
 app.post('/api/colleges', async (req, res) => {
@@ -992,8 +982,8 @@ app.post('/api/book-consultant', async (req, res) => {
     if (!user) return res.status(401).json({ message: 'Invalid user' });
 
     // 🔹 Extract booking data
-    const { consultantEmail, consultantName, date, time, userEmail } = req.body;
-    if (!consultantEmail || !date || !time || !userEmail ) {
+    const { consultantEmail, consultantName, date, time,userPhone, userEmail , userName } = req.body;
+    if (!consultantEmail || !date || !time || !userEmail || !userPhone) {
       return res.status(400).json({ message: 'Missing booking details' });
     }
 
@@ -1007,7 +997,9 @@ app.post('/api/book-consultant', async (req, res) => {
     const alreadyBooked = await Booking.findOne({
       consultantId: consultant._id,
       date,
-      time
+      time,
+      userEmail,
+      userName
     });
 
     console.log(await Booking.find({ date, time, consultantId: consultant._id }));
@@ -1023,7 +1015,9 @@ app.post('/api/book-consultant', async (req, res) => {
       consultantName,
       date,
       time,
-      userEmail
+      userPhone,
+      userEmail,
+      userName,
     });
     await newBooking.save();
 
@@ -1558,6 +1552,130 @@ app.post("/api/user/update-profile", async (req, res) => {
   }
 });
 
+
+app.get("/api/bookings/consultant/:consultantId", async (req, res) => {
+  try {
+    const { consultantId } = req.params;
+    const bookings = await Booking.find({ consultantId }).sort({ date: 1, time: 1 });
+    res.json(bookings);
+  } catch (err) {
+    console.error("Error fetching consultant bookings:", err.message);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.put("/api/bookings/:id/accept", async (req, res) => {
+  try {
+    const booking = await Booking.findByIdAndUpdate(
+      req.params.id,
+      { status: "accepted" },
+      { new: true }
+    );
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    res.json({ message: "Booking accepted", booking });
+  } catch (err) {
+    console.error("Accept booking error:", err.message);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.put("/api/bookings/:id/reject", async (req, res) => {
+  try {
+    const booking = await Booking.findByIdAndUpdate(
+      req.params.id,
+      { status: "rejected" },
+      { new: true }
+    );
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    res.json({ message: "Booking rejected", booking });
+  } catch (err) {
+    console.error("Reject booking error:", err.message);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.put("/api/bookings/:id/accept", async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    booking.status = "accepted";
+    await booking.save();
+
+    const user = await User.findOne({ email: booking.userEmail });
+
+    const mailOptions = {
+      from: `"Career GenAI" <${process.env.EMAIL_USER}>`,
+      to: booking.userEmail,
+      subject: "✅ Appointment Accepted",
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; background: #f9fafb;">
+          <div style="max-width: 600px; margin: auto; background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h2 style="color: #16a34a;">Your Appointment is Confirmed</h2>
+            <p>Dear ${user?.name || "User"},</p>
+            <p>Your booking with <strong>${booking.consultantName}</strong> has been <strong>accepted</strong>.</p>
+            <p><strong>Date:</strong> ${booking.date}<br/>
+               <strong>Time:</strong> ${booking.time}</p>
+            <p>Please be on time for your consultation.</p>
+            <hr />
+            <p style="font-size: 12px; color: gray;">© ${new Date().getFullYear()} CareerGenAI</p>
+          </div>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.json({ message: "Booking accepted and email sent to user", booking });
+  } catch (error) {
+    console.error("Error accepting booking:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// REJECT BOOKING
+app.put("/api/bookings/:id/reject", async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    booking.status = "rejected";
+    await booking.save();
+
+    const user = await User.findOne({ email: booking.userEmail });
+
+    const mailOptions = {
+      from: `"Career GenAI" <${process.env.EMAIL_USER}>`,
+      to: booking.userEmail,
+      subject: "❌ Appointment Rejected",
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; background: #f9fafb;">
+          <div style="max-width: 600px; margin: auto; background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h2 style="color: #dc2626;">Your Appointment was Rejected</h2>
+            <p>Dear ${user?.name || "User"},</p>
+            <p>Unfortunately, your booking with <strong>${booking.consultantName}</strong> on <strong>${booking.date}</strong> at <strong>${booking.time}</strong> has been <strong>rejected</strong>.</p>
+            <p>You can try booking another available slot.</p>
+            <hr />
+            <p style="font-size: 12px; color: gray;">© ${new Date().getFullYear()} CareerGenAI</p>
+          </div>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.json({ message: "Booking rejected and email sent to user", booking });
+  } catch (error) {
+    console.error("Error rejecting booking:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 
 

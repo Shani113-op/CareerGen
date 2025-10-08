@@ -221,6 +221,26 @@ body {
   position: relative;
 }
 
+/* Close button styling */
+.clos-btn {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  font-size: 26px;
+  font-weight: bold;
+  color: #333;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  line-height: 1;
+}
+
+.clos-btn:hover {
+  color: #ff4d4f;   /* turns red on hover */
+  transform: scale(1.2);
+}
+
 @keyframes fadeInSlideUp {
   from {
     opacity: 0;

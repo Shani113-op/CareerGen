@@ -3,57 +3,52 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f4f6fa;
+  background: #f4f6f9;
 }
 
 .verify-otp-box {
-  background-color: white;
-  padding: 2rem 2.5rem;
+  background: white;
+  padding: 30px;
   border-radius: 12px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
   text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 350px;
 }
 
-.verify-otp-box h2 {
-  margin-bottom: 0.5rem;
-  color: #333;
+.otp-inputs {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
 }
 
-.verify-otp-box p {
-  font-size: 0.95rem;
-  margin-bottom: 1.5rem;
-  color: #666;
-}
-
-.verify-otp-box input {
-  width: 100%;
-  padding: 0.75rem;
-  margin-bottom: 1.2rem;
-  border: 1px solid #ccc;
+.otp-box {
+  width: 45px;
+  height: 55px;
+  font-size: 20px;
+  text-align: center;
+  border: 2px solid #007bff;
   border-radius: 8px;
-  font-size: 1rem;
   outline: none;
-  transition: border-color 0.3s ease;
+  transition: 0.2s;
 }
 
-.verify-otp-box input:focus {
-  border-color: #4a90e2;
+.otp-box:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
 }
 
-.verify-otp-box button {
+button {
   width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  background-color: #4a90e2;
-  color: white;
+  padding: 12px;
+  font-size: 16px;
   border: none;
+  background: #007bff;
+  color: white;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: 0.3s;
 }
 
-.verify-otp-box button:hover {
-  background-color: #3d7ccd;
+button:hover {
+  background: #0056b3;
 }

@@ -3,11 +3,12 @@ import { Search, Zap, AlertCircle, Brain, Target, Lightbulb, Star, Users, Trendi
 
 const CareerDifferencesAnalyzer = () => {
   // Replace with your actual API key
-  const GEMINI_API_KEY = 'AIzaSyDsy3SmY3xLp1-RHvx2xXDx0PTgVxe9e3M';
+  const GEMINI_API_KEY = 'AIzaSyCuB6uytiwKSubeURXEW-YQOfvu-hagPgk';
   
   const [career1, setCareer1] = useState('');
   const [career2, setCareer2] = useState('');
   const [analysis, setAnalysis] = useState(null);
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
@@ -27,7 +28,7 @@ const CareerDifferencesAnalyzer = () => {
     'Real Estate Agent', 'Bank Manager', 'Insurance Agent', 'Stock Broker', 'Credit Analyst',
     'Police Officer', 'Firefighter', 'Military Officer', 'Government Officer', 'Diplomat',
     'Psychologist', 'Social Worker', 'Counselor', 'Therapist', 'Life Coach',
-    'Entrepreneur', 'Business Owner', 'Startup Founder', 'Freelancer', 'Consultant'
+    'Entrepreneur', 'Business Owner', 'Startup Founder', 'Freelancer', 'Consultant', 'Mbbs', 'Engineering'
   ]);
 
   const [filteredSuggestions1, setFilteredSuggestions1] = useState([]);

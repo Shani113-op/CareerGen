@@ -368,7 +368,7 @@ export const staticColleges = [
         "ranking": 119,
         "location": "Vidyavihar, Lonere, Raigad district, Maharashtra – PIN 402103. A rural campus spanning ~525 acres in the Western Ghats, ~20 km north of Mahad, ~10 km south of Mangaon",
         "course": "B.Tech ",
-        "type": "Public state technological university, statutory and unitary. Became affiliating university (Maharashtra-wide) in March 2016.",
+        "type": "aPublic state technological university, statutory and unitary. Became affiliating university (Maharashtra-wide) in March 2016.",
         "affiliation": "Recognized by UGC, member of AIU, Approved by AICTE, NAAC-accredited (“B” grade)",
         "fees": "~₹83,880/year",
         "placementRate": "70%",

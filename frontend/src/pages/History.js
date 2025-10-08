@@ -83,19 +83,19 @@ const History = () => {
     });
   };
 
-const formatDateTime = (dateTime) => {
-  const parsed = new Date(dateTime);
-  if (parsed.toString() === "Invalid Date") return "N/A";
+  const formatDateTime = (dateTime) => {
+    const parsed = new Date(dateTime);
+    if (parsed.toString() === "Invalid Date") return "N/A";
 
-  return parsed.toLocaleString("en-IN", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
-};
+    return parsed.toLocaleString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
 
 
   const getDaysLeft = () => {
@@ -129,8 +129,8 @@ const formatDateTime = (dateTime) => {
         <button
           onClick={() => setActiveTab("payment")}
           className={`px-4 py-2 rounded-md font-medium ${activeTab === "payment"
-              ? "bg-blue-600 text-white"
-              : "bg-gray-200 text-gray-700"
+            ? "bg-blue-600 text-white"
+            : "bg-gray-200 text-gray-700"
             }`}
         >
           🧾 Payment History
@@ -138,8 +138,8 @@ const formatDateTime = (dateTime) => {
         <button
           onClick={() => setActiveTab("counselling")}
           className={`px-4 py-2 rounded-md font-medium ${activeTab === "counselling"
-              ? "bg-blue-600 text-white"
-              : "bg-gray-200 text-gray-700"
+            ? "bg-blue-600 text-white"
+            : "bg-gray-200 text-gray-700"
             }`}
         >
           👩‍🏫 Counselling Booking History
@@ -215,6 +215,7 @@ const formatDateTime = (dateTime) => {
                     <th className="border p-2">Date</th>
                     <th className="border p-2">Time</th>
                     <th className="border p-2">Booked On</th>
+                    <th className="border p-2">Status</th> {/* ✅ New Column */}
                   </tr>
                 </thead>
                 <tbody>
@@ -223,7 +224,24 @@ const formatDateTime = (dateTime) => {
                       <td className="border p-2">{booking.consultantName}</td>
                       <td className="border p-2">{formatDate(booking.date)}</td>
                       <td className="border p-2">{booking.time}</td>
-                    <td className="border p-2">{formatDateTime(booking.createdAt)}</td> {/* Show both date & time */}
+                      <td className="border p-2">{formatDateTime(booking.createdAt)}</td>
+                      <td className="border p-2">
+                        {booking.status === "accepted" && (
+                          <span className="px-2 py-1 rounded bg-green-100 text-green-700 font-semibold">
+                            Accepted ✅
+                          </span>
+                        )}
+                        {booking.status === "rejected" && (
+                          <span className="px-2 py-1 rounded bg-red-100 text-red-700 font-semibold">
+                            Rejected ❌
+                          </span>
+                        )}
+                        {booking.status === "pending" && (
+                          <span className="px-2 py-1 rounded bg-yellow-100 text-yellow-700 font-semibold">
+                            Pending ⏳
+                          </span>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -234,6 +252,7 @@ const formatDateTime = (dateTime) => {
           )}
         </>
       )}
+
 
       {/* Modal for receipt full view */}
       {modalImg && (

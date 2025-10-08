@@ -69,7 +69,7 @@ const Chat = () => {
   // ✅ Try static match first
   const inputLC = input.toLowerCase().trim();
 
-const greetings = ["hi", "hello", "hey", "good morning", "good evening"];
+const greetings = ["hi","hii", "hello", "hey", "good morning", "good evening"];
   if (greetings.includes(inputLC)) {
     setMessages((prev) => [
       ...prev,

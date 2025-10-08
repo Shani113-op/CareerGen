@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/AdminDashboard.css';
+import { FaPassport } from 'react-icons/fa';
 
 const CLOUDINARY_UPLOAD_PRESET = 'unsigned_receipts';
 const CLOUDINARY_CLOUD_NAME = 'dvxsgxp3f';
@@ -14,6 +15,7 @@ const RegisterConsultant = () => {
     experience: '',
     bio: '',
     email: '',
+    password: '',
     image: '',
     availability: ['']
   });
@@ -91,7 +93,7 @@ const RegisterConsultant = () => {
       <div className="register-modal">
         <header className="modal-header">
           <h2>Register Consultant</h2>
-          <button className="close-btn" onClick={() => navigate('/admin-dashboard')}>×</button>
+          <span className="clos-btn" onClick={() => navigate('/admin-dashboard')}>×</span>
         </header>
 
         <form onSubmit={handleSubmit} className="modal-form">
@@ -102,6 +104,7 @@ const RegisterConsultant = () => {
           <input name="experience" value={form.experience} onChange={handleChange} placeholder="Years of Experience" required />
           <textarea name="bio" value={form.bio} onChange={handleChange} placeholder="Short Bio" required />
           <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="Email" required />
+          <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Password" required />
 
           <p className="form-section-label">Upload Image</p>
           <div className="upload-section">

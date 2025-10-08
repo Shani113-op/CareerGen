@@ -3,8 +3,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-// import Chatbot from './components/Chatbot';
-// import MobileCSS from './components/MobileCSS';
+import Chatbot from './components/chatbot';
+import MobileCSS from './components/MobileCSS';
 import Home from './pages/Home';
 import Chat from './pages/Chat';
 import InterestForm from './pages/InterestForm';
@@ -39,11 +39,16 @@ import PortfolioBuilder from './pages/templates/PortfolioBuilder';
 import CoverLetterBuilder from './pages/templates/CoverLetterBuilder';
 import { ResumeProvider } from './context/ResumeContext';
 import BookSlot from './pages/BookSlot';
-import ForgotPassword from "./pages/ForgotPassword"; // adjust path
-
+import ForgotPassword from "./pages/ForgotPassword";
+import ConsultantDashboard from './pages/ConsultantDashboard';
 
 // Import from cleaned AllComponents.jsx
 import { ResumeBuilderPage, Template1, Template2, Template3, Template4, Template5, Template6 } from './AllComponents';
+
+// ✅ Import EduTutor Components
+import EduTutor from './pages/EduTutor';
+import EngineeringCourseCatalog from './pages/templates/edututor_pages/EngineeringCourseCatalog';
+import { MbbsCourseCatalog, MbaCourseCatalog } from './pages/templates/edututor_pages/PlaceholderComponents';
 
 const Layout = () => {
   const location = useLocation();
@@ -51,7 +56,7 @@ const Layout = () => {
 
   return (
     <>
-      
+      <MobileCSS />
       <Navbar />
       <main className="app-content">
         <Routes>
@@ -112,19 +117,23 @@ const Layout = () => {
                     { id: 'template4', name: 'Template 4', preview: 'template 4.png', category: 'Elegant' },
                     { id: 'template5', name: 'Template 5', preview: 'template 5.png', category: 'Elegant' },
                     { id: 'template6', name: 'Template 6', preview: 'template 6.png', category: 'Elegant' }
-
                   ]}
                 />
               </ResumeProvider>
             }
           />
 
+          {/* ✅ EduTutor Routes */}
+          <Route path="/edu-tutor" element={<EduTutor />} />
+          <Route path="/engineering" element={<EngineeringCourseCatalog />} />
+          <Route path="/mbbs" element={<MbbsCourseCatalog />} />
+          <Route path="/mba" element={<MbaCourseCatalog />} />
 
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
       {isHomePage && <Footer />}
-    
+      <Chatbot />
     </>
   );
 };
@@ -133,6 +142,7 @@ const App = () => (
   <Router>
     <Routes>
       <Route path="/admin-dashboard" element={<AdminDashboard />} />
+      <Route path="/consultant-dashboard" element={<ConsultantDashboard />} />
       <Route path="*" element={<Layout />} />
     </Routes>
   </Router>

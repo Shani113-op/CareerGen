@@ -36,6 +36,13 @@ const services = [
     path: "/chat",
     badge: "New",
   },
+    {
+    icon: <FaRobot />,
+    title: "EduTutor",
+    description: "Your semester, your mentor. Tuition and teaching made easy",
+    path: "/edu-tutor",
+    badge: "New",
+  },
   {
     icon: <FaUserTie />,
     title: "Career Counselling",

@@ -9,6 +9,12 @@ const bookingSchema = new mongoose.Schema(
     date: { type: String, required: true }, // Format: YYYY-MM-DD
     time: { type: String, required: true }, // Format: "10:00 AM"
     userEmail: { type: String, required: true },
+    userPhone: { type: String, required: true },
+    status: { 
+      type: String, 
+      enum: ["pending", "accepted", "rejected"], 
+      default: "pending" 
+    },
   },
   { timestamps: true }
 );

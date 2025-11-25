@@ -58,7 +58,7 @@ const CareerQuiz = () => {
       setCurrentQuoteIndex((prev) => (prev + 1) % quotes.length);
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [quotes.length]);
 
 
   const questions = [

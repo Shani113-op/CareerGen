@@ -9576,7 +9576,6 @@ export const roadmaps = {
   "Marine Engineer": marineEngineerData,
   "Lawyer": lawyerData,
   "Journalist": journalistData,
-  "Content Writer": contentWriterData,
   "Travel Blogger": travelBloggerData,
   "Copywriter": copywriterData,
   "Chef": chefData,
